@@ -38,7 +38,7 @@
 
   /* ---------- Reveal on scroll ---------- */
   var revealTargets = document.querySelectorAll(
-    ".section-head, .toolkit-showcase, .module, .service, .about-copy, .about-visual, .sector, .contact-copy, .contact-form"
+    ".section-head, .toolkit-showcase, .module, .service, .program, .program-thesis, .program-status, .about-copy, .about-visual, .sector, .contact-copy, .contact-form"
   );
   if ("IntersectionObserver" in window && !reduceMotion) {
     revealTargets.forEach(function (el, i) {

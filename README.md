@@ -2,7 +2,9 @@
 
 Single-page marketing site for Nadirion, a cybersecurity firm offering the Cyber
 Operations Toolkit alongside consulting, training, threat intelligence, digital
-forensics, general consulting and sales advisory, and IT training services.
+forensics, general consulting and sales advisory, and IT training services. The site
+also covers the platforms program: 3D printed CubeSat satellites, maritime drones, and
+aerial drones currently in development.
 
 ## Design
 
@@ -22,8 +24,9 @@ assets/js/main.js     nav, scroll reveal, starfield canvas, contact form
 assets/img/           logo mark and favicon (SVG)
 ```
 
-Sections run in order: hero, Cyber Operations Toolkit (flagship), services, about,
-who we serve, and contact.
+Sections run in order: hero, Cyber Operations Toolkit (flagship), services, platforms,
+about, who we serve, and contact. Section eyebrow numbers (01 through 06) follow that
+order, so adding or moving a section means renumbering the ones after it.
 
 ## Development
 
