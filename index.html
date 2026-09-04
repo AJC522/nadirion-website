@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nadirion | Cybersecurity Consulting, Threat Intelligence &amp; Digital Forensics</title>
-  <meta name="description" content="Nadirion provides cybersecurity consulting, threat intelligence, and digital forensics services to government agencies, private organizations, and individuals navigating today's evolving risk landscape." />
+  <title>Nadirion | Cyber Operations Toolkit, Threat Intelligence &amp; Digital Forensics</title>
+  <meta name="description" content="Nadirion builds the Cyber Operations Toolkit and provides cybersecurity consulting, threat intelligence, and digital forensics to government agencies, private organizations, and individuals." />
+  <meta name="theme-color" content="#050506" />
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
@@ -17,128 +18,282 @@
   <header class="site-header" id="top">
     <div class="wrap header-inner">
       <a class="brand" href="#top" aria-label="Nadirion home">
-        <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="26" height="40" />
+        <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="22" height="34" />
         <span class="brand-word">NADIRION</span>
       </a>
 
       <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Toggle navigation menu">
-        <span></span><span></span><span></span>
+        <span></span><span></span>
       </button>
 
       <nav class="primary-nav" id="primaryNav">
+        <a href="#toolkit">Toolkit</a>
         <a href="#services">Services</a>
         <a href="#about">About</a>
         <a href="#sectors">Who We Serve</a>
-        <a href="#contact" class="nav-cta">Contact Us</a>
+        <a href="#contact" class="nav-cta">Request a Briefing</a>
       </nav>
     </div>
   </header>
 
   <main id="main">
     <!-- HERO -->
-    <section class="hero">
-      <div class="hero-bg" aria-hidden="true">
-        <svg class="hero-orbit" viewBox="0 0 800 800" fill="none">
-          <circle cx="400" cy="400" r="240" stroke="currentColor" stroke-width="1"/>
-          <circle cx="400" cy="400" r="340" stroke="currentColor" stroke-width="1"/>
-          <line x1="400" y1="40" x2="400" y2="760" stroke="currentColor" stroke-width="1"/>
-          <line x1="40" y1="400" x2="760" y2="400" stroke="currentColor" stroke-width="1"/>
-        </svg>
-      </div>
+    <section class="hero" aria-labelledby="heroTitle">
+      <canvas class="starfield" id="starfield" aria-hidden="true"></canvas>
+      <div class="hero-glow" aria-hidden="true"></div>
+
       <div class="wrap hero-inner">
-        <p class="eyebrow">Cybersecurity &middot; Threat Intelligence &middot; Digital Forensics</p>
-        <h1>Clarity in a shifting threat landscape.</h1>
-        <p class="hero-lede">
-          Nadirion provides cybersecurity consulting, threat intelligence, and digital forensics
-          services to government agencies, private organizations, and individuals navigating
-          today's evolving risk landscape.
-        </p>
-        <div class="hero-actions">
-          <a href="#contact" class="btn btn-primary">Request a Consultation</a>
-          <a href="#services" class="btn btn-ghost">Explore Our Services</a>
+        <div class="hero-copy">
+          <a class="hero-badge" href="#toolkit">
+            <span class="badge-pulse" aria-hidden="true"></span>
+            <span>Flagship &middot; Cyber Operations Toolkit</span>
+            <span class="badge-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <h1 id="heroTitle">
+            Operate with clarity,<br />
+            <span class="metal">from every angle.</span>
+          </h1>
+          <p class="hero-lede">
+            Nadirion builds the Cyber Operations Toolkit and backs it with practitioner-led
+            consulting, threat intelligence, and digital forensics &mdash; for teams that need
+            to see the whole sky, not just the horizon.
+          </p>
+          <div class="hero-actions">
+            <a href="#toolkit" class="btn btn-primary">Explore the Toolkit</a>
+            <a href="#contact" class="btn btn-ghost">Request a Briefing</a>
+          </div>
+          <ul class="hero-meta" aria-label="Areas of practice">
+            <li>Cyber Operations</li>
+            <li>Threat Intelligence</li>
+            <li>Digital Forensics</li>
+          </ul>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="orbital">
+            <svg class="orbital-rings" viewBox="0 0 600 600" fill="none">
+              <defs>
+                <linearGradient id="ringMetal" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+                  <stop offset="0.5" stop-color="#9a9aa4" stop-opacity="0.35"/>
+                  <stop offset="1" stop-color="#ffffff" stop-opacity="0.8"/>
+                </linearGradient>
+              </defs>
+              <!-- crosshair -->
+              <line x1="300" y1="14" x2="300" y2="586" stroke="rgba(255,255,255,0.12)" stroke-dasharray="2 8"/>
+              <line x1="14" y1="300" x2="586" y2="300" stroke="rgba(255,255,255,0.12)" stroke-dasharray="2 8"/>
+              <!-- static rings -->
+              <circle cx="300" cy="300" r="268" stroke="rgba(255,255,255,0.10)"/>
+              <circle cx="300" cy="300" r="205" stroke="rgba(255,255,255,0.16)"/>
+              <circle cx="300" cy="300" r="138" stroke="rgba(255,255,255,0.22)"/>
+              <circle cx="300" cy="300" r="74" stroke="url(#ringMetal)" stroke-width="1.2"/>
+              <!-- tick marks -->
+              <g stroke="rgba(255,255,255,0.35)" stroke-linecap="round">
+                <line x1="300" y1="26" x2="300" y2="38"/>
+                <line x1="300" y1="562" x2="300" y2="574"/>
+                <line x1="26" y1="300" x2="38" y2="300"/>
+                <line x1="562" y1="300" x2="574" y2="300"/>
+              </g>
+              <!-- orbiting satellites -->
+              <g class="orbit orbit-1">
+                <circle cx="300" cy="32" r="4" fill="#ffffff"/>
+                <circle cx="300" cy="32" r="9" stroke="rgba(255,255,255,0.35)"/>
+              </g>
+              <g class="orbit orbit-2">
+                <circle cx="505" cy="300" r="3" fill="#d6d6dc"/>
+              </g>
+              <g class="orbit orbit-3">
+                <circle cx="300" cy="438" r="2.5" fill="#9a9aa4"/>
+                <path d="M300 438 L300 480" stroke="rgba(255,255,255,0.25)"/>
+              </g>
+              <!-- zenith / nadir labels -->
+              <text x="312" y="24" class="orbit-label">ZENITH</text>
+              <text x="312" y="584" class="orbit-label">NADIR</text>
+            </svg>
+            <img class="orbital-core" src="assets/img/logo-mark.svg" alt="" />
+          </div>
+
+          <div class="hud" role="presentation">
+            <div class="hud-row"><span>Modules</span><strong>06 online</strong></div>
+            <div class="hud-row"><span>Coverage</span><strong>Recon &rarr; Response</strong></div>
+            <div class="hud-row"><span>Deployment</span><strong>On-prem &middot; Air-gapped &middot; Cloud</strong></div>
+          </div>
         </div>
       </div>
+
+      <a class="scroll-cue" href="#toolkit" aria-label="Scroll to the toolkit">
+        <span></span>
+      </a>
     </section>
 
-    <!-- TRUST STRIP -->
-    <section class="trust-strip">
-      <div class="wrap trust-inner">
-        <span>Federal Service Backgrounds</span>
-        <span class="dot" aria-hidden="true">&bull;</span>
-        <span>Defense Consulting Experience</span>
-        <span class="dot" aria-hidden="true">&bull;</span>
-        <span>Critical Infrastructure Protection</span>
+    <!-- FLAGSHIP: CYBER OPERATIONS TOOLKIT -->
+    <section class="toolkit" id="toolkit" aria-labelledby="toolkitTitle">
+      <div class="wrap">
+        <div class="section-head split">
+          <div>
+            <p class="eyebrow"><span class="index">01</span> Flagship Product</p>
+            <h2 id="toolkitTitle">The Nadirion <span class="metal">Cyber Operations Toolkit</span></h2>
+          </div>
+          <p class="section-lede">
+            One integrated platform for the full arc of an operation &mdash; reconnaissance,
+            intelligence fusion, detection and response, forensics, and reporting &mdash; built by
+            operators who have run these missions themselves.
+          </p>
+        </div>
+
+        <div class="toolkit-showcase">
+          <div class="console" aria-hidden="true">
+            <div class="console-bar">
+              <span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span>
+              <span class="console-title">nadirion &middot; ops console</span>
+            </div>
+            <pre class="console-body"><code><span class="c-prompt">nadirion&gt;</span> recon --scope 10.40.0.0/16 --passive
+<span class="c-time">[00:00:01]</span> enumerating assets ................ <span class="c-ok">214 hosts</span>
+<span class="c-time">[00:00:03]</span> fusing threat intelligence ........ <span class="c-ok">3 indicators matched</span>
+<span class="c-time">[00:00:04]</span> staging detection playbook ........ <span class="c-ok">ready</span>
+<span class="c-time">[00:00:06]</span> forensic snapshot ................. <span class="c-ok">case-2291 sealed</span>
+<span class="c-time">[00:00:06]</span> command view updated .............. <span class="c-ok">brief generated</span>
+<span class="c-prompt">nadirion&gt;</span> <span class="c-cursor"></span></code></pre>
+          </div>
+
+          <div class="toolkit-points">
+            <div class="point">
+              <h3>Integrated, not bolted together</h3>
+              <p>Every module shares one evidence store, one timeline, and one operator interface.</p>
+            </div>
+            <div class="point">
+              <h3>Defensible by design</h3>
+              <p>Chain of custody and audit trails are built into every action, from first scan to final report.</p>
+            </div>
+            <div class="point">
+              <h3>Deploys where the mission is</h3>
+              <p>Run it on-premises, inside an air-gapped enclave, or in your cloud tenancy.</p>
+            </div>
+            <a href="#contact" class="btn btn-primary">Request a Demo</a>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <article class="module">
+            <span class="module-index">M-01</span>
+            <div class="module-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/>
+                <path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>
+              </svg>
+            </div>
+            <h3>Reconnaissance &amp; Attack Surface</h3>
+            <p>Map exposure across networks, cloud, and identity before an adversary does.</p>
+          </article>
+          <article class="module">
+            <span class="module-index">M-02</span>
+            <div class="module-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="5" cy="6" r="1.6"/><circle cx="19" cy="5" r="1.6"/><circle cx="12" cy="13" r="1.6"/><circle cx="6" cy="19" r="1.6"/><circle cx="19" cy="17" r="1.6"/>
+                <path d="M6.4 7.1l4.5 4.6M17.7 6.1l-4.6 5.6M10.9 14.3l-3.8 3.6M13.5 13.9l4.2 2.4"/>
+              </svg>
+            </div>
+            <h3>Threat Intelligence Fusion</h3>
+            <p>Correlate internal telemetry with adversary tracking to surface what matters now.</p>
+          </article>
+          <article class="module">
+            <span class="module-index">M-03</span>
+            <div class="module-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/>
+                <path d="M9 12.2l2.1 2.1 4-4.3"/>
+              </svg>
+            </div>
+            <h3>Detection &amp; Response</h3>
+            <p>Triage, contain, and recover with playbooks tuned to your environment.</p>
+          </article>
+          <article class="module">
+            <span class="module-index">M-04</span>
+            <div class="module-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="3.5" width="14" height="17" rx="1.5"/>
+                <path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/>
+                <circle cx="16.5" cy="16.5" r="3"/><path d="M18.7 18.7L21 21"/>
+              </svg>
+            </div>
+            <h3>Digital Forensics</h3>
+            <p>Acquire, preserve, and analyze evidence with an unbroken chain of custody.</p>
+          </article>
+          <article class="module">
+            <span class="module-index">M-05</span>
+            <div class="module-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20L20 4"/><path d="M14 4h6v6"/>
+                <path d="M4 12a8 8 0 0 0 8 8"/><path d="M4 7a12 12 0 0 0 13 13" stroke-dasharray="2 3"/>
+              </svg>
+            </div>
+            <h3>Adversary Emulation</h3>
+            <p>Validate defenses against realistic tradecraft in a controlled, authorized setting.</p>
+          </article>
+          <article class="module">
+            <span class="module-index">M-06</span>
+            <div class="module-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21h8M12 17v4"/>
+                <path d="M7 13l3-3.5 2.5 2 4-4.5"/>
+              </svg>
+            </div>
+            <h3>Reporting &amp; Command View</h3>
+            <p>Turn operational data into decision-ready briefs for leadership and counsel.</p>
+          </article>
+        </div>
       </div>
     </section>
 
     <!-- SERVICES -->
-    <section class="services" id="services">
+    <section class="services light" id="services" aria-labelledby="servicesTitle">
       <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">What We Do</p>
-          <h2>Services built for real-world risk</h2>
+        <div class="section-head split">
+          <div>
+            <p class="eyebrow"><span class="index">02</span> Services</p>
+            <h2 id="servicesTitle">Expertise that extends the toolkit</h2>
+          </div>
           <p class="section-lede">
-            We combine operational experience with rigorous analysis to help clients see risk
-            clearly &mdash; and act on it with confidence.
+            The platform is only part of the answer. Our practitioners work alongside your team
+            to deploy it, interpret what it finds, and act on it with confidence.
           </p>
         </div>
 
-        <div class="card-grid">
-          <article class="service-card">
-            <div class="service-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none">
-                <path d="M24 5 L41 12 V23 C41 33 34 40.5 24 44 C14 40.5 7 33 7 23 V12 Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
-                <path d="M17 24 L22 29 L32 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
+        <div class="service-list-grid">
+          <article class="service">
+            <span class="service-index">S-01</span>
             <h3>Cybersecurity Consulting</h3>
             <p>
-              Risk assessments, security architecture review, and program strategy tailored to your
+              Risk assessments, architecture review, and program strategy tailored to your
               operating environment &mdash; from governance and compliance to incident readiness.
             </p>
-            <ul class="service-list">
+            <ul class="bullets">
               <li>Risk &amp; vulnerability assessments</li>
               <li>Security program &amp; policy design</li>
               <li>Incident response readiness</li>
             </ul>
           </article>
-
-          <article class="service-card">
-            <div class="service-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none">
-                <circle cx="24" cy="24" r="17" stroke="currentColor" stroke-width="2.2"/>
-                <circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2.2"/>
-                <circle cx="24" cy="24" r="1.8" fill="currentColor"/>
-                <path d="M24 3 V9 M24 39 V45 M3 24 H9 M39 24 H45" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              </svg>
-            </div>
+          <article class="service">
+            <span class="service-index">S-02</span>
             <h3>Threat Intelligence</h3>
             <p>
               Continuous monitoring and analyst-driven reporting that turns raw signal into
               timely, decision-ready intelligence for leadership and security teams.
             </p>
-            <ul class="service-list">
+            <ul class="bullets">
               <li>Strategic &amp; tactical threat analysis</li>
               <li>Adversary &amp; risk landscape monitoring</li>
               <li>Actionable briefings &amp; reporting</li>
             </ul>
           </article>
-
-          <article class="service-card">
-            <div class="service-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none">
-                <rect x="9" y="7" width="30" height="34" rx="2.5" stroke="currentColor" stroke-width="2.2"/>
-                <path d="M16 16 H32 M16 23 H32 M16 30 H26" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-                <circle cx="33" cy="33" r="7" stroke="currentColor" stroke-width="2.2"/>
-                <path d="M38 38 L43 43" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-              </svg>
-            </div>
+          <article class="service">
+            <span class="service-index">S-03</span>
             <h3>Digital Forensics</h3>
             <p>
               Methodical, defensible investigation of security incidents &mdash; preserving evidence
               integrity while delivering clear findings for legal, regulatory, or operational use.
             </p>
-            <ul class="service-list">
+            <ul class="bullets">
               <li>Incident &amp; breach investigation</li>
               <li>Evidence collection &amp; chain of custody</li>
               <li>Findings &amp; expert reporting</li>
@@ -149,20 +304,43 @@
     </section>
 
     <!-- ABOUT -->
-    <section class="about" id="about">
+    <section class="about" id="about" aria-labelledby="aboutTitle">
       <div class="wrap about-inner">
+        <div class="about-visual" aria-hidden="true">
+          <svg class="constellation" viewBox="0 0 420 420" fill="none">
+            <circle cx="210" cy="210" r="190" stroke="rgba(255,255,255,0.08)"/>
+            <circle cx="210" cy="210" r="120" stroke="rgba(255,255,255,0.10)" stroke-dasharray="3 9"/>
+            <g stroke="rgba(255,255,255,0.28)" stroke-linecap="round">
+              <path d="M80 300 L150 220 L210 250 L275 150 L340 120"/>
+              <path d="M150 220 L120 130 L200 90"/>
+              <path d="M275 150 L310 230 L250 320"/>
+            </g>
+            <g fill="#ffffff">
+              <circle cx="80" cy="300" r="2.5"/><circle cx="150" cy="220" r="3.5"/><circle cx="210" cy="250" r="2"/>
+              <circle cx="275" cy="150" r="4"/><circle cx="340" cy="120" r="2.5"/><circle cx="120" cy="130" r="2"/>
+              <circle cx="200" cy="90" r="3"/><circle cx="310" cy="230" r="2.5"/><circle cx="250" cy="320" r="3"/>
+            </g>
+            <g fill="rgba(255,255,255,0.45)">
+              <circle cx="60" cy="90" r="1.2"/><circle cx="360" cy="330" r="1.4"/><circle cx="330" cy="60" r="1"/>
+              <circle cx="90" cy="370" r="1.3"/><circle cx="380" cy="200" r="1"/><circle cx="40" cy="210" r="1.1"/>
+            </g>
+            <text x="286" y="142" class="orbit-label">&alpha;</text>
+            <text x="158" y="214" class="orbit-label">&beta;</text>
+          </svg>
+        </div>
         <div class="about-copy">
-          <p class="eyebrow">About Nadirion</p>
-          <h2>Founded by practitioners, not just consultants.</h2>
+          <p class="eyebrow"><span class="index">03</span> About Nadirion</p>
+          <h2 id="aboutTitle">Founded by practitioners, named for a point of reference.</h2>
           <p>
-            Nadirion was established by cybersecurity professionals with extensive backgrounds in
-            federal service, defense consulting, and critical infrastructure protection. That
-            experience shapes how we work: methodical, discreet, and grounded in operational
-            reality rather than theory.
+            The nadir is the point directly beneath an observer &mdash; the fixed reference from
+            which everything above is measured. Nadirion was established by cybersecurity
+            professionals with backgrounds in federal service, defense consulting, and critical
+            infrastructure protection, and that grounding shapes how we work: methodical,
+            discreet, and rooted in operational reality rather than theory.
           </p>
           <p>
-            We focus on delivering accurate, timely analysis that helps clients understand and
-            manage their security risk &mdash; so decisions are based on evidence, not guesswork.
+            We deliver accurate, timely analysis that helps clients understand and manage their
+            security risk &mdash; so decisions are based on evidence, not guesswork.
           </p>
           <div class="about-pillars">
             <div>
@@ -179,31 +357,32 @@
             </div>
           </div>
         </div>
-        <div class="about-visual" aria-hidden="true">
-          <div class="orbit-frame">
-            <img src="assets/img/logo-mark.svg" alt="" />
-          </div>
-        </div>
       </div>
     </section>
 
     <!-- SECTORS -->
-    <section class="sectors" id="sectors">
+    <section class="sectors light" id="sectors" aria-labelledby="sectorsTitle">
       <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">Who We Serve</p>
-          <h2>Trusted across the risk landscape</h2>
+        <div class="section-head split">
+          <div>
+            <p class="eyebrow"><span class="index">04</span> Who We Serve</p>
+            <h2 id="sectorsTitle">Trusted across the risk landscape</h2>
+          </div>
+          <p class="section-lede">
+            From mission owners to private operators to individuals, the same discipline applies:
+            understand the threat, preserve the evidence, act decisively.
+          </p>
         </div>
-        <div class="card-grid sector-grid">
-          <div class="sector-card">
+        <div class="sector-grid">
+          <div class="sector">
             <h3>Government Agencies</h3>
             <p>Mission-focused support informed by direct federal and defense experience.</p>
           </div>
-          <div class="sector-card">
+          <div class="sector">
             <h3>Private Organizations</h3>
             <p>Practical security guidance for enterprises and critical infrastructure operators.</p>
           </div>
-          <div class="sector-card">
+          <div class="sector">
             <h3>Individuals</h3>
             <p>Confidential consulting and forensic support for personal risk and privacy concerns.</p>
           </div>
@@ -212,14 +391,15 @@
     </section>
 
     <!-- CONTACT -->
-    <section class="contact" id="contact">
+    <section class="contact" id="contact" aria-labelledby="contactTitle">
       <div class="wrap contact-inner">
         <div class="contact-copy">
-          <p class="eyebrow">Get in Touch</p>
-          <h2>Let's talk about your risk.</h2>
+          <p class="eyebrow"><span class="index">05</span> Get in Touch</p>
+          <h2 id="contactTitle">Let's talk about <span class="metal">your operation.</span></h2>
           <p>
-            Tell us about your organization and what you're navigating. A member of our team will
-            follow up to discuss how Nadirion can help.
+            Tell us about your organization and what you're navigating. Whether you want a demo of
+            the Cyber Operations Toolkit or a conversation about an engagement, a member of our team
+            will follow up.
           </p>
           <dl class="contact-details">
             <div>
@@ -247,6 +427,16 @@
             <input type="text" id="organization" name="organization" autocomplete="organization" />
           </div>
           <div class="form-row">
+            <label for="interest">I'm interested in</label>
+            <select id="interest" name="interest">
+              <option value="toolkit">A demo of the Cyber Operations Toolkit</option>
+              <option value="consulting">Cybersecurity consulting</option>
+              <option value="intel">Threat intelligence</option>
+              <option value="forensics">Digital forensics</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+          <div class="form-row">
             <label for="message">How can we help?</label>
             <textarea id="message" name="message" rows="4" required></textarea>
           </div>
@@ -260,10 +450,11 @@
   <footer class="site-footer">
     <div class="wrap footer-inner">
       <a class="brand" href="#top" aria-label="Nadirion home">
-        <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="20" height="30" />
+        <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="18" height="28" />
         <span class="brand-word">NADIRION</span>
       </a>
-      <nav class="footer-nav">
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="#toolkit">Toolkit</a>
         <a href="#services">Services</a>
         <a href="#about">About</a>
         <a href="#sectors">Who We Serve</a>
