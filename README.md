@@ -1,4 +1,4 @@
-# Nadirion — Company Website
+# Nadirion Company Website
 
 Single-page marketing site for Nadirion, a cybersecurity firm offering the Cyber
 Operations Toolkit alongside consulting, threat intelligence, and digital forensics
@@ -7,8 +7,8 @@ services.
 ## Design
 
 - **Palette:** black, white, and silver only, with metallic gradients for accent text.
-- **Theme:** astronomy and space — an animated starfield, an orbital diagram in the
-  hero, a constellation illustration in the About section, and zenith/nadir markers
+- **Theme:** astronomy and space, including an animated starfield, an orbital diagram in
+  the hero, a constellation illustration in the About section, and zenith/nadir markers
   that tie back to the company name.
 - **Typography:** Space Grotesk for display, Inter for body copy, JetBrains Mono for
   labels and the ops console.
@@ -39,7 +39,7 @@ Fonts load from Google Fonts; the page falls back to system fonts when offline.
 ## Notes
 
 - The contact form is front-end only. It validates input and shows a confirmation
-  message, but does not submit anywhere — wire it to a backend or form service
+  message, but does not submit anywhere; wire it to a backend or form service
   before launch.
 - Animations (starfield, orbits, scroll reveals) are disabled automatically for
   visitors who set `prefers-reduced-motion`.

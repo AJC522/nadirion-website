@@ -192,7 +192,7 @@
       var name = form.elements.name.value.trim();
 
       status.textContent =
-        "Thank you, " + name + ". Your message has been received — we'll be in touch shortly.";
+        "Thank you, " + name + ". Your message has been received. We'll be in touch shortly.";
       status.classList.add("is-success");
       form.reset();
     });
