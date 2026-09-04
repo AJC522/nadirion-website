@@ -32,13 +32,47 @@
     });
   }
 
+  /* ---------- Capabilities menu ---------- */
+  var capsGroup = document.getElementById("capsGroup");
+  var capsToggle = document.getElementById("capsToggle");
+
+  if (capsGroup && capsToggle) {
+    var setCaps = function (open) {
+      capsGroup.classList.toggle("is-open", open);
+      capsToggle.setAttribute("aria-expanded", String(open));
+    };
+
+    capsToggle.addEventListener("click", function (event) {
+      event.stopPropagation();
+      setCaps(capsToggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    capsGroup.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () { setCaps(false); });
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!capsGroup.contains(event.target)) setCaps(false);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" || event.key === "Esc") {
+        setCaps(false);
+        capsToggle.focus();
+      }
+    });
+  }
+
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   /* ---------- Reveal on scroll ---------- */
   var revealTargets = document.querySelectorAll(
-    ".section-head, .toolkit-showcase, .module, .service, .program, .program-thesis, .program-status, .about-copy, .about-visual, .sector, .contact-copy, .contact-form"
+    ".section-head, .page-hero-copy, .page-hero-glyph, .stat, .focus-card, .toolkit-showcase, " +
+      ".module, .service, .step, .table-scroll, .spec-note, .program, .program-thesis, " +
+      ".program-status, .about-copy, .about-visual, .sector, .related-card, .cta-inner, " +
+      ".contact-copy, .contact-form"
   );
   if ("IntersectionObserver" in window && !reduceMotion) {
     revealTargets.forEach(function (el, i) {
@@ -178,6 +212,20 @@
   /* ---------- Contact form ---------- */
   var form = document.getElementById("contactForm");
   var status = document.getElementById("formStatus");
+
+  if (form && form.elements.interest) {
+    // Focus-area pages link here as contact.html?interest=<slug>.
+    var requested = new URLSearchParams(window.location.search).get("interest");
+    var select = form.elements.interest;
+    if (requested) {
+      for (var i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === requested) {
+          select.selectedIndex = i;
+          break;
+        }
+      }
+    }
+  }
 
   if (form && status) {
     form.addEventListener("submit", function (event) {
