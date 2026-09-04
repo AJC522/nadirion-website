@@ -1,8 +1,8 @@
 # Nadirion Company Website
 
 Single-page marketing site for Nadirion, a cybersecurity firm offering the Cyber
-Operations Toolkit alongside consulting, training, threat intelligence, and digital
-forensics services.
+Operations Toolkit alongside consulting, training, threat intelligence, digital
+forensics, general consulting and sales advisory, and IT training services.
 
 ## Design
 
