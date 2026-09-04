@@ -349,6 +349,7 @@ img { max-width: 100%; display: block; }
   left: 50%;
   top: 50%;
   width: 52px;
+  height: 81.25px;
   transform: translate(-50%, -50%);
   color: var(--white);
   filter: invert(1) drop-shadow(0 0 18px rgba(255, 255, 255, 0.45));
