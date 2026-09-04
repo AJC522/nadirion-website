@@ -1,10 +1,8 @@
 # Nadirion Company Website
 
-Single-page marketing site for Nadirion, a cybersecurity firm offering the Cyber
-Operations Toolkit alongside consulting, training, threat intelligence, digital
-forensics, general consulting and sales advisory, and IT training services. The site
-also covers the platforms program: 3D printed CubeSat satellites, maritime drones, and
-aerial drones currently in development.
+Static marketing site for Nadirion. The home page introduces the company and links out
+to eight business sectors; each sector has its own page so a visitor can go straight to
+the work they came for instead of scrolling past everything else.
 
 ## Design
 
@@ -18,15 +16,42 @@ aerial drones currently in development.
 ## Structure
 
 ```
-index.html            markup for all sections
-assets/css/styles.css design tokens and all styling
-assets/js/main.js     nav, scroll reveal, starfield canvas, contact form
-assets/img/           logo mark and favicon (SVG)
+index.html                  home: hero, sector links, flagship teaser, about, who we serve
+cyber.html                  focus area: Cyber Operations
+software-development.html   focus area: Software Development
+digital-forensics.html      focus area: Digital Forensics
+it-consulting.html          focus area: IT Consulting
+training.html               focus area: Business, IT & Sales Training
+satellites.html             focus area: Satellites
+maritime-drones.html        focus area: Maritime Drones
+aerial-drones.html          focus area: Aerial Drones
+contact.html                contact details and the enquiry form
+assets/css/styles.css       design tokens and all styling
+assets/js/main.js           nav, capabilities menu, scroll reveal, starfield, contact form
+assets/img/                 logo mark and favicon (SVG)
 ```
 
-Sections run in order: hero, Cyber Operations Toolkit (flagship), services, platforms,
-about, who we serve, and contact. Section eyebrow numbers (01 through 06) follow that
-order, so adding or moving a section means renumbering the ones after it.
+Every page lives at the repo root, so all internal links are flat filenames.
+
+### Page furniture
+
+The header and footer are duplicated in each file, since the site has no build step.
+Changing either means changing it in all ten pages. The header carries a Capabilities
+dropdown listing every focus area, grouped into "Digital & Security Services" and
+"Autonomous Platforms"; the current page is marked with `aria-current="page"` on its
+entry. The footer repeats the same two groups plus company links.
+
+### Focus-area pages
+
+Each one follows the same shape: page hero with breadcrumb, a four-item stat strip,
+two to four content sections, a related-focus-areas block, and a closing CTA band.
+Section eyebrow numbers restart at 01 on every page, so they only need renumbering
+within the page they belong to.
+
+The contact buttons on a focus-area page link to `contact.html?interest=<slug>`, and
+`main.js` preselects the matching option in the form's interest dropdown. The slugs are
+the `value` attributes in the `#interest` select on `contact.html`; adding a focus area
+means adding an option there too.
 
 ## Development
 
@@ -44,5 +69,11 @@ Fonts load from Google Fonts; the page falls back to system fonts when offline.
 - The contact form is front-end only. It validates input and shows a confirmation
   message, but does not submit anywhere; wire it to a backend or form service
   before launch.
+- Platform specifications on the satellite, maritime, and aerial pages are labelled as
+  design targets for articles in development, not delivered performance. Keep that
+  framing until the hardware justifies otherwise.
 - Animations (starfield, orbits, scroll reveals) are disabled automatically for
   visitors who set `prefers-reduced-motion`.
+- The header and its dropdown both use `backdrop-filter`. Nesting a second one inside
+  the header renders as an empty backdrop in Chromium, so the dropdown and the mobile
+  nav panel use opaque backgrounds instead.

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Satellites | Nadirion</title>
+  <meta name="description" content="Nadirion is developing 3D printed CubeSat satellites from 1U to 12U, with additively manufactured primary structure and bus components for Earth observation and RF sensing constellations." />
+  <meta name="theme-color" content="#050506" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header" id="top">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html" aria-label="Nadirion home">
+        <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="22" height="34" />
+        <span class="brand-word">NADIRION</span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Toggle navigation menu">
+        <span></span><span></span>
+      </button>
+
+      <nav class="primary-nav" id="primaryNav">
+        <div class="nav-group" id="capsGroup">
+          <button type="button" class="nav-group-btn" id="capsToggle" aria-expanded="false" aria-controls="capsMenu">
+            Capabilities
+            <span class="caret" aria-hidden="true"></span>
+          </button>
+          <div class="nav-menu" id="capsMenu">
+            <div class="nav-menu-col">
+              <p class="nav-menu-head">Digital &amp; Security Services</p>
+            <a href="cyber.html">Cyber Operations</a>
+            <a href="software-development.html">Software Development</a>
+            <a href="digital-forensics.html">Digital Forensics</a>
+            <a href="it-consulting.html">IT Consulting</a>
+            <a href="training.html">Business, IT &amp; Sales Training</a>
+            </div>
+            <div class="nav-menu-col">
+              <p class="nav-menu-head">Autonomous Platforms</p>
+            <a href="satellites.html" aria-current="page">Satellites</a>
+            <a href="maritime-drones.html">Maritime Drones</a>
+            <a href="aerial-drones.html">Aerial Drones</a>
+            </div>
+          </div>
+        </div>
+        <a href="index.html#about">About</a>
+        <a href="index.html#sectors">Who We Serve</a>
+        <a href="contact.html" class="nav-cta">Request a Briefing</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero" aria-labelledby="pageTitle">
+      <div class="page-hero-grid" aria-hidden="true"></div>
+      <div class="wrap page-hero-inner">
+        <div class="page-hero-copy">
+          <nav class="crumb" aria-label="Breadcrumb">
+            <a href="index.html">Home</a>
+            <span aria-hidden="true">/</span>
+            <a href="index.html#capabilities">Capabilities</a>
+            <span aria-hidden="true">/</span>
+            <span>Satellites</span>
+          </nav>
+          <p class="eyebrow"><span class="index">06</span> Focus Area <span class="tag">In development</span></p>
+          <h1 id="pageTitle">CubeSats you can <span class="metal">print, fly, and revise</span></h1>
+          <p class="page-lede">
+            Conventional smallsat structures wait on tooling. Ours do not. By additively
+            manufacturing the primary structure and bus components, a design change can be
+            printed, integrated, and back on the bench in the time a machined part spends in a
+            queue. That matters most where it usually hurts most: keeping a constellation
+            current instead of frozen at the date it was ordered.
+          </p>
+          <div class="hero-actions">
+            <a href="contact.html?interest=satellites" class="btn btn-primary">Talk to the Program Team</a>
+            <a href="#configurations" class="btn btn-ghost">Configurations</a>
+          </div>
+        </div>
+        <div class="page-hero-glyph" aria-hidden="true">
+          <svg viewBox="0 0 240 240" fill="none" stroke="currentColor" stroke-width="1">
+            <circle cx="120" cy="120" r="100" stroke-opacity="0.1" stroke-dasharray="3 8"/>
+            <rect x="96" y="96" width="48" height="48" rx="4" stroke-opacity="0.55" stroke-width="2"/>
+            <rect x="106" y="106" width="28" height="28" rx="2" stroke-opacity="0.2"/>
+            <path d="M96 110H36M96 130H36M144 110h60M144 130h60" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"/>
+            <path d="M36 100v40M204 100v40" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round"/>
+            <path d="M120 96V56M120 144v40" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="stat-strip" aria-label="Satellite program at a glance">
+      <div class="wrap stat-row">
+        <div class="stat"><strong>1U &ndash; 12U</strong><span>Configuration range in development</span></div>
+        <div class="stat"><strong>Printed</strong><span>Primary structure and bus components</span></div>
+        <div class="stat"><strong>EO &amp; RF</strong><span>Payload classes targeted</span></div>
+        <div class="stat"><strong>Refresh</strong><span>Built for constellation iteration</span></div>
+      </div>
+    </section>
+
+    <section class="light" aria-labelledby="whyTitle">
+      <div class="wrap">
+        <div class="section-head split">
+          <div>
+            <p class="eyebrow"><span class="index">01</span> Approach</p>
+            <h2 id="whyTitle">Why additive, specifically</h2>
+          </div>
+          <p class="section-lede">
+            Printing a satellite is not the point. Collapsing the distance between a design
+            change and a flight article is the point. Everything below follows from that.
+          </p>
+        </div>
+        <div class="service-list-grid">
+          <article class="service">
+            <span class="service-index">01</span>
+            <h3>Iteration measured in days</h3>
+            <p>
+              A structural revision goes from CAD to a physical article without a tooling
+              cycle. Over a constellation program that compounds: the fifth batch can carry
+              lessons the first batch taught, instead of repeating a design frozen years earlier.
+            </p>
+          </article>
+          <article class="service">
+            <span class="service-index">02</span>
+            <h3>Geometry a mill cannot cut</h3>
+            <p>
+              Integrated harness runs, conformal radiators, and lattice structures that put
+              mass only where load actually goes. Fewer fasteners and fewer joints means fewer
+              of the interfaces that fail on vibration.
+            </p>
+          </article>
+          <article class="service">
+            <span class="service-index">03</span>
+            <h3>Unit cost that permits risk</h3>
+            <p>
+              When a bus is cheap enough to lose, a constellation can fly newer technology
+              sooner and accept a shorter design life. That is a different economic model from
+              a single exquisite spacecraft, and it needs different manufacturing.
+            </p>
+          </article>
+          <article class="service">
+            <span class="service-index">04</span>
+            <h3>A supply chain you can see</h3>
+            <p>
+              Printing in house removes a tier of vendors from the critical path and from the
+              threat surface. We treat the design files and the print process as things worth
+              protecting, because they are.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="specs" id="configurations" aria-labelledby="configTitle">
+      <div class="wrap">
+        <div class="section-head split">
+          <div>
+            <p class="eyebrow"><span class="index">02</span> Configurations</p>
+            <h2 id="configTitle">Four bus sizes in development</h2>
+          </div>
+          <p class="section-lede">
+            Design targets for the current development articles. These are engineering goals
+            under active test, not flight-qualified specifications, and we will tell you
+            exactly where each one stands on a program call.
+          </p>
+        </div>
+        <div class="table-scroll">
+          <table class="spec-table">
+            <caption class="visually-hidden">CubeSat configuration design targets</caption>
+            <thead>
+              <tr>
+                <th scope="col">Configuration</th>
+                <th scope="col">Form factor</th>
+                <th scope="col">Payload volume target</th>
+                <th scope="col">Typical role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ND-1</strong></td>
+                <td>1U</td>
+                <td>Single small sensor or radio</td>
+                <td>Technology demonstration, on-orbit component test</td>
+              </tr>
+              <tr>
+                <td><strong>ND-3</strong></td>
+                <td>3U</td>
+                <td>Optical or RF payload with deployables</td>
+                <td>RF survey, AIS and signal collection</td>
+              </tr>
+              <tr>
+                <td><strong>ND-6</strong></td>
+                <td>6U</td>
+                <td>Imaging optic with onboard processing</td>
+                <td>Earth observation, tasked revisit imaging</td>
+              </tr>
+              <tr>
+                <td><strong>ND-12</strong></td>
+                <td>12U</td>
+                <td>Multi-sensor or hosted payload bay</td>
+                <td>Multi-payload missions, hosted customer sensors</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="spec-notes">
+          <div class="spec-note">
+            <h4>Structure</h4>
+            <p>Additively manufactured primary structure with printed bus components and standard rail interfaces for common deployers.</p>
+          </div>
+          <div class="spec-note">
+            <h4>Payloads</h4>
+            <p>Earth observation optics and RF sensing packages, with a hosted payload option on the larger buses.</p>
+          </div>
+          <div class="spec-note">
+            <h4>Ground segment</h4>
+            <p>Tasking, downlink handling, and processing built by our <a href="software-development.html">software team</a> on the same evidence store as the toolkit.</p>
+          </div>
+          <div class="spec-note">
+            <h4>Security</h4>
+            <p>Command authentication, signed firmware, and supply chain review treated as requirements from the first print.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="light" aria-labelledby="thesisTitle">
+      <div class="wrap">
+        <div class="section-head split">
+          <div>
+            <p class="eyebrow"><span class="index">03</span> Principles</p>
+            <h2 id="thesisTitle">What carries across every platform</h2>
+          </div>
+          <p class="section-lede">
+            The same three commitments govern our
+            <a href="maritime-drones.html">maritime</a> and
+            <a href="aerial-drones.html">aerial</a> programs.
+          </p>
+        </div>
+        <div class="sector-grid">
+          <div class="sector">
+            <h3>Additive first</h3>
+            <p>Short build cycles keep the fleet current instead of frozen at the date it was ordered.</p>
+          </div>
+          <div class="sector">
+            <h3>Sensor to decision</h3>
+            <p>These are collection assets. What they gather lands in the same command view that runs our cyber work.</p>
+          </div>
+          <div class="sector">
+            <h3>Hardened by default</h3>
+            <p>Firmware, command links, and supply chain are treated as attack surface from the first print.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="status-section" aria-labelledby="statusTitle">
+      <div class="wrap">
+        <h2 id="statusTitle" class="visually-hidden">Program status</h2>
+        <div class="program-status">
+          <p>
+            <span class="status-tag">Program status</span>
+            The satellite program is in active development. We are talking with agencies,
+            integrators, launch brokers, and manufacturing partners about pilot programs,
+            hosted payloads, and constellation requirements. If you have a payload looking for
+            a bus, that is a conversation we want.
+          </p>
+          <a href="contact.html?interest=satellites" class="btn btn-ghost">Talk to the Program Team</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="related" aria-labelledby="relatedTitle">
+      <div class="wrap">
+        <p class="eyebrow"><span class="index">&rarr;</span> Related Focus Areas</p>
+        <h2 id="relatedTitle" class="related-title">Where this work connects</h2>
+        <div class="related-grid">
+          <a class="related-card" href="maritime-drones.html">
+            <h3>Maritime Drones</h3>
+            <p>The same additive approach at sea level, on uncrewed surface vessels.</p>
+            <span class="focus-link">Go to Maritime Drones <span aria-hidden="true">&rarr;</span></span>
+          </a>
+          <a class="related-card" href="aerial-drones.html">
+            <h3>Aerial Drones</h3>
+            <p>Printed airframes for reconnaissance, inspection, and rapid response imagery.</p>
+            <span class="focus-link">Go to Aerial Drones <span aria-hidden="true">&rarr;</span></span>
+          </a>
+          <a class="related-card" href="software-development.html">
+            <h3>Software Development</h3>
+            <p>Flight software, ground segment, and the processing chain behind the sensor.</p>
+            <span class="focus-link">Go to Software Development <span aria-hidden="true">&rarr;</span></span>
+          </a>
+        </div>
+      </div>
+    </section>
+    <section class="cta-band" aria-labelledby="ctaTitle">
+      <div class="wrap cta-inner">
+        <div>
+          <p class="eyebrow"><span class="index">&rarr;</span> Next Step</p>
+          <h2 id="ctaTitle">Pilot programs and payload conversations.</h2>
+          <p>Tell us the orbit, the sensor, and the timeline. We will be straight with you about where the program is and what it can commit to.</p>
+        </div>
+        <div class="cta-actions">
+          <a href="contact.html?interest=satellites" class="btn btn-primary">Request a Briefing</a>
+          <a href="mailto:contact@nadirion.us" class="btn btn-ghost">contact@nadirion.us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="Nadirion home">
+            <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="18" height="28" />
+            <span class="brand-word">NADIRION</span>
+          </a>
+          <p>
+            Cyber operations, software, forensics, consulting, training, and additively
+            manufactured platforms for orbit, sea, and air.
+          </p>
+        </div>
+        <div class="footer-col">
+          <p class="footer-head">Digital &amp; Security Services</p>
+          <a href="cyber.html">Cyber Operations</a>
+          <a href="software-development.html">Software Development</a>
+          <a href="digital-forensics.html">Digital Forensics</a>
+          <a href="it-consulting.html">IT Consulting</a>
+          <a href="training.html">Business, IT &amp; Sales Training</a>
+        </div>
+        <div class="footer-col">
+          <p class="footer-head">Autonomous Platforms</p>
+          <a href="satellites.html">Satellites</a>
+          <a href="maritime-drones.html">Maritime Drones</a>
+          <a href="aerial-drones.html">Aerial Drones</a>
+        </div>
+        <div class="footer-col">
+          <p class="footer-head">Company</p>
+          <a href="index.html#about">About</a>
+          <a href="index.html#sectors">Who We Serve</a>
+          <a href="contact.html">Contact</a>
+          <a href="mailto:contact@nadirion.us">contact@nadirion.us</a>
+        </div>
+      </div>
+      <p class="footer-note">&copy; <span id="year"></span> Nadirion. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
