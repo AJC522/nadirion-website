@@ -605,7 +605,7 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
 /* ---------- Services (light) ---------- */
 .service-list-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 32px;
 }
 .service {
