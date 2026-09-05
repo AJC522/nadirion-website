@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aerial Drones | Nadirion</title>
-  <meta name="description" content="Nadirion is developing 3D printed fixed wing, multirotor, and VTOL airframes for reconnaissance, infrastructure inspection, and rapid response imagery, with field level part replacement." />
+  <meta name="description" content="Nadirion is developing 3D printed fixed wing airframes for reconnaissance, infrastructure inspection, and rapid response imagery, with field level part replacement. Every Nadirion aircraft is fixed wing: no multirotors, no hybrids." />
   <meta name="theme-color" content="#050506" />
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -71,8 +71,8 @@
           <h1 id="pageTitle">Airframes repaired <span class="metal">where they fly</span></h1>
           <p class="page-lede">
             A damaged aircraft that has to ship back to a depot is an aircraft your operation
-            does not have. We are developing printed fixed wing, multirotor, and VTOL airframes
-            where a broken arm, boom, or wing section is replaced from a printer near the flight
+            does not have. Every airframe we build is fixed wing, printed in house, and designed
+            so a broken boom, tail, or wing section is replaced from a printer near the flight
             line, and the aircraft is back up the same day.
           </p>
           <div class="hero-actions">
@@ -82,13 +82,10 @@
         </div>
         <div class="page-hero-glyph" aria-hidden="true">
           <svg viewBox="0 0 240 240" fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M74 74l32 32M166 74l-32 32M74 166l32-32M166 166l-32-32" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="62" cy="62" r="24" stroke-opacity="0.35" stroke-width="2"/>
-            <circle cx="178" cy="62" r="24" stroke-opacity="0.35" stroke-width="2"/>
-            <circle cx="62" cy="178" r="24" stroke-opacity="0.35" stroke-width="2"/>
-            <circle cx="178" cy="178" r="24" stroke-opacity="0.35" stroke-width="2"/>
-            <rect x="100" y="100" width="40" height="40" rx="6" stroke-opacity="0.55" stroke-width="2"/>
-            <circle cx="120" cy="120" r="8" stroke-opacity="0.3"/>
+            <path d="M120 40 L127 95 L205 125 L205 133 L127 120 L125 165 L158 182 L158 189 L124 178 L120 196 L116 178 L82 189 L82 182 L115 165 L113 120 L35 133 L35 125 L113 95 Z" stroke-opacity="0.55" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M35 129h170" stroke-opacity="0.18"/>
+            <path d="M120 40v156" stroke-opacity="0.18"/>
+            <circle cx="120" cy="129" r="8" stroke-opacity="0.3"/>
           </svg>
         </div>
       </div>
@@ -96,7 +93,7 @@
 
     <section class="stat-strip" aria-label="Aerial program at a glance">
       <div class="wrap stat-row">
-        <div class="stat"><strong>03</strong><span>Airframe types in development</span></div>
+        <div class="stat"><strong>03</strong><span>Fixed wing airframes in development</span></div>
         <div class="stat"><strong>Field level</strong><span>Parts replaced at the flight line</span></div>
         <div class="stat"><strong>EO / IR / RF</strong><span>Payload options targeted</span></div>
         <div class="stat"><strong>Autonomous</strong><span>Survey and patrol routing</span></div>
@@ -108,12 +105,14 @@
         <div class="section-head split">
           <div>
             <p class="eyebrow"><span class="index">01</span> Airframes</p>
-            <h2 id="airframeTitle">Three airframes, three jobs</h2>
+            <h2 id="airframeTitle">Three fixed wing airframes, three jobs</h2>
           </div>
           <p class="section-lede">
-            Design targets for the current development articles rather than delivered
-            performance. Every one of them shares a printed structure and a common payload
-            interface, so a sensor moves between airframes without a redesign.
+            We build fixed wing aircraft only. No multirotors, no hybrids. What changes
+            between the three is span, launch method, and endurance; the printed structure and
+            the payload interface are common, so a sensor moves between airframes without a
+            redesign. These are design targets for current development articles rather than
+            delivered performance.
           </p>
         </div>
         <div class="table-scroll">
@@ -129,22 +128,22 @@
             </thead>
             <tbody>
               <tr>
-                <td><strong>ND-Q</strong></td>
-                <td>Multirotor</td>
-                <td>Precision hover, confined space launch</td>
-                <td>Close inspection, site survey, rapid response imagery</td>
+                <td><strong>ND-S</strong></td>
+                <td>Fixed wing, hand launched</td>
+                <td>Low weight, launched and recovered by one operator</td>
+                <td>Small area survey, rapid response imagery, dismounted teams</td>
               </tr>
               <tr>
                 <td><strong>ND-W</strong></td>
-                <td>Fixed wing</td>
+                <td>Fixed wing, catapult launched</td>
                 <td>Range and endurance per unit of energy</td>
                 <td>Long corridor survey, area reconnaissance, patrol</td>
               </tr>
               <tr>
-                <td><strong>ND-V</strong></td>
-                <td>VTOL hybrid</td>
-                <td>Runway independence with fixed wing cruise</td>
-                <td>Maritime and remote operations without prepared strips</td>
+                <td><strong>ND-M</strong></td>
+                <td>Fixed wing, shipboard launch and recovery</td>
+                <td>Catapult launch and arrested recovery, no prepared strip</td>
+                <td>Maritime and remote operations from a vessel or a clearing</td>
               </tr>
             </tbody>
           </table>
@@ -164,8 +163,8 @@
             <p>Authenticated command and telemetry, signed firmware, and a ground station built by our <a href="software-development.html">software team</a>.</p>
           </div>
           <div class="spec-note">
-            <h4>Sustainment</h4>
-            <p>A print file and a spool at the operating location replaces a depot return and a shipping window.</p>
+            <h4>Launch &amp; recovery</h4>
+            <p>Hand launch, catapult, and arrested recovery. Nothing in the fleet needs a runway, and nothing in it trades cruise efficiency for a vertical takeoff.</p>
           </div>
         </div>
       </div>
@@ -188,14 +187,14 @@
             <span class="service-index">A-01</span>
             <h3>Infrastructure Inspection</h3>
             <p>
-              Transmission lines, pipelines, bridges, towers, and roofs, inspected on a
+              Transmission corridors, pipelines, rail, levees, and coastline, inspected on a
               schedule instead of after a failure, and with imagery that can be compared
               against the last pass.
             </p>
             <ul class="bullets">
               <li>Repeatable flight lines for change detection</li>
               <li>Thermal survey for fault and moisture detection</li>
-              <li>Close inspection without scaffolding or a rope team</li>
+              <li>Corridor length covered in one sortie rather than a dozen</li>
             </ul>
           </article>
           <article class="service">
@@ -233,7 +232,7 @@
               reach beyond what a hull-mounted sensor can see.
             </p>
             <ul class="bullets">
-              <li>Launch and recovery from a surface platform</li>
+              <li>Catapult launch and arrested recovery from a surface platform</li>
               <li>Over-the-horizon look from a surface node</li>
               <li>Shared track picture across air and surface</li>
             </ul>
@@ -261,7 +260,8 @@
             <p>
               Printing the structure collapses the distance between a design change and a flying
               article. Short build cycles keep the fleet current instead of frozen at the date it
-              was ordered.
+              was ordered, and a print file with a spool at the operating location replaces a
+              depot return and a shipping window.
             </p>
           </div>
           <div class="thesis-point">
