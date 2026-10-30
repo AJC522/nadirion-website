@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact | Nadirion</title>
-  <meta name="description" content="Contact Nadirion about cyber operations, software development, digital forensics, IT consulting, training, or the satellite, maritime drone, and aerial drone programs." />
+  <title>Contact &amp; Quotes | Nadirion</title>
+  <meta name="description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, ask about the reseller program, or contact a Nadirion service team." />
   <meta name="theme-color" content="#050506" />
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,31 +26,33 @@
       </button>
 
       <nav class="primary-nav" id="primaryNav">
+        <a href="desktop.html">Nadirion Desktop</a>
+        <a href="modules.html">Modules</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="resellers.html">Resellers</a>
         <div class="nav-group" id="capsGroup">
           <button type="button" class="nav-group-btn" id="capsToggle" aria-expanded="false" aria-controls="capsMenu">
-            Capabilities
+            Services
             <span class="caret" aria-hidden="true"></span>
           </button>
           <div class="nav-menu" id="capsMenu">
             <div class="nav-menu-col">
               <p class="nav-menu-head">Digital &amp; Security Services</p>
-            <a href="cyber.html">Cyber Operations</a>
-            <a href="software-development.html">Software Development</a>
-            <a href="digital-forensics.html">Digital Forensics</a>
-            <a href="it-consulting.html">IT Consulting</a>
-            <a href="training.html">Business, IT &amp; Sales Training</a>
+              <a href="cyber.html">Cyber Operations</a>
+              <a href="software-development.html">Software Development</a>
+              <a href="digital-forensics.html">Digital Forensics</a>
+              <a href="it-consulting.html">IT Consulting</a>
+              <a href="training.html">Business, IT &amp; Sales Training</a>
             </div>
             <div class="nav-menu-col">
               <p class="nav-menu-head">Autonomous Platforms</p>
-            <a href="satellites.html">Satellites</a>
-            <a href="maritime-drones.html">Maritime Drones</a>
-            <a href="aerial-drones.html">Aerial Drones</a>
+              <a href="satellites.html">Satellites</a>
+              <a href="maritime-drones.html">Maritime Drones</a>
+              <a href="aerial-drones.html">Aerial Drones</a>
             </div>
           </div>
         </div>
-        <a href="index.html#about">About</a>
-        <a href="index.html#sectors">Who We Serve</a>
-        <a href="contact.html" class="nav-cta">Request a Briefing</a>
+        <a href="contact.html?interest=quote" class="nav-cta">Get a Quote</a>
       </nav>
     </div>
   </header>
@@ -66,11 +68,11 @@
             <span>Contact</span>
           </nav>
           <p class="eyebrow"><span class="index">&rarr;</span> Get in Touch</p>
-          <h1 id="pageTitle">Let's talk about <span class="metal">your operation.</span></h1>
+          <h1 id="pageTitle">Quotes, demos, and <span class="metal">everything else.</span></h1>
           <p class="page-lede">
-            Tell us which focus area you are here for and what you are navigating. The message
-            goes to the team that does that work, not to a general inbox, and someone from it
-            will follow up.
+            Request a quote for Nadirion Desktop and the modules you've chosen, book a demo,
+            ask about the reseller program, or reach one of our service teams. Your message
+            goes to the people who handle that topic.
           </p>
         </div>
       </div>
@@ -86,8 +88,12 @@
               <dd><a href="mailto:contact@nadirion.us">contact@nadirion.us</a></dd>
             </div>
             <div>
-              <dt>Availability</dt>
-              <dd>Government, commercial, and individual engagements</dd>
+              <dt>Quotes</dt>
+              <dd>Pick modules in the <a href="modules.html">catalog</a> first and your selection comes with the request.</dd>
+            </div>
+            <div>
+              <dt>Resellers</dt>
+              <dd>Applying to resell? Use the <a href="resellers.html#apply">reseller application</a>.</dd>
             </div>
             <div>
               <dt>Urgent matters</dt>
@@ -96,7 +102,16 @@
           </dl>
 
           <div class="contact-routes">
-            <p class="footer-head">Straight to a focus area</p>
+            <p class="footer-head">Nadirion Desktop</p>
+            <div class="route-links">
+              <a href="desktop.html">The Desktop</a>
+              <a href="modules.html">Module Catalog</a>
+              <a href="pricing.html">Pricing</a>
+              <a href="resellers.html">Reseller Program</a>
+            </div>
+          </div>
+          <div class="contact-routes">
+            <p class="footer-head">Services &amp; platforms</p>
             <div class="route-links">
               <a href="cyber.html">Cyber Operations</a>
               <a href="software-development.html">Software Development</a>
@@ -110,34 +125,84 @@
           </div>
         </div>
 
-        <form class="contact-form" id="contactForm" novalidate>
+        <form class="contact-form js-send" id="contactForm" data-subject="Nadirion website" data-subject-field="interest" novalidate>
           <div class="form-row">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" autocomplete="name" required />
+            <label for="interest">I'm interested in</label>
+            <select id="interest" name="interest">
+              <optgroup label="Nadirion Desktop">
+                <option value="quote">A quote for Nadirion Desktop &amp; modules</option>
+                <option value="demo">A demo of Nadirion Desktop</option>
+                <option value="modules">Help choosing modules</option>
+                <option value="support">Support for an existing installation</option>
+              </optgroup>
+              <optgroup label="Resellers">
+                <option value="reseller">The certified reseller program</option>
+                <option value="verify">Verifying a certified reseller</option>
+              </optgroup>
+              <optgroup label="Services &amp; platforms">
+                <option value="cyber">Cyber operations &amp; security consulting</option>
+                <option value="software">Software development</option>
+                <option value="forensics">Digital forensics</option>
+                <option value="itconsulting">IT consulting</option>
+                <option value="training">Business, IT &amp; sales training</option>
+                <option value="satellites">Satellites</option>
+                <option value="maritime">Maritime drones</option>
+                <option value="aerial">Aerial drones</option>
+              </optgroup>
+              <option value="other">Something else</option>
+            </select>
           </div>
-          <div class="form-row">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" autocomplete="email" required />
+
+          <div class="quote-box" data-show-when="interest:quote">
+            <div class="quote-box-head"><span>Your license</span><a href="modules.html">Edit modules</a></div>
+            <ul class="quote-items" id="quoteItems">
+              <li class="is-base">Nadirion Desktop</li>
+            </ul>
+            <p class="quote-empty" id="quoteEmpty">
+              No add-on modules chosen yet. <a href="modules.html">Browse the catalog</a>, or
+              describe your work below and we'll suggest a set.
+            </p>
+            <p class="quote-total" id="quoteTotal" hidden></p>
+            <input type="hidden" name="license" id="quoteModules" data-label="License" value="Nadirion Desktop" />
+          </div>
+
+          <div class="form-split">
+            <div class="form-row">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" autocomplete="name" required />
+            </div>
+            <div class="form-row">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" autocomplete="email" required />
+            </div>
           </div>
           <div class="form-row">
             <label for="organization">Organization <span class="optional">(optional)</span></label>
             <input type="text" id="organization" name="organization" autocomplete="organization" />
           </div>
-          <div class="form-row">
-            <label for="interest">I'm interested in</label>
-            <select id="interest" name="interest">
-              <option value="toolkit">A demo of the Cyber Operations Toolkit</option>
-              <option value="cyber">Cyber operations &amp; security consulting</option>
-              <option value="software">Software development</option>
-              <option value="forensics">Digital forensics</option>
-              <option value="itconsulting">IT consulting</option>
-              <option value="training">Business, IT &amp; sales training</option>
-              <option value="satellites">Satellites</option>
-              <option value="maritime">Maritime drones</option>
-              <option value="aerial">Aerial drones</option>
-              <option value="other">Something else</option>
-            </select>
+
+          <div class="form-split" data-show-when="interest:quote">
+            <div class="form-row">
+              <label for="seats">Seats <span class="optional">(optional)</span></label>
+              <input type="number" id="seats" name="seats" min="1" step="1" inputmode="numeric" placeholder="People using it" />
+            </div>
+            <div class="form-row">
+              <label for="resellerId">Reseller ID <span class="optional">(optional)</span></label>
+              <input type="text" id="resellerId" name="reseller_id" placeholder="If buying through one" />
+            </div>
           </div>
+
+          <div class="form-split" data-show-when="interest:verify">
+            <div class="form-row">
+              <label for="verifyName">Reseller's name</label>
+              <input type="text" id="verifyName" name="verify_name" required />
+            </div>
+            <div class="form-row">
+              <label for="verifyId">Reseller ID they gave you</label>
+              <input type="text" id="verifyId" name="verify_id" required />
+            </div>
+          </div>
+
           <div class="form-row">
             <label for="message">How can we help?</label>
             <textarea id="message" name="message" rows="5" required></textarea>
@@ -157,20 +222,31 @@
             <span class="brand-word">NADIRION</span>
           </a>
           <p>
-            Cyber operations, software, forensics, consulting, training, and additively
-            manufactured platforms for orbit, sea, and air.
+            Nadirion Desktop and its add-on modules: one application for collection,
+            enrichment, triage, and storage, sold direct and through certified resellers.
           </p>
         </div>
         <div class="footer-col">
-          <p class="footer-head">Digital &amp; Security Services</p>
+          <p class="footer-head">Product</p>
+          <a href="desktop.html">Nadirion Desktop</a>
+          <a href="modules.html">Module Catalog</a>
+          <a href="pricing.html">Pricing &amp; Licensing</a>
+          <a href="contact.html?interest=quote">Request a Quote</a>
+          <a href="contact.html?interest=demo">Book a Demo</a>
+        </div>
+        <div class="footer-col">
+          <p class="footer-head">Resellers</p>
+          <a href="resellers.html">Reseller Program</a>
+          <a href="resellers.html#apply">Apply to Resell</a>
+          <a href="resellers.html#verify">Verify a Reseller</a>
+        </div>
+        <div class="footer-col">
+          <p class="footer-head">Services &amp; Platforms</p>
           <a href="cyber.html">Cyber Operations</a>
           <a href="software-development.html">Software Development</a>
           <a href="digital-forensics.html">Digital Forensics</a>
           <a href="it-consulting.html">IT Consulting</a>
           <a href="training.html">Business, IT &amp; Sales Training</a>
-        </div>
-        <div class="footer-col">
-          <p class="footer-head">Autonomous Platforms</p>
           <a href="satellites.html">Satellites</a>
           <a href="maritime-drones.html">Maritime Drones</a>
           <a href="aerial-drones.html">Aerial Drones</a>
@@ -178,7 +254,6 @@
         <div class="footer-col">
           <p class="footer-head">Company</p>
           <a href="index.html#about">About</a>
-          <a href="index.html#sectors">Who We Serve</a>
           <a href="contact.html">Contact</a>
           <a href="mailto:contact@nadirion.us">contact@nadirion.us</a>
         </div>
@@ -187,6 +262,7 @@
     </div>
   </footer>
 
+  <script src="assets/js/catalog.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>
