@@ -189,6 +189,9 @@
       ".cta-inner, .contact-copy, .contact-form, .plan, .plan-plus, .track, .cat-head, .mod-card, " +
       ".faq details, .marquee"
   );
+  // Effects that start with an item's reveal, such as headings that rise word
+  // by word, register here and hear about each item as it arrives.
+  var revealHooks = [];
 
   if (motionOK) {
     revealTargets.forEach(function (el) { el.classList.add("reveal"); });
@@ -225,6 +228,7 @@
           settle(el, delay);
           if (el.classList.contains("stat")) countUp(el, delay);
           if (el.classList.contains("console")) typeConsole(el, delay);
+          for (var h = 0; h < revealHooks.length; h++) revealHooks[h](el, delay);
         });
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }
@@ -1206,7 +1210,292 @@
 
 
   /* ---------- Type [fx-type] ---------- */
-  // fx-type: reserved
+  // Section headings rise word by word, each out of its own mask, and the
+  // mono labels above them decrypt: random glyphs settle into the real words
+  // from left to right. The block a heading sits in no longer rises as one
+  // piece; its label, heading, lede, and buttons arrive in that order.
+  if (motionOK) {
+    var TYPE_HEADINGS = ".section-head h2, .about h2, .cta-band h2, .cat-head h2, .contact-copy h2";
+    var TYPE_LABELS = ".eyebrow, .block-label";
+    var WORD_STAGGER = 55;
+    var WORD_SPACES = /^[ \t\n\r\f]+$/;
+
+    // Wraps each word of el's text in a mask and a riser, walking into
+    // nested elements (the .metal phrases) and leaving <br>s alone. Only
+    // ordinary spaces part words, so non-breaking spaces and hyphens hold.
+    // The words stay plain spans, so the heading reads exactly as before.
+    var splitHeading = function (el, words) {
+      Array.prototype.slice.call(el.childNodes).forEach(function (node) {
+        if (node.nodeType === 1) {
+          splitHeading(node, words);
+          return;
+        }
+        if (node.nodeType !== 3) return;
+        var frag = document.createDocumentFragment();
+        node.nodeValue.split(/([ \t\n\r\f]+)/).forEach(function (part) {
+          if (!part) return;
+          if (WORD_SPACES.test(part)) {
+            frag.appendChild(document.createTextNode(part));
+            return;
+          }
+          var mask = document.createElement("span");
+          mask.className = "tw";
+          var riser = document.createElement("span");
+          riser.className = "tw-in";
+          riser.textContent = part;
+          mask.appendChild(riser);
+          frag.appendChild(mask);
+          words.push(riser);
+        });
+        el.replaceChild(frag, node);
+      });
+      return words;
+    };
+
+    // A moving word leaves its .metal phrase's own text, so it carries the
+    // metal itself: its slice of the phrase's gradient (the phrase's lines
+    // laid end to end, as an inline background is), in step with the
+    // phrase's sheen. Nothing shifts when the heading is whole again.
+    var matchHeadingMetal = function (heading) {
+      heading.querySelectorAll(".metal").forEach(function (metal) {
+        var lines = metal.getClientRects();
+        var width = 0;
+        for (var i = 0; i < lines.length; i++) width += lines[i].width;
+        if (!width) return;
+        var sheen = null;
+        if (metal.getAnimations) {
+          metal.getAnimations().forEach(function (anim) {
+            if (anim.animationName === "metal-sheen") sheen = anim;
+          });
+        }
+        var phase = sheen && sheen.currentTime ? -(sheen.currentTime % 11000) : 0;
+        metal.querySelectorAll(".tw").forEach(function (mask) {
+          var box = mask.getBoundingClientRect();
+          var mid = box.top + box.height / 2;
+          var line = 0;
+          var before = 0;
+          for (var j = 1; j < lines.length; j++) {
+            if (Math.abs(lines[j].top + lines[j].height / 2 - mid) <
+                Math.abs(lines[line].top + lines[line].height / 2 - mid)) line = j;
+          }
+          for (var k = 0; k < line; k++) before += lines[k].width;
+          var word = mask.firstChild;
+          word.style.setProperty("--metal-w", (width * 2.2).toFixed(1) + "px");
+          word.style.setProperty("--metal-h", lines[line].height.toFixed(1) + "px");
+          word.style.setProperty("--metal-run", (width * 1.2).toFixed(1) + "px");
+          word.style.setProperty("--metal-x", (before + box.left - lines[line].left).toFixed(1) + "px");
+          word.style.setProperty("--metal-y", (box.top - lines[line].top).toFixed(1) + "px");
+          word.style.setProperty("--metal-delay", phase.toFixed(0) + "ms");
+        });
+      });
+    };
+
+    // Once the words have landed the heading goes back to plain text, so
+    // nothing is left clipped or split.
+    var joinHeading = function (heading) {
+      heading.querySelectorAll(".tw").forEach(function (mask) {
+        mask.parentNode.replaceChild(document.createTextNode(mask.textContent), mask);
+      });
+      heading.normalize();
+      heading.classList.remove("is-split", "is-rising");
+      if (!heading.className) heading.removeAttribute("class");
+    };
+
+    // The rest of a block, in reading order, walking down only through the
+    // branch that holds the heading.
+    var blockParts = function (host, heading) {
+      var parts = [];
+      Array.prototype.forEach.call(host.children, function (child) {
+        if (child === heading) parts.push(child);
+        else if (child.contains(heading)) parts = parts.concat(blockParts(child, heading));
+        else parts.push(child);
+      });
+      return parts;
+    };
+
+    var labelsWithin = function (el) {
+      if (el.matches(TYPE_LABELS)) return [el];
+      return Array.prototype.slice.call(el.querySelectorAll(TYPE_LABELS));
+    };
+
+    /* Decrypting labels */
+    var NOISE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#_+";
+    var noiseGlyph = function (ch) {
+      if (!/[A-Za-z0-9]/.test(ch)) return ch;
+      var pool = /[0-9]/.test(ch) ? "0123456789" : NOISE_GLYPHS;
+      return pool.charAt(Math.floor(Math.random() * pool.length));
+    };
+
+    // Each run of text gets a hidden real copy for screen readers and a
+    // scrambled copy on screen (resolved part, then the noise). The font is
+    // monospaced, so the label keeps its width throughout. When the label
+    // has resolved, the original text goes back in place.
+    var scrambleLabel = function (label) {
+      if (label.typeRuns) return label.typeRuns;
+      var runs = [];
+      var total = 0;
+      var walker = document.createTreeWalker(label, NodeFilter.SHOW_TEXT, null, false);
+      for (var node = walker.nextNode(); node; node = walker.nextNode()) {
+        var text = node.nodeValue;
+        if (/[A-Za-z0-9]/.test(text)) runs.push({ node: node, text: text, at: total });
+        total += text.length;
+      }
+      runs.forEach(function (run) {
+        var real = document.createElement("span");
+        real.className = "visually-hidden";
+        var shown = document.createElement("span");
+        shown.className = "dc";
+        shown.setAttribute("aria-hidden", "true");
+        run.done = document.createTextNode("");
+        run.noise = document.createElement("span");
+        run.noise.className = "dc-noise";
+        shown.appendChild(run.done);
+        shown.appendChild(run.noise);
+        run.node.parentNode.replaceChild(shown, run.node);
+        shown.parentNode.insertBefore(real, shown);
+        real.appendChild(run.node);
+        run.real = real;
+        run.shown = shown;
+      });
+      runs.total = total || 1;
+      label.typeRuns = runs;
+      return runs;
+    };
+
+    var renderLabel = function (runs, resolvedTo) {
+      runs.forEach(function (run) {
+        var k = clamp(Math.floor(resolvedTo - run.at), 0, run.text.length);
+        var noise = "";
+        for (var i = k; i < run.text.length; i++) noise += noiseGlyph(run.text.charAt(i));
+        run.done.nodeValue = run.text.slice(0, k);
+        run.noise.textContent = noise;
+      });
+    };
+
+    var decryptLabel = function (label, delay) {
+      if (label.typeStarted || !label.classList.contains("type-label")) return;
+      label.typeStarted = true;
+      var runs = scrambleLabel(label);
+      if (!runs.length) return;
+      // Longer labels take a little longer, within 0.6 to 0.9 seconds. The
+      // first quarter is pure noise; then the text resolves left to right.
+      var duration = clamp(300 + runs.total * 24, 600, 900);
+      var start = null;
+      var last = -Infinity;
+      var tick = function (now) {
+        if (start === null) start = now + delay;
+        var t = now - start;
+        if (t >= duration) {
+          runs.forEach(function (run) {
+            run.real.parentNode.replaceChild(run.node, run.real);
+            run.shown.parentNode.removeChild(run.shown);
+          });
+          label.typeRuns = null;
+          label.classList.remove("is-decrypting");
+          label.classList.add("is-decrypted");
+          return;
+        }
+        if (t >= 0) label.classList.add("is-decrypting");
+        // New glyphs about twenty times a second: faster reads as flicker.
+        if (now - last >= 48) {
+          last = now;
+          renderLabel(runs, ((t / duration - 0.25) / 0.75) * runs.total);
+        }
+        window.requestAnimationFrame(tick);
+      };
+      renderLabel(runs, 0);
+      window.requestAnimationFrame(tick);
+    };
+
+    /* Headings and the blocks they lead */
+    var typeBlocks = [];
+
+    document.querySelectorAll(TYPE_HEADINGS).forEach(function (heading) {
+      if (heading.classList.contains("visually-hidden") || !heading.textContent.trim()) return;
+      // The block the reveal observer was going to raise as one piece.
+      var host = heading.parentElement && heading.parentElement.closest(".reveal");
+      if (!host) return;
+      var block = { host: host, heading: heading, parts: blockParts(host, heading) };
+      host.classList.remove("reveal");
+      host.classList.add("type-host");
+      block.parts.forEach(function (part) {
+        if (part === heading || part.classList.contains("reveal")) return;
+        part.classList.add("reveal", "type-part");
+        if (part.tagName === "P" && !part.matches(TYPE_LABELS)) part.classList.add("type-wipe");
+      });
+      heading.classList.add("is-split");
+      block.words = splitHeading(heading, []);
+      typeBlocks.push(block);
+    });
+
+    // The label first, the heading's words a beat later, then the rest
+    // while the last words are still rising.
+    var playTypeBlock = function (block, delay) {
+      var t = delay;
+      block.parts.forEach(function (part) {
+        if (part === block.heading) {
+          block.words.forEach(function (word, i) {
+            word.style.setProperty("--tw-d", t + Math.min(i, 12) * WORD_STAGGER + "ms");
+          });
+          matchHeadingMetal(block.heading);
+          block.heading.classList.add("is-rising");
+          var landed = t + Math.min(block.words.length - 1, 12) * WORD_STAGGER + 1300;
+          window.setTimeout(function () { joinHeading(block.heading); }, landed);
+          t += 140 + Math.min(block.words.length, 8) * WORD_STAGGER * 0.6;
+          return;
+        }
+        if (part.classList.contains("type-part")) {
+          part.style.setProperty("--reveal-delay", t + "ms");
+          part.classList.add("is-visible");
+          settle(part, t);
+          if (part.classList.contains("type-wipe")) {
+            part.style.setProperty("--wipe-d", t + "ms");
+            // Done with once it has run, so filtering the catalog (which
+            // hides and shows whole groups) never replays it.
+            window.setTimeout(function () {
+              part.classList.remove("type-wipe");
+              part.style.removeProperty("--wipe-d");
+            }, t + 1700);
+          }
+        }
+        labelsWithin(part).forEach(function (label) { decryptLabel(label, t); });
+        t += 110;
+      });
+    };
+
+    document.querySelectorAll(TYPE_LABELS).forEach(function (label) {
+      label.classList.add("type-label");
+    });
+
+    revealHooks.push(function (el, delay) {
+      for (var b = 0; b < typeBlocks.length; b++) {
+        if (typeBlocks[b].host === el) {
+          playTypeBlock(typeBlocks[b], delay);
+          return;
+        }
+      }
+      labelsWithin(el).forEach(function (label) { decryptLabel(label, delay); });
+    });
+
+    // Labels outside anything the reveal observer watches (the page heroes'
+    // labels) start scrambled and resolve as they come into view, a moment
+    // after the hero's entrance has begun.
+    var typeLabelObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          typeLabelObserver.unobserve(entry.target);
+          decryptLabel(entry.target, entry.target.closest(".hero, .page-hero") ? 180 : 0);
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px" }
+    );
+    document.querySelectorAll(".type-label").forEach(function (label) {
+      if (label.closest(".reveal, .type-host")) return;
+      scrambleLabel(label);
+      typeLabelObserver.observe(label);
+    });
+  }
 
 
   /* ---------- Scroll choreography [fx-scroll] ---------- */
