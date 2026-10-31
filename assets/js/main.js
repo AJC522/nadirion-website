@@ -674,6 +674,361 @@
   // Filtering the catalog or opening an FAQ answer moves everything below it.
   if ("ResizeObserver" in window) new ResizeObserver(measureWatched).observe(document.body);
 
+  /* ---------- Inner pages [fx-inner] ---------- */
+  // Movement for the parts that live only on the inner pages: the license
+  // assembling itself on Pricing, the lab on In Development, the install
+  // table and icons on the Desktop page, the catalog's category icons, a
+  // beacon on Contact and a seal on the reseller check. Everything built
+  // here is decoration, hidden from screen readers. The block keeps its own
+  // scope so its names never collide with the blocks around it.
+  (function () {
+    var SVG_NS = "http://www.w3.org/2000/svg";
+    var makeSvg = function (name, attrs) {
+      var node = document.createElementNS(SVG_NS, name);
+      Object.keys(attrs).forEach(function (key) { node.setAttribute(key, attrs[key]); });
+      return node;
+    };
+    var makeDecor = function (className) {
+      var node = document.createElement("span");
+      node.className = className;
+      node.setAttribute("aria-hidden", "true");
+      return node;
+    };
+    var easeOut = function (t) { return 1 - Math.pow(1 - t, 3); };
+    var stretch = function (v, from, to) { return clamp((v - from) / (to - from), 0, 1); };
+    var stacked = function () { return mediaMatches("(max-width: 1000px)"); };
+
+    // Items that come into view together take turns a beat apart, whether a
+    // whole row arrives at once on a wide screen or one at a time on a phone.
+    var inTurn = function (els, beat, threshold, fn) {
+      if (!motionOK || !els.length) return;
+      var nextAt = 0;
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            observer.unobserve(entry.target);
+            var now = Date.now();
+            var at = Math.max(now, nextAt);
+            nextAt = at + beat;
+            window.setTimeout(function () { fn(entry.target); }, at - now);
+          });
+        },
+        { rootMargin: "0px 0px -10% 0px", threshold: threshold }
+      );
+      Array.prototype.forEach.call(els, function (el) { observer.observe(el); });
+    };
+
+    // Ambient loops rest while their element is off screen.
+    var restOffscreen = function (el) {
+      if (!motionOK) return;
+      new IntersectionObserver(function (entries) {
+        el.classList.toggle("is-resting", !entries[entries.length - 1].isIntersecting);
+      }).observe(el);
+    };
+
+    /* Icons trace their strokes in, each shape dashed to its own length. */
+    var prepareTrace = function (icon) {
+      var svg = icon && icon.querySelector("svg");
+      if (!svg || !motionOK) return false;
+      var k = 0;
+      svg.querySelectorAll("path, circle, rect, ellipse, line, polyline, polygon").forEach(function (shape) {
+        // A filled dot has no stroke to trace, and a dashed one would lose
+        // its dashes; those fade in instead.
+        if (shape.getAttribute("stroke") === "none" || shape.hasAttribute("stroke-dasharray")) {
+          shape.classList.add("fx-fade");
+          return;
+        }
+        var length = 0;
+        try { length = shape.getTotalLength(); } catch (e) { length = 0; }
+        if (!(length > 0)) return;
+        shape.style.setProperty("--trace-len", (Math.ceil(length * 10) / 10) + "px");
+        shape.style.setProperty("--trace-k", String(k++));
+        shape.classList.add("fx-trace");
+      });
+      icon.classList.add("fx-draw");
+      return true;
+    };
+    var traceIcons = function (holders, iconSelector, beat, threshold) {
+      var ready = Array.prototype.filter.call(holders, function (holder) {
+        return prepareTrace(holder.querySelector(iconSelector));
+      });
+      inTurn(ready, beat, threshold, function (holder) {
+        holder.querySelector(iconSelector).classList.add("is-drawn");
+      });
+    };
+    // Desktop: what every license includes, card by card.
+    traceIcons(document.querySelectorAll(".module-grid .module"), ".module-icon", 140, 0.45);
+    // Catalog: each category's icon as its heading arrives.
+    traceIcons(document.querySelectorAll(".cat-head"), ".focus-icon", 0, 0.6);
+
+    /* Pricing: the license assembles. The two plans glide together from
+       either side, the "+" turns into place, and a beam of light joins the
+       cards through it, settled by the time the pair is mid-screen. Stacked
+       on a phone, the add-on card docks under the base and the beam runs
+       down. The cards move only by the translate property, so a reveal or a
+       pointer tilt on their transform still applies. */
+    var anatomy = document.querySelector(".license-anatomy");
+    var plus = anatomy && anatomy.querySelector(".plan-plus");
+    if (plus && anatomy.querySelectorAll(".plan").length === 2) {
+      // The "+" is redrawn as two strokes so it turns about its true centre.
+      // It sits in a small ring, a junction on the beam that joins the cards.
+      var plusMark = makeSvg("svg", { "class": "plan-plus-mark", viewBox: "0 0 22 22", focusable: "false" });
+      plusMark.appendChild(makeSvg("circle", { "class": "plus-node", cx: "11", cy: "11", r: "18.5" }));
+      plusMark.appendChild(makeSvg("path", { d: "M11 4v14M4 11h14" }));
+      plus.textContent = "";
+      plus.appendChild(plusMark);
+      var sparkTrack = makeDecor("plan-spark-track");
+      sparkTrack.appendChild(makeDecor("plan-spark"));
+      plus.appendChild(makeDecor("plan-beam"));
+      plus.appendChild(sparkTrack);
+      plus.appendChild(makeDecor("plan-contact is-start"));
+      plus.appendChild(makeDecor("plan-contact is-end"));
+      anatomy.classList.add("fx-assembly");
+
+      if (motionOK) {
+        restOffscreen(anatomy);
+        var wideAnatomy = !stacked();
+        window.addEventListener("resize", function () { wideAnatomy = !stacked(); });
+        // The cards may start wider than the page; keep that off the scrollbar.
+        var anatomySection = anatomy.closest("section");
+        if (anatomySection) anatomySection.classList.add("fx-clip-x");
+
+        var assemble = function (a) {
+          var glide = stretch(a, 0, 0.8);
+          anatomy.style.setProperty("--fx-glide", (1 - (1 - glide) * (1 - glide)).toFixed(3));
+          anatomy.style.setProperty("--fx-turn", easeOut(stretch(a, 0.3, 0.85)).toFixed(3));
+          anatomy.style.setProperty("--fx-beam", stretch(a, 0.78, 1).toFixed(3));
+          anatomy.classList.toggle("is-assembled", a >= 1);
+        };
+        // Side by side: under way once the cards show, done when the pair's
+        // centre is just above mid-screen.
+        var anatomyWatch = watchScroll(anatomy, function (p) {
+          if (!wideAnatomy) return;
+          var risen = p * (viewportH + anatomyWatch.height) - viewportH * 0.1;
+          assemble(clamp(risen / (viewportH * 0.35 + anatomyWatch.height * 0.5), 0, 1));
+        });
+        // Stacked: done when the "+" has climbed a little past mid-screen.
+        var plusWatch = watchScroll(plus, function (p) {
+          if (wideAnatomy) return;
+          var risen = p * (viewportH + plusWatch.height);
+          assemble(clamp(risen / (viewportH * 0.45), 0, 1));
+        });
+      }
+    }
+
+    /* In Development: preview cards read as work in progress. A dashed
+       frame marches slowly round each one, a faint blueprint grid sits
+       inside, and now and then a scanner passes down the card, lighting the
+       grid as it goes. Each card takes its turn. */
+    document.querySelectorAll(".mod-card.is-preview").forEach(function (card, i) {
+      var lab = makeDecor("wip-lab");
+      var frame = makeSvg("svg", { "class": "wip-frame", focusable: "false" });
+      frame.appendChild(makeSvg("rect", { x: "0.5", y: "0.5", width: "100%", height: "100%", rx: "13.5" }));
+      var scan = document.createElement("span");
+      scan.className = "wip-scan";
+      var scanGrid = document.createElement("span");
+      scanGrid.className = "wip-scan-grid";
+      scan.appendChild(scanGrid);
+      var grid = document.createElement("span");
+      grid.className = "wip-grid";
+      lab.appendChild(grid);
+      lab.appendChild(scan);
+      lab.appendChild(frame);
+      lab.style.setProperty("--wip-i", String(i));
+      card.insertBefore(lab, card.firstChild);
+      card.classList.add("has-lab");
+      restOffscreen(card);
+    });
+
+    /* Stage lists. "From research to release" numbers its stages, so a line
+       of progress runs through them in order as the reader scrolls, lighting
+       each stage's label and rule as it arrives. A list of requirements
+       (resellers: what "certified" means) ticks each one off in turn. */
+    document.querySelectorAll(".service-list-grid").forEach(function (list) {
+      var stages = Array.prototype.slice.call(list.querySelectorAll(".service"));
+      if (!stages.length) return;
+      var numbered = stages.every(function (stage) {
+        var label = stage.querySelector(".service-index");
+        return !!label && /^\d+\s*\u00b7/.test(label.textContent.trim());
+      });
+      stages.forEach(function (stage) { stage.appendChild(makeDecor("stage-fill")); });
+
+      if (numbered) {
+        list.classList.add("fx-timeline");
+        stages.forEach(function (stage) { stage.appendChild(makeDecor("stage-head")); });
+        if (!motionOK) return;
+        var shown = [];
+        var listWatch = watchScroll(list, function (p) {
+          // 0 as the list's top comes 15% up the screen, 1 once its foot is
+          // 28% up, so the last stage lights while it is still well in view.
+          var risen = p * (viewportH + listWatch.height);
+          var run = clamp((risen - viewportH * 0.15) / (viewportH * 0.13 + listWatch.height), 0, 1);
+          stages.forEach(function (stage, n) {
+            var fill = Math.round(clamp(run * stages.length - n, 0, 1) * 1000) / 1000;
+            if (fill === shown[n]) return;
+            shown[n] = fill;
+            stage.style.setProperty("--stage-fill", String(fill));
+            stage.classList.toggle("is-reached", fill > 0);
+            // The head of the line rides the stage in progress, and rests at
+            // the end of the last one.
+            stage.classList.toggle("is-current", fill > 0 && (fill < 1 || n === stages.length - 1));
+          });
+        });
+        return;
+      }
+
+      list.classList.add("fx-checklist");
+      stages.forEach(function (stage) {
+        var label = stage.querySelector(".service-index");
+        if (!label) return;
+        var check = makeSvg("svg", { "class": "service-check", viewBox: "0 0 14 14", "aria-hidden": "true", focusable: "false" });
+        check.appendChild(makeSvg("rect", { x: "0.75", y: "0.75", width: "12.5", height: "12.5", rx: "3" }));
+        check.appendChild(makeSvg("path", { d: "M3.8 7.2l2.2 2.2 4.4-4.8", pathLength: "1" }));
+        label.insertBefore(check, label.firstChild);
+      });
+      inTurn(stages, 320, 0.45, function (stage) { stage.classList.add("is-ticked"); });
+    });
+
+    /* Desktop: the install table is scanned in. A soft line of light passes
+       down it, each row settling as the line reaches it and each platform's
+       name lighting up as it passes. The notes beneath then light in turn. */
+    document.querySelectorAll(".table-scroll").forEach(function (box) {
+      var rows = box.querySelectorAll("tbody tr");
+      if (!motionOK || !rows.length) return;
+      box.appendChild(makeDecor("spec-scan"));
+      box.classList.add("fx-scan");
+      var scanObserver = new IntersectionObserver(
+        function (entries) {
+          if (!entries[entries.length - 1].isIntersecting) return;
+          scanObserver.disconnect();
+          // Measured once, as the scan starts: where each row sits.
+          var height = box.clientHeight || 1;
+          rows.forEach(function (row) {
+            row.style.setProperty("--row-top", (row.offsetTop / height).toFixed(3));
+            row.style.setProperty("--row-mid", ((row.offsetTop + row.offsetHeight / 2) / height).toFixed(3));
+          });
+          box.classList.add("is-scanning");
+        },
+        { rootMargin: "0px 0px -15% 0px", threshold: 0.45 }
+      );
+      scanObserver.observe(box);
+    });
+    var specNotes = document.querySelectorAll(".spec-note");
+    if (motionOK && specNotes.length) {
+      specNotes[0].parentElement.classList.add("fx-notes");
+      inTurn(specNotes, 170, 0.6, function (note) { note.classList.add("is-lit"); });
+    }
+
+    /* Contact: the short hero has no artwork, so a beacon transmits from its
+       right side: a bright point sending rings outward, under a slow radar
+       sweep, drifting back as the hero scrolls away. */
+    var quietHero = document.querySelector(".page-hero-short");
+    if (quietHero && !quietHero.querySelector(".page-hero-glyph")) {
+      var beacon = makeDecor("fx-beacon");
+      var scope = makeSvg("svg", { "class": "fx-beacon-scope", viewBox: "-180 -180 360 360", focusable: "false" });
+      [62, 118, 174].forEach(function (radius, n) {
+        scope.appendChild(makeSvg("circle", { r: String(radius), "class": "scope-ring scope-ring-" + n }));
+      });
+      // Bearing marks round the rim, longer at the four quarters.
+      var marks = "";
+      for (var deg = 0; deg < 360; deg += 10) {
+        var rad = (deg * Math.PI) / 180;
+        var inner = deg % 90 === 0 ? 158 : 167;
+        marks += "M" + (Math.cos(rad) * inner).toFixed(1) + " " + (Math.sin(rad) * inner).toFixed(1) +
+          "L" + (Math.cos(rad) * 174).toFixed(1) + " " + (Math.sin(rad) * 174).toFixed(1);
+      }
+      scope.appendChild(makeSvg("path", { d: marks, "class": "scope-marks" }));
+      scope.appendChild(makeSvg("path", { d: "M-174 0H-24M24 0H174M0 -174V-24M0 24V174", "class": "scope-cross" }));
+      beacon.appendChild(scope);
+      beacon.appendChild(makeDecor("fx-beacon-sweep"));
+      for (var ring = 0; ring < 3; ring++) {
+        var pulse = makeDecor("fx-beacon-ring");
+        pulse.style.setProperty("--ring", String(ring));
+        beacon.appendChild(pulse);
+      }
+      beacon.appendChild(makeDecor("fx-beacon-core"));
+      quietHero.insertBefore(beacon, quietHero.querySelector(".page-hero-inner"));
+
+      if (motionOK) {
+        restOffscreen(beacon);
+        var heroWatch = watchScroll(quietHero, function (p) {
+          // Turned back into the scroll offset, as a share of the hero's height.
+          var scrolled = p * (viewportH + heroWatch.height) - viewportH + heroWatch.top;
+          beacon.style.setProperty("--beacon-drift", clamp(scrolled / (heroWatch.height || 1), 0, 1).toFixed(3));
+        });
+      }
+    }
+
+    /* Resellers: "Verify before you pay." carries a seal that draws itself,
+       rim first and then the check, when the band comes into view. It sits
+       just after the heading, or in the band's corner where that is too
+       narrow. */
+    var verifyBand = document.getElementById("verify");
+    var verifyCopy = verifyBand && verifyBand.classList.contains("cta-band") &&
+      verifyBand.querySelector(".cta-inner > div");
+    var verifyHeading = verifyCopy && verifyCopy.querySelector("h2");
+    if (verifyHeading) {
+      var seal = makeSvg("svg", { "class": "verify-seal", viewBox: "0 0 120 120", "aria-hidden": "true", focusable: "false" });
+      var sealMarks = "";
+      for (var tick = 0; tick < 60; tick++) {
+        var angle = (tick * 6 * Math.PI) / 180;
+        var reach = tick % 5 === 0 ? 44 : 46.5;
+        sealMarks += "M" + (60 + Math.cos(angle) * reach).toFixed(2) + " " + (60 + Math.sin(angle) * reach).toFixed(2) +
+          "L" + (60 + Math.cos(angle) * 49).toFixed(2) + " " + (60 + Math.sin(angle) * 49).toFixed(2);
+      }
+      var sealTicks = makeSvg("g", { "class": "seal-ticks" });
+      sealTicks.appendChild(makeSvg("path", { d: sealMarks }));
+      seal.appendChild(makeSvg("circle", { "class": "seal-rim", cx: "60", cy: "60", r: "56", pathLength: "1", transform: "rotate(-90 60 60)" }));
+      seal.appendChild(sealTicks);
+      seal.appendChild(makeSvg("circle", { "class": "seal-inner", cx: "60", cy: "60", r: "37" }));
+      seal.appendChild(makeSvg("path", { "class": "seal-check", d: "M45 61.5l10.5 10.5L77 49.5", pathLength: "1" }));
+      verifyCopy.classList.add("has-seal");
+      verifyCopy.appendChild(seal);
+
+      // Measured on load and resize, never while scrolling.
+      var placeSeal = function () {
+        var range = document.createRange();
+        range.selectNodeContents(verifyHeading);
+        var text = range.getBoundingClientRect();
+        var box = verifyCopy.getBoundingClientRect();
+        var room = box.right - text.right;
+        var fits = text.width > 0 && room >= 76 + 56;
+        seal.classList.toggle("is-cornered", !fits);
+        seal.style.setProperty("--seal-x", Math.round(text.right - box.left + 28) + "px");
+        seal.style.setProperty("--seal-y", Math.round(verifyHeading.offsetTop + verifyHeading.offsetHeight / 2) + "px");
+      };
+      placeSeal();
+      window.addEventListener("resize", placeSeal);
+      window.addEventListener("load", placeSeal);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeSeal);
+
+      if (motionOK) {
+        var sealObserver = new IntersectionObserver(
+          function (entries) {
+            if (!entries[entries.length - 1].isIntersecting) return;
+            sealObserver.disconnect();
+            seal.classList.add("is-sealed");
+          },
+          { rootMargin: "0px 0px -15% 0px", threshold: 0.5 }
+        );
+        sealObserver.observe(verifyCopy);
+        restOffscreen(seal);
+      }
+    }
+
+    /* Contact details and the links under them settle one after another
+       once their column has risen into place. */
+    if (motionOK) {
+      document.querySelectorAll(".contact-copy").forEach(function (copy) {
+        var items = copy.querySelectorAll(".contact-details > div, .route-links a");
+        if (!items.length) return;
+        items.forEach(function (item, n) { item.style.setProperty("--detail-i", String(n)); });
+        copy.classList.add("fx-details");
+      });
+    }
+  })();
+
   /* ==========================================================
      Round two. Each block below holds one area's effects.
      ========================================================== */
