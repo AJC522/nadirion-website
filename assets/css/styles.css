@@ -722,53 +722,6 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
   background: var(--black);
 }
 
-/* ---------- Platform program blocks ---------- */
-.program-thesis {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-  margin-top: 56px;
-  padding-top: 34px;
-  border-top: 1px solid var(--line-dark);
-}
-.program-thesis h4 {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--white);
-  margin-bottom: 10px;
-}
-.program-thesis p { font-size: 0.9rem; margin-bottom: 0; }
-
-.program-status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 44px;
-  padding: 24px 28px;
-  border: 1px solid var(--line-dark);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.02);
-}
-.program-status p {
-  margin: 0;
-  max-width: 62ch;
-  font-size: 0.93rem;
-}
-.status-tag {
-  display: inline-block;
-  margin-right: 12px;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--white);
-}
-
 /* ---------- About ---------- */
 .about { background: var(--black); border-top: 1px solid var(--line-dark); }
 .about-inner {
@@ -914,21 +867,47 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
 /* ---------- Footer ---------- */
 .site-footer {
   background: var(--black);
-  padding: 64px 0 36px;
+  padding: 36px 0 28px;
   border-top: 1px solid var(--line-dark);
 }
-.footer-grid {
-  display: grid;
-  grid-template-columns: 1.4fr repeat(4, 1fr);
-  gap: 40px;
-  align-items: start;
+.footer-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px 40px;
 }
-.footer-brand p {
-  margin: 18px 0 0;
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+}
+.footer-nav a,
+.footer-meta a {
   font-size: 0.88rem;
-  max-width: 34ch;
+  color: var(--silver-500);
+  transition: color 0.2s ease;
 }
-.footer-col { display: flex; flex-direction: column; gap: 9px; }
+.footer-nav a:hover,
+.footer-meta a:hover { color: var(--white); }
+.footer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-dark);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--silver-700);
+}
+.footer-meta p { margin: 0; color: inherit; }
+.footer-meta a { font-size: inherit; }
+
+/* Section labels (also used above the home and contact link rows) */
 .footer-head {
   margin: 0 0 6px;
   font-family: var(--font-mono);
@@ -936,22 +915,6 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--silver-700);
-}
-.footer-col a {
-  font-size: 0.88rem;
-  color: var(--silver-500);
-  transition: color 0.2s ease;
-}
-.footer-col a:hover { color: var(--white); }
-.footer-note {
-  margin: 44px 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: var(--silver-700);
-  text-align: center;
-  padding-top: 24px;
-  border-top: 1px solid var(--line-dark);
 }
 
 /* ---------- Utility ---------- */
@@ -977,70 +940,7 @@ main p a:not(.btn):hover { border-bottom-color: var(--white); }
 section.light p a:not(.btn) { color: var(--black); border-bottom-color: var(--line-light); }
 section.light p a:not(.btn):hover { border-bottom-color: var(--black); }
 
-/* ---------- Capabilities dropdown ---------- */
-.nav-group { position: relative; }
-.nav-group-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding: 6px 0;
-  background: none;
-  border: 0;
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--silver-300);
-  transition: color 0.2s ease;
-}
-.nav-group-btn:hover,
-.nav-group.is-open .nav-group-btn { color: var(--white); }
-.caret {
-  width: 6px;
-  height: 6px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: translateY(-2px) rotate(45deg);
-  transition: transform 0.25s var(--ease);
-}
-.nav-group.is-open .caret { transform: translateY(1px) rotate(225deg); }
-
-.nav-menu {
-  position: absolute;
-  top: calc(100% + 20px);
-  right: -26px;
-  display: none;
-  grid-template-columns: repeat(2, minmax(185px, 1fr));
-  gap: 30px;
-  padding: 24px 26px;
-  /* Opaque: a backdrop-filter here would nest inside the header's own, which
-     Chromium renders as an empty backdrop and leaves the panel see-through. */
-  background: var(--graphite);
-  border: 1px solid var(--line-dark-strong);
-  border-radius: var(--radius);
-  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.95);
-}
-.nav-group.is-open .nav-menu { display: grid; }
-.nav-menu-col { display: flex; flex-direction: column; }
-.nav-menu-head {
-  margin: 0 0 12px;
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--silver-700);
-}
-.nav-menu a {
-  padding: 7px 0;
-  font-size: 0.9rem;
-  color: var(--silver-300);
-  white-space: nowrap;
-}
-.nav-menu a::after { display: none; }
-.nav-menu a:hover { color: var(--white); }
-.nav-menu a[aria-current="page"] { color: var(--white); font-weight: 600; }
-
-/* ---------- Page hero (focus-area pages) ---------- */
+/* ---------- Page hero (inner pages) ---------- */
 .page-hero {
   position: relative;
   overflow: hidden;
@@ -1085,10 +985,6 @@ section.light p a:not(.btn):hover { border-bottom-color: var(--black); }
 .page-hero-glyph svg { width: min(100%, 300px); height: auto; }
 
 .crumb {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
   margin-bottom: 22px;
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -1096,6 +992,16 @@ section.light p a:not(.btn):hover { border-bottom-color: var(--black); }
   text-transform: uppercase;
   color: var(--silver-700);
 }
+.crumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.crumb li + li::before { content: "/"; margin-right: 10px; }
 .crumb a { color: var(--silver-500); transition: color 0.2s ease; }
 .crumb a:hover { color: var(--white); }
 
@@ -1348,12 +1254,8 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
 }
 .spec-note p { font-size: 0.88rem; margin-bottom: 0; }
 
-/* ---------- Program status band ---------- */
-.status-section { padding: 0 0 96px; background: var(--black); }
-
-/* ---------- Related focus areas ---------- */
+/* ---------- Related links ---------- */
 .related { background: var(--black-2); border-top: 1px solid var(--line-dark); padding: 96px 0; }
-.related-title { font-size: clamp(1.5rem, 2.4vw, 1.9rem); margin-bottom: 36px; }
 .related-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1439,7 +1341,6 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   .toolkit-showcase { grid-template-columns: 1fr; }
   .module-grid { grid-template-columns: repeat(2, 1fr); }
   .service-list-grid { grid-template-columns: 1fr; gap: 12px; }
-  .program-thesis { grid-template-columns: 1fr; gap: 22px; }
   .about-inner { grid-template-columns: 1fr; gap: 40px; }
   .constellation { width: min(100%, 300px); }
   .contact-inner { grid-template-columns: 1fr; }
@@ -1452,7 +1353,6 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   .hero-badge { margin-bottom: 24px; }
   .module-grid { grid-template-columns: 1fr; }
   .sector-grid { grid-template-columns: 1fr; }
-  .program-status { padding: 22px; }
   .about-pillars { grid-template-columns: 1fr; }
   .hero h1 br { display: none; }
   .scroll-cue { display: none; }
@@ -1473,7 +1373,6 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   .related-grid { grid-template-columns: 1fr; }
   .cta-inner { grid-template-columns: 1fr; }
   .cta-actions { justify-content: flex-start; }
-  .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
 }
 
 /* The header has six destinations, so it folds into the menu button well
@@ -1505,28 +1404,6 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   .primary-nav a::after { display: none; }
   .primary-nav a.nav-cta { margin-top: 12px; text-align: center; border-bottom: none; }
   .nav-toggle { display: flex; }
-
-  .nav-group { width: 100%; }
-  .nav-group-btn {
-    width: 100%;
-    justify-content: space-between;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line-dark);
-  }
-  .nav-menu {
-    position: static;
-    display: none;
-    grid-template-columns: 1fr;
-    gap: 18px;
-    padding: 14px 0 4px;
-    background: none;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-  .nav-menu a { padding: 10px 0 10px 14px; border-bottom: 0; }
 }
 
 @media (max-width: 720px) {
@@ -1538,8 +1415,7 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   .steps, .steps-five { grid-template-columns: 1fr; }
   .spec-notes { grid-template-columns: 1fr; gap: 22px; }
   .related, .cta-band { padding: 72px 0; }
-  .status-section { padding-bottom: 72px; }
-  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+  .footer-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; width: 100%; }
   .sector-block + .sector-block { margin-top: 48px; }
 }
 
@@ -2102,7 +1978,6 @@ main code {
 section.light code { background: rgba(5, 5, 6, 0.06); color: var(--black); }
 .console-body code { padding: 0; background: none; font-size: inherit; color: inherit; }
 
-.contact-routes + .contact-routes { margin-top: 28px; }
 .contact-routes { scroll-margin-top: 110px; }
 
 /* ---------- Small print ---------- */
@@ -2122,7 +1997,6 @@ section.light .fine-print { color: var(--silver-700); }
   .license-anatomy { grid-template-columns: 1fr; }
   .plan-plus { padding: 2px 0; font-size: 1.8rem; }
   .track-grid { grid-template-columns: 1fr; }
-  .footer-brand { grid-column: 1 / -1; }
   .catalog-bar-inner { flex-direction: column; align-items: stretch; gap: 12px; }
   .catalog-search { flex-basis: auto; order: 0; margin-left: 0; }
   /* One scrolling line of chips, faded at the edge so it reads as scrollable. */

@@ -35,37 +35,6 @@
     });
   }
 
-  /* ---------- Capabilities menu ---------- */
-  var capsGroup = document.getElementById("capsGroup");
-  var capsToggle = document.getElementById("capsToggle");
-
-  if (capsGroup && capsToggle) {
-    var setCaps = function (open) {
-      capsGroup.classList.toggle("is-open", open);
-      capsToggle.setAttribute("aria-expanded", String(open));
-    };
-
-    capsToggle.addEventListener("click", function (event) {
-      event.stopPropagation();
-      setCaps(capsToggle.getAttribute("aria-expanded") !== "true");
-    });
-
-    capsGroup.querySelectorAll("a").forEach(function (link) {
-      link.addEventListener("click", function () { setCaps(false); });
-    });
-
-    document.addEventListener("click", function (event) {
-      if (!capsGroup.contains(event.target)) setCaps(false);
-    });
-
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" || event.key === "Esc") {
-        setCaps(false);
-        capsToggle.focus();
-      }
-    });
-  }
-
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -73,9 +42,9 @@
   /* ---------- Reveal on scroll ---------- */
   var revealTargets = document.querySelectorAll(
     ".section-head, .page-hero-copy, .page-hero-glyph, .stat, .focus-card, .toolkit-showcase, " +
-      ".module, .service, .step, .table-scroll, .spec-note, .program, .program-thesis, " +
-      ".program-status, .about-copy, .about-visual, .sector, .related-card, .cta-inner, " +
-      ".contact-copy, .contact-form, .plan, .track, .app-window"
+      ".module, .service, .step, .table-scroll, .spec-note, .about-copy, .about-visual, " +
+      ".sector, .related-card, .cta-inner, .contact-copy, .contact-form, .plan, .track, " +
+      ".app-window"
   );
   if ("IntersectionObserver" in window && !reduceMotion) {
     revealTargets.forEach(function (el, i) {
