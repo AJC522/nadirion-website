@@ -439,9 +439,11 @@ section.light :focus-visible { outline-color: var(--black); }
   width: 100%;
 }
 
+/* Baseline alignment keeps the dot on the first line when the label wraps:
+   an empty span's baseline is its bottom edge, which centers it on the capitals. */
 .hero-badge {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 10px;
   padding: 7px 14px 7px 10px;
   border: 1px solid var(--line-dark-strong);
@@ -471,7 +473,9 @@ section.light :focus-visible { outline-color: var(--black); }
   opacity: 0;
   animation: pulse 2.4s 2;
 }
-.badge-arrow { transition: transform var(--dur-fast) var(--ease); }
+/* The arrow sits in the label after a no-break space, so it trails the last word. */
+.badge-text { text-wrap: balance; }
+.badge-arrow { display: inline-block; transition: transform var(--dur-fast) var(--ease); }
 @media (hover: hover) and (pointer: fine) {
   .hero-badge:hover { border-color: var(--white); color: var(--white); }
   .hero-badge:hover .badge-arrow { transform: translateX(3px); }
@@ -754,6 +758,14 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
   line-height: 1.85;
   color: var(--silver-300);
   overflow-x: auto;
+}
+/* A transcript too wide for the screen scrolls, so it takes keyboard focus.
+   The window clips the pre's own ring, so the window carries it; without
+   :has() the ring is drawn just inside the pre. */
+.console-body:focus-visible { outline-offset: -3px; }
+.console:has(.console-body:focus-visible) { outline: 2px solid var(--white); outline-offset: 3px; }
+@supports selector(:has(a)) {
+  .console-body:focus-visible { outline: none; }
 }
 .c-prompt { color: var(--white); font-weight: 500; }
 .c-time { color: var(--silver-700); }
@@ -1725,7 +1737,7 @@ section.light p a:not(.btn):hover { border-bottom-color: var(--black); }
   text-transform: uppercase;
   color: var(--silver-700);
 }
-.app-body { padding: 18px 18px 20px; display: grid; gap: 16px; }
+.app-body { padding: 18px 18px 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .app-search {
   display: flex;
   align-items: center;
@@ -2306,8 +2318,10 @@ section.light .fine-print { color: var(--ink-muted); }
      960        header folds into the menu button
      720        single column, phone spacing, stacked spec tables
      560        one-up grids
-     480        stacked button pairs
-   Short viewports, motion preferences and forced colors follow.
+     480        stacked button pairs, tighter hero badge
+     374        hero badge on two lines
+     359        one-column footer, narrower table labels
+   Short viewports, motion preferences, forced colors and print follow.
    ========================================================= */
 
 /* The filter chips wrap to a second row below about 1080px. */
@@ -2322,7 +2336,9 @@ section.light .fine-print { color: var(--ink-muted); }
   .section-head h2 { max-width: 22ch; }
   .section-head.split { grid-template-columns: 1fr; gap: 18px; }
 
-  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  /* minmax(0, ...): a plain 1fr column would grow to the copy's min-content
+     width and run the hero past the right gutter on the narrowest phones. */
+  .hero-inner { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .hud { display: none; }
   .hero { min-height: 0; padding: 72px 0 96px; }
   /* The hero no longer fills the screen here, so there is nothing to scroll to. */
@@ -2563,7 +2579,7 @@ section.light .fine-print { color: var(--ink-muted); }
   .spec-table td,
   .spec-table tbody th { padding: 3px 0; border: 0; }
   .spec-table tr > :first-child { padding-bottom: 8px; }
-  .spec-table td[data-label] { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 12px; }
+  .spec-table td[data-label] { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 12px; overflow-wrap: break-word; }
   .spec-table td[data-label]::before {
     content: attr(data-label);
     padding-top: 0.25em;
@@ -2626,6 +2642,26 @@ section.light .fine-print { color: var(--ink-muted); }
   .hero-actions .btn,
   .cta-actions .btn,
   .point-actions .btn { flex: 1 1 100%; }
+  /* Small enough that the badge keeps to one line from 375px up. */
+  .hero-badge {
+    gap: 8px;
+    padding: 6px 12px 6px 9px;
+    font-size: var(--fs-label);
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Below that the label wraps; the cap keeps the pill around two balanced
+   lines instead of a full-width box with a gap at the end. */
+@media (max-width: 374px) {
+  .badge-text { max-width: 13em; }
+}
+
+/* The narrowest phones (and 400% zoom): two footer columns would break the
+   email address, and long table values need the label column's room. */
+@media (max-width: 359px) {
+  .spec-table td[data-label] { grid-template-columns: 6rem minmax(0, 1fr); }
+  .footer-nav { grid-template-columns: minmax(0, 1fr); gap: 28px; }
 }
 
 /* ---------- Short viewports (phones in landscape, 200-400% zoom) ---------- */
@@ -2684,4 +2720,171 @@ section.light .fine-print { color: var(--ink-muted); }
   .form-row input[aria-invalid="true"],
   .form-row textarea[aria-invalid="true"],
   .form-row select[aria-invalid="true"] { border-width: 2px; }
+}
+/* The logo mark is drawn black and inverted to white, which vanishes on a
+   light Canvas; there it stays black. The silver caret image is as faint, so
+   the system draws the select's arrow instead. */
+@media (forced-colors: active) and (prefers-color-scheme: light) {
+  .brand-mark,
+  .app-title img { filter: none; }
+  .form-row select {
+    appearance: auto;
+    -webkit-appearance: auto;
+    background-image: none;
+  }
+}
+
+
+/* ---------- Print ---------- */
+/* Paper gets dark text on white, with or without background graphics: the
+   silver scale maps to greys that read on paper, backgrounds and glows drop
+   out, controls and decorative layers are hidden, the header keeps only the
+   brand, and spec tables print as tables. (main.js opens the FAQ answers.) */
+@media print {
+  @page { margin: 15mm; }
+
+  :root {
+    color-scheme: light;
+    --white: #000;
+    --silver-100: #1c1c1f;
+    --silver-300: #2a2a2e;
+    --silver-500: #45454b;
+    --silver-700: #5c5c63;
+    --silver-900: #2a2a2e;
+    --ink-muted: #45454b;
+    --line-dark: #d4d4d8;
+    --line-dark-strong: #9c9ca6;
+    --line-light: #d4d4d8;
+    --line-field: #9c9ca6;
+    --line-link: #9c9ca6;
+    --line-link-light: #9c9ca6;
+  }
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  .metal { color: var(--silver-500); }
+
+  .skip-link,
+  .primary-nav,
+  .nav-toggle,
+  .starfield,
+  .hero-glow,
+  .hero-visual,
+  .badge-pulse,
+  .scroll-cue,
+  .motion-toggle,
+  .page-hero-grid,
+  .page-hero-glyph,
+  .about-visual,
+  .catalog-bar,
+  .mod-add,
+  .license-tray,
+  .footer-nav,
+  .faq summary::after { display: none; }
+  .toolkit::before { content: none; }
+
+  .site-header {
+    position: static;
+    border-bottom: 1px solid var(--line-dark);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .wrap { max-width: none; padding: 0; }
+  .header-inner { height: auto; padding-bottom: 14px; }
+  .brand-mark,
+  .app-title img { filter: none; }
+
+  section,
+  .hero,
+  .page-hero,
+  .page-hero-short,
+  .page-hero-short + .contact,
+  .status-section,
+  .related,
+  .cta-band,
+  .prose-section { padding: 28px 0; }
+  .hero { min-height: 0; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+
+  .btn { padding: 8px 18px; border-color: var(--line-dark-strong); }
+  .mod-card.is-selected { border-color: var(--line-dark-strong); }
+  main p a[href^="http"]::after { content: " (" attr(href) ")"; }
+
+  /* Lines and dots drawn with backgrounds become borders, which always print. */
+  .module-grid,
+  .steps { gap: 12px; border: 0; border-radius: 0; overflow: visible; }
+  .module,
+  .step { border: 1px solid var(--line-dark); border-radius: var(--radius-sm); }
+  .bullets li::before,
+  .focus-points li::before { height: 0; border-top: 1px solid currentColor; }
+  .hero-meta li::before,
+  .status-tag::before { border: 1px solid currentColor; }
+
+  .console-body {
+    overflow: visible;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  /* Paper is narrow enough for the stacked phone layout; undo it. */
+  .table-scroll { overflow: visible; }
+  .spec-table { display: table; min-width: 0; }
+  .spec-table thead {
+    display: table-header-group;
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+  .spec-table tbody { display: table-row-group; }
+  .spec-table tr { display: table-row; padding: 0; }
+  .spec-table th,
+  .spec-table td,
+  .spec-table tbody th,
+  .spec-table td[data-label] {
+    display: table-cell;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line-dark);
+  }
+  .spec-table tbody tr:last-child > * { border-bottom: 0; }
+  .spec-table td[data-label]::before { content: none; }
+
+  .site-footer { padding: 24px 0 0; }
+  body.has-tray .site-footer { padding-bottom: 0; }
+  .footer-note { margin-top: 16px; padding-top: 12px; }
+
+  h1, h2, h3, .eyebrow, .section-head, .cat-head { break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  .section-head,
+  .toolkit-points,
+  .focus-card,
+  .related-card,
+  .module,
+  .step,
+  .service,
+  .sector,
+  .point,
+  .stat,
+  .plan,
+  .track,
+  .mod-card,
+  .spec-note,
+  .program-status,
+  .console,
+  .faq details,
+  .table-scroll,
+  .spec-table tr,
+  .quote-box,
+  .form-row,
+  .contact-routes,
+  .cta-inner,
+  .site-footer { break-inside: avoid; }
 }

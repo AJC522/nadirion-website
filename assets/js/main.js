@@ -180,6 +180,71 @@
     revealTargets.forEach(function (el) { sorter.observe(el); });
   }
 
+  /* ---------- Printing ---------- */
+  // A printout shows everything. Closed answers open for the print and close
+  // again afterwards. The reveal ends for good: content still waiting to fade
+  // in, or caught mid-fade, prints at full strength.
+  var openedForPrint = [];
+  window.addEventListener("beforeprint", function () {
+    document.querySelectorAll("details:not([open])").forEach(function (details) {
+      details.open = true;
+      openedForPrint.push(details);
+    });
+    if (sorter) sorter.disconnect();
+    if (revealer) revealer.disconnect();
+    document.querySelectorAll(".reveal").forEach(function (el) {
+      el.style.transitionDelay = "";
+      el.classList.remove("reveal");
+      // A fade already under way would otherwise carry on into the print.
+      if (el.getAnimations) {
+        el.getAnimations().forEach(function (animation) {
+          if (animation.transitionProperty) animation.finish();
+        });
+      }
+    });
+  });
+  window.addEventListener("afterprint", function () {
+    openedForPrint.forEach(function (details) { details.open = false; });
+    openedForPrint = [];
+  });
+
+  /* ---------- Wide tables ---------- */
+  // A table's scrolling wrapper is a tab stop, so the keyboard can scroll it,
+  // only while it is actually wider than its box. On phones the rows stack
+  // into cards that fit, and the stop would lead nowhere.
+  var tableScrolls = document.querySelectorAll(".table-scroll");
+
+  var syncTableStop = function (wrap) {
+    var scrolls = /auto|scroll/.test(window.getComputedStyle(wrap).overflowX) &&
+      wrap.scrollWidth - wrap.clientWidth > 1;
+    if (scrolls) wrap.setAttribute("tabindex", "0");
+    // A wrapper that has focus keeps it; the blur handler checks again.
+    else if (document.activeElement !== wrap) wrap.removeAttribute("tabindex");
+  };
+  var syncTableStops = function () { tableScrolls.forEach(syncTableStop); };
+
+  if (tableScrolls.length) {
+    tableScrolls.forEach(function (wrap) {
+      wrap.addEventListener("blur", function () { syncTableStop(wrap); });
+    });
+    // The table is observed too: a web font arriving widens it, not the box.
+    if (window.ResizeObserver) {
+      var tableObserver = new ResizeObserver(syncTableStops);
+      tableScrolls.forEach(function (wrap) {
+        tableObserver.observe(wrap);
+        if (wrap.firstElementChild) tableObserver.observe(wrap.firstElementChild);
+      });
+    } else {
+      var tableTimer = 0;
+      window.addEventListener("resize", function () {
+        window.clearTimeout(tableTimer);
+        tableTimer = window.setTimeout(syncTableStops, 150);
+      });
+      window.addEventListener("load", syncTableStops);
+      syncTableStops();
+    }
+  }
+
   /* ---------- Motion preference ---------- */
   // Reduced-motion visitors start paused. The home page's toggle overrides
   // that either way, and the choice is kept in localStorage (privacy.html
@@ -627,11 +692,19 @@
   var modCards = document.querySelectorAll(".mod-card[data-category]");
   var catGroups = document.querySelectorAll(".cat-group[data-category]");
   var catalogEmpty = document.getElementById("catalogEmpty");
+  var emptyReason = document.getElementById("catalogEmptyReason");
+  var emptyNext = document.getElementById("catalogEmptyNext");
+  var emptyNextText = emptyNext ? emptyNext.textContent : "";
+  var allChip = document.querySelector('.chip[data-filter="all"]');
   var activeFilter = "all";
+  var activeName = "";
 
   // What a search matches: the card's own words and aliases, never its
   // button or link text (otherwise "license" or "add" match every card).
+  // Only cards with an add button are add-ons on sale; the "In development"
+  // previews are counted apart, so totals agree with the page's own count.
   var haystacks = [];
+  var forSale = [];
   modCards.forEach(function (card, index) {
     var words = [];
     card.querySelectorAll("h3, p, .focus-points li, .mod-tags li, .mod-code").forEach(function (node) {
@@ -639,7 +712,34 @@
     });
     words.push(card.getAttribute("data-aliases") || "");
     haystacks[index] = words.join(" ").replace(/\s+/g, " ").toLowerCase();
+    forSale[index] = !!card.querySelector(".mod-add");
   });
+
+  var selectChip = function (chip) {
+    activeFilter = chip.getAttribute("data-filter");
+    activeName = activeFilter === "all" ? "" : chip.textContent.replace(/\s+/g, " ").trim();
+    chips.forEach(function (other) {
+      other.setAttribute("aria-pressed", String(other === chip));
+    });
+  };
+
+  // Offered when the active category hides matches that other categories have.
+  var showAllButton = null;
+  var makeShowAllButton = function () {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "chip";
+    button.textContent = "Show all categories";
+    button.addEventListener("click", function () {
+      if (!allChip) return;
+      selectChip(allChip);
+      applyFilter();
+      // The message and this button hide, so focus goes to the chip now pressed.
+      allChip.focus();
+      returnToCatalogTop();
+    });
+    return button;
+  };
 
   // delay: how long to wait before announcing the result, longer while typing.
   var applyFilter = function (delay) {
@@ -647,24 +747,56 @@
       .toLowerCase()
       .split(/\s+/)
       .filter(Boolean);
-    var shown = 0;
+    var addOns = 0;     // shown cards on sale
+    var previews = 0;   // shown cards still in development
+    var elsewhere = 0;  // matches the active category hides
 
     modCards.forEach(function (card, index) {
       var inCategory = activeFilter === "all" || card.getAttribute("data-category") === activeFilter;
       var matches = terms.every(function (term) { return haystacks[index].indexOf(term) !== -1; });
       card.hidden = !(inCategory && matches);
-      if (!card.hidden) shown++;
+      if (card.hidden) {
+        if (matches) elsewhere++;
+      } else if (forSale[index]) {
+        addOns++;
+      } else {
+        previews++;
+      }
     });
 
     catGroups.forEach(function (group) {
       group.hidden = !group.querySelector(".mod-card:not([hidden])");
     });
 
-    if (catalogEmpty) catalogEmpty.hidden = shown > 0;
-    announceCatalog(
-      shown ? "Showing " + plural(shown, "module") + "." : "No module matches that search.",
-      delay
-    );
+    var message;
+    if (addOns) {
+      message = "Showing " + plural(addOns, "add-on module") +
+        (previews ? " and " + previews + " in development" : "") + ".";
+    } else if (elsewhere && allChip) {
+      message = "No " + activeName + " module matches that search, but " + elsewhere +
+        (elsewhere === 1 ? " in another category does." : " in other categories do.");
+    } else if (previews) {
+      message = "No add-on module matches that search, but " + previews +
+        " in development " + (previews === 1 ? "does." : "do.");
+    } else {
+      message = "No module matches that search.";
+    }
+
+    if (catalogEmpty) {
+      catalogEmpty.hidden = addOns > 0;
+      if (!addOns && emptyReason) emptyReason.textContent = message;
+      if (!addOns && emptyNext) {
+        emptyNext.textContent = "";
+        if (elsewhere && allChip) {
+          showAllButton = showAllButton || makeShowAllButton();
+          emptyNext.appendChild(showAllButton);
+          emptyNext.appendChild(document.createTextNode(" or"));
+        } else {
+          emptyNext.textContent = emptyNextText;
+        }
+      }
+    }
+    announceCatalog(message, delay);
   };
 
   // Height of the header when it stays pinned over the page, else 0.
@@ -688,10 +820,7 @@
   if (modCards.length) {
     chips.forEach(function (chip) {
       chip.addEventListener("click", function () {
-        activeFilter = chip.getAttribute("data-filter");
-        chips.forEach(function (other) {
-          other.setAttribute("aria-pressed", String(other === chip));
-        });
+        selectChip(chip);
         applyFilter();
         returnToCatalogTop();
       });
@@ -1002,6 +1131,39 @@
       Array.prototype.forEach.call(formEl.elements, clearFieldError);
     };
 
+    // "2 fields need attention: Email, Message." A radio group counts once.
+    var summaryOf = function (controls) {
+      var names = [];
+      controls.forEach(function (control) {
+        var name = labelFor(control);
+        if (names.indexOf(name) === -1) names.push(name);
+      });
+      return (names.length === 1 ? "1 field needs" : names.length + " fields need") +
+        " attention: " + names.join(", ") + ".";
+    };
+
+    // The summary follows the flagged fields as they are fixed or hidden. A
+    // fixed field is not flagged again before the next submit, so the list only
+    // shrinks: it is said again once per field fixed, not on every keystroke.
+    var summary = "";
+    var refreshSummary = function () {
+      if (!statusEl || statusEl.getAttribute("data-state") !== "invalid") return;
+      var flagged = Array.prototype.filter.call(formEl.elements, function (control) {
+        return control.getAttribute("aria-invalid") === "true" &&
+          !control.disabled && !control.closest("[hidden]");
+      });
+      if (!flagged.length) {
+        statusEl.removeAttribute("data-state");
+        summary = "";
+        say("", false);
+        return;
+      }
+      var next = summaryOf(flagged);
+      if (next === summary) return;
+      summary = next;
+      say(summary, false);
+    };
+
     // Once a field has been flagged, it is re-checked as the visitor edits it,
     // and its message goes away as soon as the value is acceptable.
     var recheck = function (event) {
@@ -1018,11 +1180,7 @@
       Array.prototype.forEach.call(formEl.elements, function (other) {
         if (other.disabled) clearFieldError(other);
       });
-      var stillInvalid = formEl.querySelector('[aria-invalid="true"]');
-      if (statusEl && statusEl.getAttribute("data-state") === "invalid" && !stillInvalid) {
-        statusEl.removeAttribute("data-state");
-        say("", false);
-      }
+      refreshSummary();
     };
     formEl.addEventListener("input", recheck);
     formEl.addEventListener("change", recheck);
@@ -1049,16 +1207,8 @@
       });
 
       if (invalid.length) {
-        var names = [];
-        invalid.forEach(function (control) {
-          var name = labelFor(control);
-          if (names.indexOf(name) === -1) names.push(name);
-        });
-        say(
-          (names.length === 1 ? "1 field needs" : names.length + " fields need") +
-            " attention: " + names.join(", ") + ".",
-          false
-        );
+        summary = summaryOf(invalid);
+        say(summary, false);
         if (statusEl) statusEl.setAttribute("data-state", "invalid");
         invalid[0].focus();
         return;

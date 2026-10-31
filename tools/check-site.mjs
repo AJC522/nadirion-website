@@ -8,7 +8,8 @@
 // for advisories (--quiet hides warnings), then a summary. Exits 1 on any error;
 // warnings never fail the run. CI runs it on every push and pull request
 // (.github/workflows/check-site.yml). The site has no build step, so this script is
-// what keeps the fourteen copies of the head, header, footer and catalog counts honest.
+// what keeps the head, header and footer that every page carries a copy of, and every
+// catalog count the copy quotes, honest.
 //
 // What it checks, in order:
 //   1. markup basics: doctype, lang, one <h1> and <main>, heading levels, unique ids,
@@ -17,17 +18,21 @@
 //      values exist, CSS url() targets exist; 404.html uses root-absolute URLs only
 //   3. CSP compatibility: no inline script (JSON-LD aside), <style>, style=, on*=,
 //      javascript: or data: URLs, external resources, or HTML-string sinks in JS
-//   4. head: charset, viewport, CSP order; one CSP on every page equal to _headers
-//      minus frame-ancestors; canonical = og:url = sitemap <loc>; 404 is noindex;
-//      titles and descriptions unique; font preloads; JSON-LD parses
+//   4. head: every element in the order tools/sync-heads.py writes (404.html has its
+//      own shorter head); one CSP on every page equal to _headers minus
+//      frame-ancestors; canonical = og:url = sitemap <loc>; 404 is noindex; titles and
+//      descriptions unique; JSON-LD parses; fonts: every file in assets/fonts is used
+//      by an @font-face, and the font preloads are the same on every page and each
+//      names an @font-face file
 //   5. shared furniture: header and footer identical on every page apart from
 //      aria-current; breadcrumbs match the nav grouping and the BreadcrumbList
 //   6. catalog: assets/js/catalog.js and modules.html agree, and every quoted count
 //      (modules, add-ons, products, categories, per-category) matches the catalog
-//   7. forms: method="post", data-show-when targets, data-endpoint origin in connect-src
+//   7. forms and privacy: method="post", data-show-when targets, data-endpoint origin
+//      in connect-src; privacy.html names every browser-storage key the scripts use
 //   8. crawl and security files: sitemap.xml, robots.txt, .well-known/security.txt,
 //      _headers, .nojekyll, site.webmanifest
-//   9. copy: no em dashes anywhere, no retired wording
+//   9. copy: no em dashes anywhere, no retired wording in any capitalization
 //  10. (warn) CSS selectors whose classes no page or script uses
 import fs from "node:fs";
 import path from "node:path";
@@ -44,11 +49,11 @@ const CSS_FILE = "assets/css/styles.css";
 const BOOT_JS = "assets/js/boot.js";
 // Services-menu column (by its heading id) -> the plain-text middle crumb of its pages.
 const CRUMB_SECTION = { navHeadServices: "Services", navHeadPlatforms: "Autonomous Platforms" };
-// Wording the site has retired, and what replaced it.
+// Wording the site has retired (matched in any capitalization), and what replaced it.
 const RETIRED = [
-  [/Get a Quote/g, 'the quote button is "Request a Quote"'],
-  [/Focus Areas?\b/g, '"Focus Area" is retired: heroes say "Digital & Security Services" or "Autonomous Platforms"'],
-  [/Business, IT (?:&amp;|&) Sales Training/g, 'the page is "Training" (its tracks include cyber)'],
+  [/Get a Quote/gi, 'the quote button is "Request a Quote"'],
+  [/Focus Areas?\b/gi, '"Focus Area" is retired: heroes say "Digital & Security Services" or "Autonomous Platforms"'],
+  [/Business, IT (?:&amp;|&) Sales Training/gi, 'the page is "Training" (its tracks include cyber)'],
 ];
 // Third-party license texts are kept verbatim, so the copy rules skip them.
 const VERBATIM = /^assets\/fonts\/OFL-[\w-]+\.txt$/;
@@ -95,6 +100,8 @@ const decode = (s) => s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) =>
 // Visible text of an HTML fragment, with whitespace collapsed and U+2011 read as "-".
 const text = (html) => decode(html.replace(/<[^>]*>/g, " ")).replace(/[\s\u00a0]+/g, " ").replace(/\u2011/g, "-").trim();
 const squash = (html) => html.replace(/>\s+</g, "><").replace(/\s+/g, " ").trim();
+// JavaScript with its comments blanked (offsets kept); strings are left alone.
+const jsCode = (src) => src.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/(^|[^:"'\\])\/\/[^\n]*/g, (m, pre) => pre + blank(m.slice(pre.length)));
 
 // Resolve a URL written in `fromFile` to a site file. Returns null for other schemes
 // and other origins; { file, frag, query, missing } otherwise.
@@ -281,7 +288,7 @@ const JS_SINKS = [
 ];
 for (const f of jsFiles) {
   const src = read(f);
-  const code = src.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/(^|[^:"'\\])\/\/[^\n]*/g, (m, pre) => pre + blank(m.slice(pre.length)));
+  const code = jsCode(src);
   const lineAt = lineIndex(src);
   for (const [re, msg] of JS_SINKS) for (const m of code.matchAll(new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g"))) err(f, lineAt(m.index), msg);
 }
@@ -332,8 +339,50 @@ function checkCspPolicy(file, line, map, where) {
 }
 if (headerCsp) checkCspPolicy("_headers", headerCspEntry.line, headerCsp, "header");
 
+// Every <head>, element by element, in the order tools/sync-heads.py writes it
+// (build_head, and build_404_head for 404.html). README "The head" documents the same
+// seven steps, so change the template, this list and the README together.
+const headOrder = (notFound) => [
+  // 1. charset and viewport, then the CSP before everything it has to cover
+  "<meta charset>", '<meta name="viewport">', '<meta http-equiv="content-security-policy">',
+  // 2. referrer, title, description, canonical (on 404.html: robots noindex), theme
+  '<meta name="referrer">', "<title>", '<meta name="description">', notFound ? '<meta name="robots">' : '<link rel="canonical">',
+  '<meta name="theme-color">', '<meta name="color-scheme">',
+  // 3. Open Graph and the Twitter card (not on 404.html)
+  ...(notFound ? [] : [...["og:type", "og:site_name", "og:locale", "og:title", "og:description", "og:url", "og:image",
+    "og:image:width", "og:image:height", "og:image:alt"].map((p) => `<meta property="${p}">`), '<meta name="twitter:card">']),
+  // 4. icons and the manifest (404.html has no manifest)
+  '<link rel="icon">', '<link rel="icon">', '<link rel="apple-touch-icon">', ...(notFound ? [] : ['<link rel="manifest">']),
+  // 5. font preloads
+  '<link rel="preload" as="font">', '<link rel="preload" as="font">',
+  // 6. boot.js, then the stylesheet
+  `<script src="${BOOT_JS}">`, '<link rel="stylesheet">',
+  // 7. structured data (not on 404.html)
+  ...(notFound ? [] : ['<script type="application/ld+json">']),
+];
+// Why some positions matter, added to the error for them.
+const HEAD_WHY = {
+  "<meta charset>": "the encoding must be declared before any text",
+  '<meta http-equiv="content-security-policy">': "a <meta> CSP covers only what comes after it",
+  [`<script src="${BOOT_JS}">`]: "boot.js must set html.js before the stylesheet applies, or html.js rules flash",
+};
+// One <head> element, named the way headOrder names it.
+function headItem(f, t) {
+  const a = t.attrs;
+  if (t.name === "meta") {
+    if (a.charset !== undefined) return "<meta charset>";
+    if (a["http-equiv"] !== undefined) return `<meta http-equiv="${a["http-equiv"].toLowerCase()}">`;
+    if (a.property !== undefined) return `<meta property="${a.property}">`;
+    if (a.name !== undefined) return `<meta name="${a.name}">`;
+  }
+  if (t.name === "link") return `<link rel="${a.rel || ""}"${a.as !== undefined ? ` as="${a.as}"` : ""}>`;
+  if (t.name === "script") return a.src !== undefined ? `<script src="${resolveLocal(f, a.src)?.file ?? a.src}">` : `<script type="${a.type || ""}">`;
+  return `<${t.name}>`;
+}
+
 let firstMetaCsp = null;
 let firstReferrer = null;
+let firstPreloads = null;
 const titles = new Map();
 const descs = new Map();
 const canonicals = new Map(); // file -> canonical URL
@@ -351,15 +400,25 @@ for (const doc of [docs["index.html"], ...Object.values(docs).filter((d) => d.fi
   const link = (rel) => kids.filter((t) => t.name === "link" && (t.attrs.rel || "").split(/\s+/).includes(rel));
   const line = headTag.line;
 
-  if (!(kids[0]?.name === "meta" && /^utf-8$/i.test(kids[0].attrs.charset || ""))) err(f, kids[0]?.line || line, '<meta charset="utf-8"> must be the first element in <head>');
-  if (!(kids[1]?.name === "meta" && kids[1].attrs.name === "viewport")) err(f, kids[1]?.line || line, "the viewport <meta> must come second in <head>");
+  // The order also covers presence: a missing or extra element breaks it. Only the
+  // first difference is reported, since everything after it is usually shifted by one.
+  const order = headOrder(f === NOT_FOUND);
+  const items = kids.map((t) => headItem(f, t));
+  const first = order.findIndex((w, i) => items[i] !== w);
+  const at = first !== -1 ? first : items.length > order.length ? order.length : -1;
+  if (at !== -1) {
+    const why = HEAD_WHY[order[at]] ? ` (${HEAD_WHY[order[at]]})` : "";
+    const fix = 'run python3 tools/sync-heads.py; README "The head" gives the order';
+    if (items[at] === undefined) err(f, kids[kids.length - 1]?.line || line, `<head> ends after ${at} element(s), where tools/sync-heads.py writes ${order[at]} next${why}: ${fix}`);
+    else if (order[at] === undefined) err(f, kids[at].line, `<head> has ${items[at]} after its last templated element: ${fix}`);
+    else err(f, kids[at].line, `<head> element ${at + 1} is ${items[at]}, where tools/sync-heads.py writes ${order[at]}${why}: ${fix}`);
+  }
+  const charset = meta((a) => a.charset !== undefined)[0];
+  if (charset && !/^utf-8$/i.test(charset.attrs.charset)) err(f, charset.line, 'the charset must be <meta charset="utf-8">');
   const cspTags = meta((a) => (a["http-equiv"] || "").toLowerCase() === "content-security-policy");
   if (cspTags.length !== 1) err(f, line, `<head> needs exactly one CSP <meta> (found ${cspTags.length})`);
   else {
     const t = cspTags[0];
-    if (kids[2] !== t) err(f, t.line, "the CSP <meta> must be the third element in <head>, right after charset and viewport");
-    const before = kids.slice(0, kids.indexOf(t)).find((k) => k.name === "link" || k.name === "script");
-    if (before) err(f, before.line, `<${before.name}> comes before the CSP <meta>, so the policy does not cover it`);
     const map = parseCsp(t.attrs.content || "");
     for (const d of META_IGNORED) if (map.has(d)) err(f, t.line, `${d} is ignored in a <meta> CSP (and logs a console error); it belongs in _headers only`);
     if (!firstMetaCsp) {
@@ -373,10 +432,9 @@ for (const doc of [docs["index.html"], ...Object.values(docs).filter((d) => d.fi
     } else if (cspString(map) !== firstMetaCsp.value) err(f, t.line, `CSP <meta> differs from ${firstMetaCsp.file}; every page must carry the same policy`);
   }
 
-  const referrer = meta((a) => a.name === "referrer")[0];
-  if (!referrer) err(f, line, 'missing <meta name="referrer">');
-  else if (!firstReferrer) firstReferrer = { file: f, value: referrer.attrs.content };
-  else if (referrer.attrs.content !== firstReferrer.value) err(f, referrer.line, `referrer policy differs from ${firstReferrer.file}`);
+  const referrer = meta((a) => a.name === "referrer")[0]; // a missing one is an order error
+  if (referrer && !firstReferrer) firstReferrer = { file: f, value: referrer.attrs.content };
+  else if (referrer && referrer.attrs.content !== firstReferrer.value) err(f, referrer.line, `referrer policy differs from ${firstReferrer.file}`);
 
   const titleTag = kids.find((t) => t.name === "title");
   const title = titleTag ? text(outer(doc, titleTag).html) : "";
@@ -406,26 +464,26 @@ for (const doc of [docs["index.html"], ...Object.values(docs).filter((d) => d.fi
     if (!ogUrl || ogUrl.attrs.content !== canon) err(f, ogUrl?.line || line, `og:url must equal the canonical (found ${ogUrl?.attrs.content || "none"})`);
     if (canon) canonicals.set(f, canon);
     if (robots && /\bnoindex\b/.test(robots.attrs.content || "")) err(f, robots.line, "noindex on a page that is in the sitemap");
-    for (const p of ["og:type", "og:title", "og:description", "og:image"]) if (!meta((a) => a.property === p).length) err(f, line, `missing ${p}`);
     const ogImage = meta((a) => a.property === "og:image")[0]?.attrs.content;
     if (ogImage) {
       const r = ogImage.startsWith(ORIGIN + "/") ? resolveLocal(f, ogImage) : null;
       if (!r || r.missing) err(f, line, `og:image must be an absolute ${ORIGIN}/ URL of a file in the site (found ${ogImage})`);
     }
-    if (!meta((a) => a.name === "twitter:card").length) err(f, line, "missing twitter:card");
-    if (!link("apple-touch-icon").length) err(f, line, "missing apple-touch-icon");
-    if (!link("manifest").length) err(f, line, "missing manifest link");
   }
-  if (!link("icon").length) err(f, line, "missing icon link");
 
-  for (const t of link("preload").filter((t) => t.attrs.as === "font")) {
+  // Font preloads: each names a file an @font-face uses (a missing file is reported
+  // with the links), and every page preloads the same files as index.html.
+  const preloads = link("preload").filter((t) => t.attrs.as === "font");
+  for (const t of preloads) {
     if (!("crossorigin" in t.attrs)) err(f, t.line, "a font preload without crossorigin downloads the font twice");
     if (t.attrs.type !== "font/woff2") err(f, t.line, 'font preload needs type="font/woff2"');
-    const r = resolveLocal(f, t.attrs.href || "");
-    if (r && !r.missing && !fontFaceSources.has(r.file)) err(f, t.line, `preloaded ${r.file} is not used by any @font-face in styles.css`);
+    const r = t.attrs.href ? resolveLocal(f, t.attrs.href) : null;
+    if (!t.attrs.href) err(f, t.line, "font preload needs an href");
+    else if (r && !r.missing && !fontFaceSources.has(r.file)) err(f, t.line, `preloaded ${r.file} is not used by any @font-face in styles.css`);
   }
-  const boot = kids.find((t) => t.name === "script" && t.attrs.src !== undefined && resolveLocal(f, t.attrs.src)?.file === BOOT_JS);
-  if (!boot) err(f, line, `<head> must load ${BOOT_JS} (it sets html.js before first paint)`);
+  const preloadFiles = preloads.map((t) => (t.attrs.href && resolveLocal(f, t.attrs.href)?.file) || "?").join(", ");
+  if (!firstPreloads) firstPreloads = { file: f, value: preloadFiles };
+  else if (preloadFiles !== firstPreloads.value) err(f, preloads[0]?.line || line, `font preloads (${preloadFiles || "none"}) differ from ${firstPreloads.file} (${firstPreloads.value || "none"})`);
 
   const ldTags = doc.tags.filter((t) => t.name === "script" && t.attrs.type === "application/ld+json");
   if (f === NOT_FOUND && ldTags.length) err(f, ldTags[0].line, "404.html must not carry structured data");
@@ -454,8 +512,10 @@ for (const doc of [docs["index.html"], ...Object.values(docs).filter((d) => d.fi
   }
 }
 
+// Every font file is declared. (An @font-face pointing at a missing file is a CSS
+// url() error in section 2.)
 if (exists("assets/fonts")) for (const name of fs.readdirSync(abs("assets/fonts")).filter((n) => /\.woff2?$/.test(n)))
-  if (!fontFaceSources.has(`assets/fonts/${name}`)) warn(`assets/fonts/${name}`, 1, "no @font-face in styles.css uses this font file");
+  if (!fontFaceSources.has(`assets/fonts/${name}`)) err(`assets/fonts/${name}`, 1, "no @font-face in styles.css uses this font file: declare it or delete it");
 
 // ---------------------------------------------------------------------------
 // 5. shared furniture: header, footer, breadcrumbs
@@ -716,7 +776,7 @@ if (catalog && docs["modules.html"]) {
 }
 
 // ---------------------------------------------------------------------------
-// 7. forms
+// 7. forms and privacy
 // ---------------------------------------------------------------------------
 const connectSrc = (map) => map?.get("connect-src") || map?.get("default-src") || [];
 for (const doc of Object.values(docs)) {
@@ -751,6 +811,41 @@ for (const doc of Object.values(docs)) {
     if (headerCsp && !connectSrc(headerCsp).includes(url.origin)) err("_headers", headerCspEntry.line, `connect-src must include ${url.origin} (data-endpoint on ${f})`);
     if (docs["privacy.html"] && !docs["privacy.html"].src.includes(url.hostname)) err("privacy.html", 1, `forms now send to ${url.hostname}; the privacy page must say so`);
   }
+}
+
+// Browser storage: privacy.html names every key the scripts keep, and every
+// nadirion.* key it names is one they still use. So that the keys can be read here,
+// each getItem/setItem/removeItem call takes a string literal or a var holding one,
+// and storage is never reached any other way.
+const PRIVACY = "privacy.html";
+const storageKeys = new Map(); // key -> "file:line" of its first use
+for (const f of jsFiles) {
+  const src = read(f);
+  const code = jsCode(src);
+  const lineAt = lineIndex(src);
+  const strings = new Map([...code.matchAll(/\b(?:var|let|const)\s+([A-Za-z_$][\w$]*)\s*=\s*(["'])([^"'\\\n]*)\2\s*[;,]/g)].map((m) => [m[1], m[3]]));
+  for (const m of code.matchAll(/\b(localStorage|sessionStorage)\s*\.\s*(getItem|setItem|removeItem)\s*\(\s*([^,)]*)/g)) {
+    const arg = m[3].trim();
+    const literal = /^(["'])([^"'\\]*)\1$/.exec(arg);
+    const key = literal ? literal[2] : strings.get(arg);
+    if (key === undefined) err(f, lineAt(m.index), `${m[1]}.${m[2]}(${arg}): pass the key as a string literal or a var holding one, so the privacy check can read it`);
+    else if (!storageKeys.has(key)) storageKeys.set(key, `${f}:${lineAt(m.index)}`);
+  }
+  for (const m of code.matchAll(/\b(localStorage|sessionStorage)\s*(?:\[|\.\s*(?!(?:getItem|setItem|removeItem|clear|key|length)\b)[\w$])|(?<![=!<>])=\s*(?:window\s*\.\s*)?(localStorage|sessionStorage)\s*[;,)]/g))
+    err(f, lineAt(m.index), `reach ${m[1] || m[2]} only through getItem/setItem/removeItem(KEY), so the privacy check sees every key`);
+}
+const privacy = docs[PRIVACY];
+if (!privacy && storageKeys.size) err(PRIVACY, 1, `missing: the scripts keep ${[...storageKeys.keys()].join(", ")} in browser storage, and the site must say so`);
+if (privacy) {
+  const mainTag = find(privacy, "main")[0];
+  const range = mainTag ? outer(privacy, mainTag) : { start: 0, end: privacy.src.length };
+  const said = text(privacy.masked.slice(range.start, range.end)); // visible text, comments left out
+  const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  for (const [key, where] of storageKeys)
+    if (!new RegExp(`(?<![\\w.@-])${escape(key)}(?![\\w-]|\\.[\\w-])`).test(said)) err(PRIVACY, mainTag?.line || 1, `${where} keeps "${key}" in browser storage, but privacy.html does not name it`);
+  const host = new URL(ORIGIN).hostname;
+  for (const m of said.matchAll(/(?<![\w.@-])nadirion\.[a-z][\w-]*(?:\.[\w-]+)*/g)) if (m[0] !== host && !storageKeys.has(m[0]))
+    err(PRIVACY, privacy.lineAt(Math.max(0, privacy.masked.indexOf(m[0], range.start))), `names the storage key "${m[0]}", which no script in assets/js uses`);
 }
 
 // ---------------------------------------------------------------------------

@@ -12,26 +12,33 @@ nothing loaded from another origin.
 ## Design
 
 - **Palette:** black, white, and silver only, with metallic gradients for accent text.
-- **Theme:** astronomy and space, including an animated starfield, a constellation
-  illustration in the About section, and zenith/nadir markers that tie back to the company
-  name.
+- **Theme:** astronomy and space: an animated starfield in the home hero, and a
+  constellation illustration in the About section, which also explains the name (the
+  nadir is the point directly beneath an observer).
 - **Typography:** Space Grotesk for display, Inter for body copy, JetBrains Mono for
   labels and the console mockups.
 - **Motion:** CSS animations run a set number of times, the starfield draws only while it
   is on screen and the tab is visible, and the home hero has a Pause motion button. The
   choice is kept in `localStorage` (`nadirion.motion`); visitors who prefer reduced motion
   start paused.
+- **Print:** `styles.css` has print styles, and `main.js` gets the page ready when
+  printing starts.
 
 ### Fonts
 
-The fonts are self-hosted WOFF2 subsets in `assets/fonts/` (Latin and Latin Extended for
-each family, Greek for JetBrains Mono, and small symbol subsets for arrows and check marks),
-declared with `@font-face` at the top of `styles.css`. Each family's SIL Open Font License
-ships beside the files (`OFL-Inter.txt`, `OFL-SpaceGrotesk.txt`, `OFL-JetBrainsMono.txt`)
-and must stay there. Metric-matched local fallbacks ("Inter Fallback" and the others) keep
-text from jumping when the web fonts arrive. Hosts cache font files for a year as
-immutable, so a changed font needs a new filename (update `@font-face` and the preloads in
-`tools/sync-heads.py` to match).
+The fonts are self-hosted WOFF2 subsets in `assets/fonts/`, declared with `@font-face` at
+the top of `styles.css`: Latin and Latin Extended for each family, Greek for JetBrains
+Mono, and a small symbol subset per family for the left and right arrows (Inter's also
+holds the check mark). Each subset's `@font-face` has a `unicode-range`, so a browser
+downloads a subset only when a page uses one of its characters. Each family's SIL Open
+Font License ships beside the files (`OFL-Inter.txt`, `OFL-SpaceGrotesk.txt`,
+`OFL-JetBrainsMono.txt`) and must stay there. Metric-matched local fallbacks ("Inter
+Fallback" and the others) keep text from jumping when the web fonts arrive.
+
+Hosts cache font files for a year as immutable, so a changed font needs a new filename:
+update its `@font-face`, and if it is one of the two preloaded files, the preloads in
+`tools/sync-heads.py`. The checks fail when a font file has no `@font-face`, an
+`@font-face` points at a missing file, or a preload names a file no `@font-face` uses.
 
 ## Structure
 
@@ -39,7 +46,7 @@ immutable, so a changed font needs a new filename (update `@font-face` and the p
 index.html                        home: product hero, how licensing works, module
                                   categories, console, principles, resellers teaser, about
 desktop.html                      Nadirion Desktop: what every license includes, console,
-                                  install
+                                  how modules fit in, platforms and install
 modules.html                      module catalog: search, category filter, "add to license"
 pricing.html                      licensing model, ways to buy, buying steps, FAQ
 resellers.html                    certified reseller program, tracks, application form,
@@ -56,7 +63,8 @@ training.html                     service: Training (business, IT, cyber, and sa
 satellites.html                   platform: Satellites
 maritime-drones.html              platform: Maritime Drones
 aerial-drones.html                platform: Aerial Drones
-assets/css/styles.css             font faces, design tokens, and all styling
+assets/css/styles.css             font faces, design tokens, and all styling (print
+                                  styles included)
 assets/js/boot.js                 marks <html> with class "js" before first paint
 assets/js/catalog.js              module ids, names, categories, and prices (the commercial
                                   record)
@@ -65,7 +73,8 @@ assets/js/main.js                 nav, menus, reveal, starfield and motion, cata
 assets/fonts/                     self-hosted fonts and their licenses
 assets/img/                       logo mark, favicon.svg, select caret, app icons (PNG), and
                                   og-image.png (1200x630 link preview)
-favicon.ico                       32px icon for clients that only ask for /favicon.ico
+favicon.ico                       16px and 32px icons for clients that only ask for
+                                  /favicon.ico
 site.webmanifest                  name, colors, and icons
 sitemap.xml                       every indexable page at its canonical URL
 robots.txt                        allows all crawling; points at the sitemap
@@ -99,14 +108,18 @@ Autonomous Platforms) / page, with the middle level as plain text.
 
 ### The head
 
-Every `<head>` holds, in this order:
+Every `<head>` except 404.html's holds, in this order (the order `build_head` in
+`tools/sync-heads.py` writes):
 
 1. `<meta charset>`, the viewport, and the Content Security Policy as a `<meta>`. The CSP
    must come before every `<link>` and `<script>`: a meta policy covers only what follows
    it.
-2. The referrer policy, `<title>`, description, canonical URL, and theme color.
-3. Open Graph and Twitter card tags, all pointing at `assets/img/og-image.png`.
-4. Icons and the web manifest.
+2. The referrer policy, `<title>`, description, canonical URL, theme color, and color
+   scheme.
+3. Open Graph tags (type, site name, locale, title, description, URL, and
+   `assets/img/og-image.png` with its size and alt text), then the Twitter card type.
+4. The two icons (`favicon.ico` and `favicon.svg`), the Apple touch icon, and the web
+   manifest.
 5. Preloads for Inter and Space Grotesk (Latin), the two fonts every page needs first.
 6. `assets/js/boot.js`, then the stylesheet. boot.js is one line that adds class `js` to
    `<html>` before first paint, so CSS scoped to `html.js` (reveal animations, controls
@@ -114,6 +127,15 @@ Every `<head>` holds, in this order:
 7. Structured data (JSON-LD): the Organization on every page, WebSite on the home page,
    SoftwareApplication on desktop.html, and a BreadcrumbList built from the visible
    breadcrumb. It carries no prices or ratings, because the site states none.
+
+404.html has a shorter head (`build_404_head`), with every URL root-absolute: step 1;
+step 2 with `<meta name="robots" content="noindex">` in place of the canonical URL; the
+icons without the manifest; and steps 5 and 6. It has no social tags and no structured
+data.
+
+`tools/check-site.mjs` holds the same element-by-element order (`headOrder`) and fails any
+page whose head differs from it, so a change to the template means changing `headOrder`
+and this list with it.
 
 ### Content Security Policy
 
@@ -160,12 +182,13 @@ finds the same modules the app's does ("autoruns", "evtx", "netstat").
 
 When a module is added, removed, or renamed, change its card in `modules.html` and its
 entry in `assets/js/catalog.js` (same id; the card id is the same id with hyphens), then
-run `node tools/check-site.mjs`. It compares the two and reports every count or name that
-no longer matches, wherever it is quoted: the title, description, heading, and per-category
-counts on modules.html; the hero, stat strip, headings, and category cards (count and
-listed modules) on the home page; the plan and per-category list on pricing.html; and the
+run `node tools/check-site.mjs`. It compares the two and reports the names and counts that
+no longer match: the title, description, heading, and per-category counts on
+modules.html; the hero, stat strip, headings, and category cards (count and listed
+modules) on the home page; the plan and per-category list on pricing.html; and the
 figures on desktop.html, resellers.html (products to sell is the desktop plus the
-add-ons), and cyber.html. Spelled-out numbers ("Thirty-three") are checked too.
+add-ons), and cyber.html. It reads phrases such as "N modules", "all N", "N products", and
+"N categories" on every page, spelled-out numbers ("Thirty-three") included.
 
 ### Prices
 
@@ -181,7 +204,10 @@ The "Add to license" buttons store the selected module ids in `localStorage`
 (`nadirion.license.modules`), with an in-memory fallback when storage is unavailable. The
 tray's Request a Quote link also carries the ids in the URL (`?modules=a,b`), and the
 contact page lists them in the quote box and sends them with the request. privacy.html
-names both storage keys; update it if either changes.
+names both storage keys. The checks fail when a script stores a key the page does not
+name, or the page names a `nadirion.` key no script uses; they read each key from its
+`getItem`, `setItem`, or `removeItem` call, so pass it as a string or a variable that
+holds one.
 
 ### Forms
 
@@ -198,7 +224,8 @@ host serves at `/api/contact`. An endpoint on another origin needs three changes
 same commit: add its exact origin (for example `https://formspree.io`) to `connect-src` in
 the CSP meta of every page (the `CSP` constant in `tools/sync-heads.py`) and in `_headers`,
 then update privacy.html, which today says the forms only open the visitor's email app.
-Until all three are done the browser refuses the request, and the checks fail.
+Until both policies list the origin the browser refuses the request, and until all three
+changes are made the checks fail.
 
 Each form has a note for each mode (`.form-note[data-send-mode="email"]` and
 `[data-send-mode="endpoint"]`); the script shows the one that applies. Without JavaScript
@@ -267,27 +294,38 @@ The site has no publish step: the host serves the repo root as it is.
 
 ### Checks
 
-`node tools/check-site.mjs` needs Node 18 or later and nothing else. It checks the rules a
-site with fourteen copies of everything tends to drift from:
+`node tools/check-site.mjs` needs Node 18 or later and nothing else. It checks the rules
+that drift when every page carries its own copy of the shared parts:
 
-- markup basics: one `<h1>` and `<main>`, heading levels, unique ids, every
-  `aria-controls`/`aria-labelledby`/`for` target, `<button type>`, labelled `<nav>`s
-- every local link, `#fragment`, `?interest=`/`?track=` value, and CSS `url()` target
+- markup basics: doctype and `lang`, one `<h1>` and `<main>`, heading levels, unique ids,
+  every `aria-controls`/`aria-labelledby`/`for` target, `<button type>`, labelled
+  `<nav>`s, and `alt` on every image
+- every local link, `#fragment`, `?interest=`/`?track=` value, and CSS `url()` target, and
+  root-absolute URLs in 404.html
 - the CSP rules above, in markup, CSS, and scripts, and any `data-endpoint` origin
-- the head: element order, one CSP everywhere equal to `_headers` minus `frame-ancestors`,
-  canonical = `og:url` = sitemap `<loc>`, unique titles and descriptions, font preloads,
-  JSON-LD that parses and a BreadcrumbList that matches the visible breadcrumb
-- header and footer identical on every page apart from `aria-current`
+- the head: the element order above (404.html's shorter head included), one CSP
+  everywhere equal to `_headers` minus `frame-ancestors`, canonical = `og:url` = sitemap
+  `<loc>`, unique titles and descriptions, JSON-LD that parses and a BreadcrumbList that
+  matches the visible breadcrumb
+- fonts: every file in `assets/fonts/` used by an `@font-face`, every `@font-face` file
+  present, and the same font preloads on every page, each naming an `@font-face` file
+- header and footer identical on every page apart from `aria-current`, and breadcrumbs
+  that match the Services menu
 - the catalog against modules.html and every count quoted from it
+- privacy.html naming every browser-storage key the scripts use (and no others), and the
+  host of any form endpoint
 - sitemap.xml, robots.txt, security.txt (including its expiry), `_headers`, `.nojekyll`,
   and site.webmanifest
 - no em dashes in the site's own files, and no retired wording ("Get a Quote", "Focus
-  Area")
+  Area", "Business, IT & Sales Training") in any capitalization
 
-It prints each problem as `file:line`, exits 1 on any error, and lists unused CSS
-selectors as warnings (`--quiet` hides warnings). Run it before every commit. GitHub
-Actions runs it on every push and pull request (`.github/workflows/check-site.yml`, with
-read-only permissions and `actions/checkout` pinned to a commit SHA).
+It prints each problem as `file:line` and exits 1 on any error. Advisories print as
+warnings and never fail the run: unused CSS selectors, images without a width and height,
+descriptions over 160 characters, and a security.txt expiry under 30 days away or more
+than a year ahead (`--quiet` hides warnings). Run it before every commit. GitHub Actions
+runs it on every push and pull request (`.github/workflows/check-site.yml`, with read-only
+permissions, no credentials kept in the checkout, and `actions/checkout` pinned to the
+full commit SHA of v6.1.0).
 
 ### Shared head and furniture
 
