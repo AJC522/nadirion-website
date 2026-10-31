@@ -234,12 +234,15 @@
 
   /* ---------- Hero parallax ---------- */
   // --hero-p runs from 0 at the top of the page to 1 once the hero has
-  // scrolled away; the CSS turns it into depth.
-  var hero = document.querySelector(".hero");
+  // scrolled away; the CSS turns it into depth. Inner pages' heroes get it
+  // too, so their copy and glyph part as the page moves on.
+  var hero = document.querySelector(".hero, .page-hero");
   if (hero && motionOK) {
     var heroHeight = hero.offsetHeight;
     var lastHeroP = -1;
-    window.addEventListener("resize", function () { heroHeight = hero.offsetHeight; });
+    var measureHero = function () { heroHeight = hero.offsetHeight; };
+    window.addEventListener("resize", measureHero);
+    window.addEventListener("load", measureHero);
     scrollHooks.push(function (y) {
       var p = Math.round(clamp(y / (heroHeight || 1), 0, 1) * 1000) / 1000;
       if (p === lastHeroP) return;
@@ -251,8 +254,10 @@
   /* ---------- Starfields ---------- */
   // Every hero has a sky. Stars sit at different depths: nearer ones are
   // larger and brighter, lean further with the pointer, and lag less behind
-  // the scroll, so the sky has parallax. A sky stops drawing while it is off
-  // screen or the tab is hidden.
+  // the scroll, so the sky has parallax. Scrolling fast stretches the stars
+  // into streaks, nearer ones furthest, like a jump to light speed, and they
+  // relax back to points once the page settles. A sky stops drawing while it
+  // is off screen or the tab is hidden.
   var skyPointer = { x: 0, y: 0 };
   if (finePointer && !reduceMotion) {
     window.addEventListener(
@@ -277,6 +282,11 @@
     var rafId = null;
     var onScreen = true;
     var sway = { x: 0, y: 0 };
+    // Warp: the scroll's speed in pixels per frame, eased so streaks grow
+    // quickly and fade slowly.
+    var warp = 0;
+    var lastY = null;
+    var lastTime = 0;
 
     var makeStar = function (z, bright) {
       return {
@@ -328,9 +338,26 @@
     var draw = function (time) {
       ctx.clearRect(0, 0, width, height);
       // How far the page has scrolled past the top of this sky.
-      var scrolled = reduceMotion ? 0 : Math.max(0, window.scrollY - hostTop);
+      var pageY = window.scrollY;
+      var scrolled = reduceMotion ? 0 : Math.max(0, pageY - hostTop);
       sway.x += (skyPointer.x - sway.x) * 0.04;
       sway.y += (skyPointer.y - sway.y) * 0.04;
+
+      if (!reduceMotion) {
+        // Speed per 60th of a second, whatever the display's refresh rate.
+        var frames = lastTime ? clamp((time - lastTime) / 16.7, 0.5, 4) : 1;
+        var speed = lastY === null ? 0 : clamp((pageY - lastY) / frames, -140, 140);
+        warp += (speed - warp) * (Math.abs(speed) > Math.abs(warp) ? 0.3 : 0.07);
+        if (Math.abs(warp) < 0.05) warp = 0;
+        lastY = pageY;
+        lastTime = time;
+      }
+      // A soft knee keeps reading-pace scrolls to a faint smear while a fling
+      // stretches the sky fully. The trails fan out a little from the middle.
+      var stretch = warp * Math.abs(warp) / (Math.abs(warp) + 24);
+      var midX = width / 2;
+      var boost = Math.min(Math.abs(warp) / 50, 1);
+      ctx.lineCap = "round";
 
       for (var i = 0; i < stars.length; i++) {
         var s = stars[i];
@@ -347,6 +374,24 @@
         var x = s.x - sway.x * 18 * s.z;
         var y = s.y + scrolled * (0.5 - s.z * 0.3) - sway.y * 10 * s.z;
         y = ((y % height) + height) % height;
+
+        // A star moves up the screen as the page scrolls down, so its trail
+        // hangs below it; nearer stars move faster and trail further.
+        var trail = stretch ? clamp(stretch * (0.25 + s.z * 1.9), -170, 170) : 0;
+        if (trail > 3 || trail < -3) {
+          var lit = Math.min(alpha * (1 + boost * 0.6), 1);
+          var trailX = x + ((x - midX) / width) * Math.abs(trail) * 0.18;
+          var trailY = y + trail;
+          var tail = ctx.createLinearGradient(x, y, trailX, trailY);
+          tail.addColorStop(0, "rgba(240, 240, 245," + lit.toFixed(3) + ")");
+          tail.addColorStop(1, "rgba(240, 240, 245,0)");
+          ctx.strokeStyle = tail;
+          ctx.lineWidth = Math.max(s.r * 1.7, 0.8);
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(trailX, trailY);
+          ctx.stroke();
+        }
 
         if (s.bright) {
           var reach = s.r * 8;
@@ -396,6 +441,9 @@
     };
     var wake = function () {
       if (reduceMotion || rafId || !onScreen || document.hidden) return;
+      // Coming back on screen is not a jump in speed.
+      lastY = null;
+      lastTime = 0;
       rafId = window.requestAnimationFrame(loop);
     };
 
@@ -1034,7 +1082,127 @@
      ========================================================== */
 
   /* ---------- Heroes [fx-heroes] ---------- */
-  // fx-heroes: reserved
+  // Home headline: each line rises out of its own mask, sharpening as it
+  // comes, and once it has landed a single glint runs along the metal line.
+  // The rising words are a copy hidden from screen readers; the real heading
+  // sits beside them the whole time and takes their place once they land.
+  var heroTitle = document.querySelector(".hero h1");
+  if (heroTitle && motionOK) {
+    var titleReal = document.createElement("span");
+    titleReal.className = "visually-hidden";
+    var titleShown = document.createElement("span");
+    titleShown.setAttribute("aria-hidden", "true");
+    var titleWords = [];
+
+    var addTitleWords = function (text, metal) {
+      text.split(/(\s+)/).forEach(function (part) {
+        if (!part) return;
+        if (!part.trim()) {
+          titleShown.appendChild(document.createTextNode(" "));
+          return;
+        }
+        var mask = document.createElement("span");
+        mask.className = "title-mask";
+        var word = document.createElement("span");
+        word.className = metal ? "title-word metal" : "title-word";
+        word.textContent = part;
+        mask.appendChild(word);
+        titleShown.appendChild(mask);
+        titleWords.push(word);
+      });
+    };
+
+    Array.prototype.slice.call(heroTitle.childNodes).forEach(function (node) {
+      if (node.nodeName === "BR") titleShown.appendChild(document.createElement("br"));
+      else addTitleWords(node.textContent, !!(node.classList && node.classList.contains("metal")));
+      titleReal.appendChild(node);
+    });
+    heroTitle.appendChild(titleReal);
+    heroTitle.appendChild(titleShown);
+    heroTitle.classList.add("title-split");
+
+    // Words on one line rise together, a beat apart, then the next line.
+    var titleLineTop = null;
+    var titleLine = -1;
+    var titleInLine = 0;
+    var titleLast = 0;
+    titleWords.forEach(function (word) {
+      var top = word.parentNode.offsetTop;
+      if (titleLineTop === null || Math.abs(top - titleLineTop) > 4) {
+        titleLineTop = top;
+        titleLine++;
+        titleInLine = 0;
+      }
+      titleLast = 120 + titleLine * 150 + titleInLine++ * 60;
+      word.style.setProperty("--d", titleLast + "ms");
+    });
+
+    window.setTimeout(function () {
+      while (titleReal.firstChild) heroTitle.insertBefore(titleReal.firstChild, titleReal);
+      heroTitle.removeChild(titleReal);
+      heroTitle.removeChild(titleShown);
+      var metalLine = heroTitle.querySelector(".metal");
+      if (!metalLine) return;
+      metalLine.classList.add("is-glinting");
+      window.setTimeout(function () { metalLine.classList.remove("is-glinting"); }, 1800);
+    }, titleLast + 1300);
+  }
+
+  // Inner pages: the hero glyph draws itself in, stroke by stroke, then
+  // settles into its float. Dotted strokes and points of light fade in on
+  // their turn instead, since tracing them would lose their dots.
+  if (motionOK) {
+    document.querySelectorAll(".page-hero-glyph svg").forEach(function (svg) {
+      var parts = svg.querySelectorAll("circle, ellipse, line, path, polygon, polyline, rect");
+      var last = 0;
+      Array.prototype.forEach.call(parts, function (part, i) {
+        last = 200 + i * 75;
+        part.style.setProperty("--draw-delay", last + "ms");
+        if (!part.getTotalLength || part.getAttribute("stroke-dasharray") || part.closest("[stroke='none']")) {
+          part.classList.add("glyph-fade");
+          return;
+        }
+        part.style.setProperty("--draw-len", (part.getTotalLength() + 1).toFixed(1));
+        part.classList.add("glyph-trace");
+      });
+      svg.classList.add("is-drawing");
+      window.setTimeout(function () { svg.classList.remove("is-drawing"); }, last + 1800);
+    });
+  }
+
+  // Home: the license panel floats on its own layer in front of the product
+  // window and drifts a little further with the pointer, so the hero has
+  // depth.
+  var heroHud = heroWindow && document.querySelector(".hero .hud");
+  var heroStage = heroWindow && heroWindow.closest(".hero");
+  if (heroHud && heroStage && finePointer && motionOK) {
+    var hudAt = { x: 0, y: 0 };
+    var hudQueued = false;
+    var placeHud = function () {
+      hudQueued = false;
+      heroHud.style.setProperty("--hud-x", (hudAt.x * 14).toFixed(1) + "px");
+      heroHud.style.setProperty("--hud-y", (hudAt.y * 9).toFixed(1) + "px");
+    };
+    var queueHud = function () {
+      if (hudQueued) return;
+      hudQueued = true;
+      window.requestAnimationFrame(placeHud);
+    };
+    heroStage.addEventListener(
+      "pointermove",
+      function (event) {
+        hudAt.x = (event.clientX / window.innerWidth) * 2 - 1;
+        hudAt.y = (event.clientY / window.innerHeight) * 2 - 1;
+        queueHud();
+      },
+      { passive: true }
+    );
+    heroStage.addEventListener("pointerleave", function () {
+      hudAt.x = 0;
+      hudAt.y = 0;
+      queueHud();
+    });
+  }
 
 
   /* ---------- Type [fx-type] ---------- */
