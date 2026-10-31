@@ -2224,7 +2224,26 @@
 
 
   /* ---------- Catalog and commerce [fx-commerce] ---------- */
-  // fx-commerce: reserved
+  // The rest of this area lives with the catalog, tray, and form code at the end of the file.
+
+  // The catalog's filter bar sticks under the header. Once it does, it turns
+  // to frosted glass with a soft shadow and a lit lower edge, so it reads as
+  // floating over the cards. A one-pixel marker where the bar starts says
+  // when: it leaves the area below the header just as the bar sticks.
+  var catalogBar = document.querySelector(".catalog-bar");
+  if (catalogBar && "IntersectionObserver" in window) {
+    var catalogBarMarker = document.createElement("div");
+    catalogBarMarker.className = "catalog-bar-marker";
+    catalogBarMarker.setAttribute("aria-hidden", "true");
+    catalogBar.parentElement.insertBefore(catalogBarMarker, catalogBar);
+    new IntersectionObserver(
+      function (entries) {
+        var entry = entries[entries.length - 1];
+        catalogBar.classList.toggle("is-stuck", !entry.isIntersecting && entry.boundingClientRect.top < 80);
+      },
+      { rootMargin: "-73px 0px 0px 0px" }
+    ).observe(catalogBarMarker);
+  }
 
 
   // Set the scroll-driven state for wherever the page opened.
@@ -2327,6 +2346,69 @@
   /* ---------- Module catalog: add to license ---------- */
   var addButtons = document.querySelectorAll(".mod-add[data-module]");
   var tray = document.getElementById("licenseTray");
+  var COMMERCE_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+  var commerceMotion = motionOK && !!document.documentElement.animate;
+  var trayLastCount = null;
+
+  // Runs a Web Animation, quietly doing nothing where one can't run.
+  var commerceAnimate = function (el, frames, options) {
+    if (!commerceMotion || !el) return null;
+    try {
+      return el.animate(frames, options);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  // Each button draws its own mark: a plus whose two strokes turn into a
+  // check once the module is in the license. The typed + and check move
+  // into the drawing; the words stay as they were. The button's
+  // aria-label names it either way.
+  var markAddButton = function (button) {
+    var mark = document.createElement("span");
+    mark.className = "mod-add-mark";
+    mark.setAttribute("aria-hidden", "true");
+    ["mod-add-bar", "mod-add-bar", "mod-add-ring"].forEach(function (name) {
+      var part = document.createElement("span");
+      part.className = name;
+      mark.appendChild(part);
+    });
+    button.querySelectorAll(".when-off, .when-on").forEach(function (words) {
+      words.textContent = words.textContent.replace(/^\s*[+\u2713]\s*/, "");
+    });
+    button.insertBefore(mark, button.firstChild);
+  };
+
+  // Adding a module: the button sends out a ring of light, the check's own
+  // ring bursts, and the card's border flares before settling to its
+  // selected glow.
+  var celebrateAdd = function (button) {
+    commerceAnimate(button, [
+      { boxShadow: "0 0 0 0 rgba(255, 255, 255, 0.5)" },
+      { boxShadow: "0 0 0 14px rgba(255, 255, 255, 0)" }
+    ], { duration: 750, easing: COMMERCE_EASE });
+    commerceAnimate(button.querySelector(".mod-add-ring"), [
+      { transform: "scale(0.3)", opacity: 0.9 },
+      { transform: "scale(2.4)", opacity: 0 }
+    ], { duration: 650, easing: COMMERCE_EASE });
+    commerceAnimate(button.closest(".mod-card"), [
+      { borderColor: "rgba(255, 255, 255, 1)", boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.35), 0 0 80px -16px rgba(255, 255, 255, 0.45)" }
+    ], { duration: 1100, easing: COMMERCE_EASE });
+  };
+
+  // The tray's count rolls to its new figure, up for more and down for
+  // fewer, with a small pulse.
+  var bumpTrayCount = function (count, num, more) {
+    commerceAnimate(num, [
+      { transform: "translate3d(0, " + (more ? 70 : -70) + "%, 0)", opacity: 0, filter: "blur(3px)" },
+      { transform: "none", opacity: 1, filter: "blur(0)" }
+    ], { duration: 480, easing: COMMERCE_EASE });
+    commerceAnimate(count, [
+      { transform: "scale(1)" },
+      { transform: "scale(1.06)", offset: 0.35 },
+      { transform: "scale(1)" }
+    ], { duration: 520, easing: "ease-out" });
+  };
 
   var renderSelection = function () {
     var selected = readSelection();
@@ -2340,16 +2422,27 @@
 
     if (!tray) return;
     var visible = selected.length > 0;
+    var wasVisible = tray.classList.contains("is-visible");
     tray.classList.toggle("is-visible", visible);
     document.body.classList.toggle("has-tray", visible);
 
     var summary = document.getElementById("traySummary");
     if (summary) {
+      // Same words as before ("3 add-on modules"); the figure is its own
+      // span so it can roll.
       var count = document.createElement("strong");
-      count.textContent = plural(selected.length, "add-on module");
+      var num = document.createElement("span");
+      num.className = "tray-num";
+      num.textContent = String(selected.length);
+      count.appendChild(num);
+      count.appendChild(document.createTextNode(plural(selected.length, "add-on module").slice(num.textContent.length)));
       summary.textContent = "Nadirion Desktop + ";
       summary.appendChild(count);
+      if (wasVisible && visible && trayLastCount !== null && trayLastCount !== selected.length) {
+        bumpTrayCount(count, num, selected.length > trayLastCount);
+      }
     }
+    trayLastCount = selected.length;
     var totalEl = document.getElementById("trayTotal");
     if (totalEl) {
       var total = licenseTotal(selected);
@@ -2362,6 +2455,7 @@
 
   if (catalog && addButtons.length) {
     addButtons.forEach(function (button) {
+      markAddButton(button);
       button.addEventListener("click", function () {
         var id = button.getAttribute("data-module");
         var selected = readSelection();
@@ -2370,6 +2464,7 @@
         else selected.splice(at, 1);
         writeSelection(selected);
         renderSelection();
+        if (at === -1) celebrateAdd(button);
       });
     });
 
@@ -2382,6 +2477,11 @@
     }
 
     renderSelection();
+    // Back from the quote form, where modules can be removed, the browser
+    // may restore this page as it was; show the license as it is now.
+    window.addEventListener("pageshow", function (event) {
+      if (event.persisted) renderSelection();
+    });
   }
 
   /* ---------- Module catalog: search and category filter ---------- */
@@ -2414,16 +2514,284 @@
     if (catalogEmpty) catalogEmpty.hidden = shown > 0;
   };
 
+  // Where the page scrolls back to after the result set changes: the top of
+  // the catalog, just under the header.
+  var catalogTop = function () {
+    var bar = document.querySelector(".catalog-bar");
+    if (!bar) return null;
+    return bar.parentElement.getBoundingClientRect().top + window.scrollY - 72;
+  };
+
   // After the result set changes, bring its first row into view if the
   // reader has already scrolled past the top of the catalog.
   var returnToCatalogTop = function () {
-    var bar = document.querySelector(".catalog-bar");
-    if (!bar) return;
-    var top = bar.parentElement.getBoundingClientRect().top + window.scrollY - 72;
-    if (window.scrollY > top) {
+    var top = catalogTop();
+    if (top !== null && window.scrollY > top) {
       window.scrollTo({ top: top, behavior: reduceMotion ? "auto" : "smooth" });
     }
   };
+
+  // Filtering moves things rather than swapping them. Cards and category
+  // headings that stay glide from where they were to where they now sit,
+  // the ones that drop out fade where they stood, and the ones that arrive
+  // rise in one after another. The hidden attribute still decides what is
+  // listed; this only animates the change, and only what is on screen.
+  var catalogSection = document.getElementById("catalog");
+  var flipItems = [];
+  catGroups.forEach(function (group) {
+    var head = group.querySelector(".cat-head");
+    if (head) flipItems.push(head);
+    group.querySelectorAll(".mod-card").forEach(function (card) { flipItems.push(card); });
+  });
+  if (catalogEmpty) flipItems.push(catalogEmpty);
+
+  var isListed = function (el) {
+    var group = el.closest(".cat-group");
+    return !el.hidden && !(group && group.hidden);
+  };
+  // Items still waiting for their first reveal are invisible anyway, and
+  // the reveal brings them in when they reach the screen.
+  var awaitsReveal = function (el) {
+    return el.classList.contains("reveal") && !el.classList.contains("is-visible");
+  };
+
+  var catalogGhosts = null;
+  var ghostOut = function (el, box, base, opacity) {
+    if (!catalogGhosts) {
+      catalogGhosts = document.createElement("div");
+      catalogGhosts.className = "flip-ghosts";
+      catalogGhosts.setAttribute("aria-hidden", "true");
+      catalogSection.appendChild(catalogGhosts);
+    }
+    // A stand-in copy fades where the item stood, so the item itself can be
+    // hidden at once.
+    var ghost = el.cloneNode(true);
+    ghost.removeAttribute("id");
+    ghost.removeAttribute("hidden");
+    ghost.classList.remove("reveal", "is-visible");
+    ghost.classList.add("flip-ghost");
+    ghost.inert = true;
+    ghost.style.setProperty("left", (box.left - base.left - catalogSection.clientLeft).toFixed(1) + "px");
+    ghost.style.setProperty("top", (box.top - base.top - catalogSection.clientTop).toFixed(1) + "px");
+    ghost.style.setProperty("width", box.width.toFixed(1) + "px");
+    ghost.style.setProperty("height", box.height.toFixed(1) + "px");
+    catalogGhosts.appendChild(ghost);
+    var anim = commerceAnimate(ghost, [
+      { opacity: opacity, transform: "none", filter: "blur(0)" },
+      { opacity: 0, transform: "scale(0.96)", filter: "blur(6px)" }
+    ], { duration: 240, easing: "ease", fill: "forwards" });
+    var drop = function () {
+      if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+    };
+    if (anim) anim.onfinish = drop;
+    else drop();
+  };
+
+  var keepFlip = function (el, anim) {
+    el.fxFlip = anim;
+    if (anim) anim.onfinish = function () { el.fxFlip = null; };
+  };
+
+  var refilter = function (fromChip) {
+    if (!commerceMotion || !catalogSection) {
+      applyFilter();
+      if (fromChip) returnToCatalogTop();
+      return;
+    }
+    var viewH = window.innerHeight;
+    var startY = window.scrollY;
+    var onScreen = function (box, shift) {
+      return box.height > 0 && box.bottom + shift > 0 && box.top + shift < viewH;
+    };
+
+    // First: where everything sits now, as the reader sees it, including
+    // any glide still under way from a previous change.
+    var before = flipItems.map(function (el) {
+      var shown = isListed(el) && !awaitsReveal(el);
+      var box = shown ? el.getBoundingClientRect() : null;
+      var opacity = 1;
+      if (el.fxFlip) {
+        if (shown) opacity = parseFloat(window.getComputedStyle(el).opacity) || 0;
+        el.fxFlip.cancel();
+        el.fxFlip = null;
+      }
+      return { box: box, seen: shown && onScreen(box, 0), opacity: opacity };
+    });
+
+    applyFilter();
+
+    // Then: where everything lands. A chip pressed deep in the list takes
+    // the page back to the top of the catalog, so judge what will be on
+    // screen from there.
+    var top = fromChip ? catalogTop() : null;
+    var shift = top !== null && window.scrollY > top ? window.scrollY - top : 0;
+    // The page itself moves when a chip takes it back up, or when the list
+    // gets shorter than the point the reader had reached. Then nothing
+    // stays put to glide or fade, and whatever greets the reader where the
+    // page comes to rest rises in.
+    var moved = shift > 0 || Math.abs(window.scrollY - startY) > 1;
+    var base = catalogSection.getBoundingClientRect();
+    var arriving = [];
+    var faded = 0;
+
+    flipItems.forEach(function (el, i) {
+      var was = before[i];
+      var now = isListed(el) && !awaitsReveal(el);
+      var box = now ? el.getBoundingClientRect() : null;
+      var seenAfter = now && onScreen(box, shift);
+
+      if (moved) {
+        if (seenAfter) arriving.push({ el: el, box: box });
+        return;
+      }
+      if (!now) {
+        if (was.seen) {
+          ghostOut(el, was.box, base, was.opacity);
+          faded++;
+        }
+        return;
+      }
+      if (!was.box || !(was.seen || seenAfter)) {
+        if (seenAfter) arriving.push({ el: el, box: box });
+        return;
+      }
+      var dx = was.box.left - box.left;
+      var dy = was.box.top - box.top;
+      if (Math.abs(dy) > viewH) {
+        // Too far to travel: let it go here and arrive there.
+        if (was.seen) {
+          ghostOut(el, was.box, base, was.opacity);
+          faded++;
+        }
+        if (seenAfter) arriving.push({ el: el, box: box });
+        return;
+      }
+      if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5 && was.opacity === 1) return;
+      keepFlip(el, commerceAnimate(el, [
+        { transform: "translate3d(" + dx.toFixed(1) + "px, " + dy.toFixed(1) + "px, 0)", opacity: was.opacity },
+        { transform: "none", opacity: 1 }
+      ], { duration: 620, easing: COMMERCE_EASE }));
+    });
+
+    // Arrivals rise in reading order, a beat after anything fading out.
+    arriving.sort(function (a, b) {
+      return a.box.top - b.box.top || a.box.left - b.box.left;
+    });
+    arriving.forEach(function (item, n) {
+      keepFlip(item.el, commerceAnimate(item.el, [
+        { opacity: 0, transform: "translate3d(0, 26px, 0) scale(0.97)", filter: "blur(6px)" },
+        { opacity: 1, transform: "none", filter: "blur(0)" }
+      ], {
+        duration: 680,
+        delay: (faded ? 170 : 0) + Math.min(n, 9) * 50,
+        easing: COMMERCE_EASE,
+        fill: "backwards"
+      }));
+    });
+
+    if (fromChip) returnToCatalogTop();
+  };
+
+  // The pressed chip is one white pill that slides from chip to chip,
+  // underneath the labels. Each label inverts against it, so the pressed
+  // one reads black on white and the ones it crosses darken as it passes.
+  var chipRow = chips.length ? chips[0].parentElement : null;
+  var chipGlider = null;
+
+  var placeChipGlider = function () {
+    var pressed = chipRow.querySelector('.chip[aria-pressed="true"]');
+    chipGlider.hidden = !pressed;
+    if (!pressed) return;
+    chipGlider.style.setProperty("--gx", pressed.offsetLeft + "px");
+    chipGlider.style.setProperty("--gy", pressed.offsetTop + "px");
+    chipGlider.style.setProperty("--gw", pressed.offsetWidth + "px");
+    chipGlider.style.setProperty("--gh", pressed.offsetHeight + "px");
+  };
+  // Resizes and late-loading fonts move the pill without a slide.
+  var settleChipGlider = function () {
+    chipRow.classList.remove("glider-ready");
+    placeChipGlider();
+    chipGlider.getBoundingClientRect();
+    chipRow.classList.add("glider-ready");
+  };
+  // On a narrow screen the chips scroll sideways; bring the pressed one to
+  // the middle of the row.
+  var centerChip = function (chip) {
+    var spare = chipRow.scrollWidth - chipRow.clientWidth;
+    if (spare < 2 || !chipRow.scrollTo) return;
+    chipRow.scrollTo({
+      left: clamp(chip.offsetLeft - (chipRow.clientWidth - chip.offsetWidth) / 2, 0, spare),
+      behavior: reduceMotion ? "auto" : "smooth"
+    });
+  };
+
+  if (chipRow && modCards.length) {
+    chipGlider = document.createElement("span");
+    chipGlider.className = "chip-glider";
+    chipGlider.setAttribute("aria-hidden", "true");
+    chipRow.appendChild(chipGlider);
+    // Each chip's words move into a span of their own, which the CSS
+    // blends against the pill. The chip's name stays the same.
+    chips.forEach(function (chip) {
+      var label = document.createElement("span");
+      label.className = "chip-label";
+      while (chip.firstChild) label.appendChild(chip.firstChild);
+      chip.appendChild(label);
+    });
+    chipRow.classList.add("has-glider");
+    settleChipGlider();
+    if ("ResizeObserver" in window) {
+      var chipSizes = new ResizeObserver(settleChipGlider);
+      chipSizes.observe(chipRow);
+      chips.forEach(function (chip) { chipSizes.observe(chip); });
+    } else {
+      window.addEventListener("resize", settleChipGlider);
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(settleChipGlider);
+  }
+
+  // While every category is listed, the chip for the category passing
+  // under the bar lights its border, so the row doubles as a map of where
+  // the reader is.
+  var chipSpyBand = [];
+  var markCurrentChip = function () {
+    var current = activeFilter === "all" && chipSpyBand.length ? chipSpyBand[0] : null;
+    chips.forEach(function (chip) {
+      chip.classList.toggle("is-current", chip.getAttribute("data-filter") === current);
+    });
+  };
+  if (chips.length && catGroups.length && "IntersectionObserver" in window) {
+    var chipSpyOrder = Array.prototype.map.call(catGroups, function (group) {
+      return group.getAttribute("data-category");
+    });
+    var chipSpy = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          var name = entry.target.getAttribute("data-category");
+          var at = chipSpyBand.indexOf(name);
+          if (entry.isIntersecting && at === -1) chipSpyBand.push(name);
+          if (!entry.isIntersecting && at !== -1) chipSpyBand.splice(at, 1);
+        });
+        chipSpyBand.sort(function (a, b) { return chipSpyOrder.indexOf(a) - chipSpyOrder.indexOf(b); });
+        markCurrentChip();
+      },
+      { rootMargin: "-30% 0px -58% 0px" }
+    );
+    catGroups.forEach(function (group) { chipSpy.observe(group); });
+  }
+
+  // Each category's rule draws itself in, left to right, as the category
+  // scrolls up into view.
+  if (motionOK) {
+    catGroups.forEach(function (group) {
+      var head = group.querySelector(".cat-head");
+      if (!head) return;
+      head.classList.add("has-rule");
+      watchScroll(head, function (p) {
+        head.style.setProperty("--rule", clamp((p - 0.04) / 0.3, 0, 1).toFixed(3));
+      });
+    });
+  }
 
   if (modCards.length) {
     chips.forEach(function (chip) {
@@ -2432,17 +2800,21 @@
         chips.forEach(function (other) {
           other.setAttribute("aria-pressed", String(other === chip));
         });
-        applyFilter();
-        returnToCatalogTop();
+        if (chipGlider) {
+          placeChipGlider();
+          centerChip(chip);
+        }
+        markCurrentChip();
+        refilter(true);
       });
     });
 
     if (catalogSearch) {
-      catalogSearch.addEventListener("input", applyFilter);
+      catalogSearch.addEventListener("input", function () { refilter(false); });
       catalogSearch.addEventListener("keydown", function (event) {
         if (event.key === "Escape" || event.key === "Esc") {
           catalogSearch.value = "";
-          applyFilter();
+          refilter(false);
         }
       });
     }
@@ -2503,18 +2875,52 @@
   });
 
   var quoteItems = document.getElementById("quoteItems");
+  // The modules the list showed last time. Only newcomers rise in, so
+  // removing one leaves the rest where they are.
+  var quoteShown = null;
 
-  var renderQuote = function () {
+  // Items rise in one after another once the form has risen into view
+  // (the CSS waits for it); --i sets each one's turn.
+  var arriveInQuote = function (item, n) {
+    if (!motionOK) return;
+    item.classList.add("is-arriving");
+    item.style.setProperty("--i", String(n));
+  };
+
+  // A removed module folds away and the ones after it close the gap.
+  var foldAway = function (item) {
+    if (!commerceMotion) return null;
+    var style = window.getComputedStyle(item);
+    var gap = window.getComputedStyle(quoteItems).columnGap;
+    var width = item.getBoundingClientRect().width;
+    item.classList.add("is-leaving");
+    return commerceAnimate(item, [
+      {
+        width: width + "px", paddingLeft: style.paddingLeft, paddingRight: style.paddingRight,
+        borderLeftWidth: style.borderLeftWidth, borderRightWidth: style.borderRightWidth,
+        marginRight: "0px", opacity: 1, transform: "scale(1)"
+      },
+      {
+        width: "0px", paddingLeft: "0px", paddingRight: "0px",
+        borderLeftWidth: "0px", borderRightWidth: "0px",
+        marginRight: gap && gap !== "normal" ? "-" + gap : "0px", opacity: 0, transform: "scale(0.8)"
+      }
+    ], { duration: 360, easing: COMMERCE_EASE, fill: "forwards" });
+  };
+
+  var renderQuote = function (focusAt) {
     if (!quoteItems || !catalog) return;
     var selected = readSelection();
+    var first = quoteShown === null;
 
     quoteItems.textContent = "";
     var base = document.createElement("li");
     base.className = "is-base";
     base.textContent = catalog.desktop.name;
+    if (first) arriveInQuote(base, 0);
     quoteItems.appendChild(base);
 
-    selected.forEach(function (id) {
+    selected.forEach(function (id, n) {
       var item = document.createElement("li");
       item.appendChild(document.createTextNode(catalog.modules[id].name));
       var remove = document.createElement("button");
@@ -2522,12 +2928,27 @@
       remove.textContent = "×";
       remove.setAttribute("aria-label", "Remove " + catalog.modules[id].name);
       remove.addEventListener("click", function () {
+        if (item.classList.contains("is-leaving")) return;
         writeSelection(readSelection().filter(function (other) { return other !== id; }));
-        renderQuote();
+        // Keyboard focus moves on to the next remove button rather than
+        // dropping back to the page.
+        var refocus = document.activeElement === remove ? n : -1;
+        var fold = foldAway(item);
+        if (fold) fold.onfinish = function () { renderQuote(refocus); };
+        else renderQuote(refocus);
       });
       item.appendChild(remove);
+      if (first || quoteShown.indexOf(id) === -1) arriveInQuote(item, n + 1);
       quoteItems.appendChild(item);
     });
+    quoteShown = selected.slice();
+
+    if (typeof focusAt === "number" && focusAt >= 0) {
+      var removers = quoteItems.querySelectorAll("button");
+      var next = removers[Math.min(focusAt, removers.length - 1)] ||
+        document.querySelector(".quote-box-head a");
+      if (next) next.focus();
+    }
 
     var empty = document.getElementById("quoteEmpty");
     if (empty) empty.hidden = selected.length > 0;
@@ -2551,6 +2972,11 @@
 
   renderQuote();
   syncConditionalRows();
+  // Back from the catalog, the browser may restore this page as it was;
+  // list the license as it is now.
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted) renderQuote();
+  });
 
   /* ---------- Sending forms ---------- */
   // Each form posts to its data-endpoint when one is configured (any service
@@ -2611,6 +3037,11 @@
       if (!statusEl) return;
       statusEl.textContent = message;
       statusEl.classList.toggle("is-success", !!ok);
+      // Each new message rises in, so a repeated one still reads as new.
+      commerceAnimate(statusEl, [
+        { opacity: 0, transform: "translate3d(0, 6px, 0)" },
+        { opacity: 1, transform: "none" }
+      ], { duration: 420, easing: COMMERCE_EASE });
     };
 
     formEl.addEventListener("submit", function (event) {
@@ -2641,8 +3072,12 @@
         return;
       }
 
+      // While it sends, light keeps sweeping across the button.
       var button = formEl.querySelector('[type="submit"]');
-      if (button) button.disabled = true;
+      if (button) {
+        button.disabled = true;
+        button.classList.add("is-sending");
+      }
       say("Sending…", false);
 
       var data = new FormData(formEl);
@@ -2664,7 +3099,9 @@
           say("That didn't go through. Please try again, or email " + to + " directly.", false);
         })
         .then(function () {
-          if (button) button.disabled = false;
+          if (!button) return;
+          button.disabled = false;
+          button.classList.remove("is-sending");
         });
     });
   });
