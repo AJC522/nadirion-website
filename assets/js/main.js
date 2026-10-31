@@ -691,7 +691,241 @@
 
 
   /* ---------- Frame: header, footer, wayfinding [fx-frame] ---------- */
-  // fx-frame: reserved
+  // Header links share one soft highlight that glides to whichever link is
+  // under the pointer or has keyboard focus. The Request a Quote button keeps
+  // its own sheen.
+  if (primaryNav && finePointer) {
+    var navGlide = document.createElement("span");
+    navGlide.className = "nav-glide";
+    navGlide.setAttribute("aria-hidden", "true");
+    primaryNav.insertBefore(navGlide, primaryNav.firstChild);
+    primaryNav.classList.add("has-glide");
+    var glideOn = false;
+
+    var glideTo = function (link) {
+      navGlide.style.setProperty("--glide-x", link.offsetLeft + "px");
+      navGlide.style.setProperty("--glide-w", link.offsetWidth + "px");
+      if (glideOn) return;
+      // Arriving from outside the nav, the highlight fades in where it is
+      // instead of sliding over from the last link it lit.
+      void navGlide.offsetWidth;
+      glideOn = true;
+      navGlide.classList.add("is-on");
+    };
+    var glideOff = function () {
+      glideOn = false;
+      navGlide.classList.remove("is-on");
+    };
+
+    primaryNav.querySelectorAll("a:not(.nav-cta)").forEach(function (link) {
+      link.addEventListener("pointerenter", function () { glideTo(link); });
+      link.addEventListener("focus", function () { glideTo(link); });
+    });
+    var cta = primaryNav.querySelector(".nav-cta");
+    if (cta) cta.addEventListener("pointerenter", glideOff);
+    // When the pointer leaves, the highlight goes back to a link that has
+    // keyboard focus, or fades out.
+    primaryNav.addEventListener("pointerleave", function () {
+      var focused = document.activeElement;
+      if (focused && focused !== cta && primaryNav.contains(focused) &&
+          focused.matches && focused.matches(":focus-visible")) glideTo(focused);
+      else glideOff();
+    });
+    primaryNav.addEventListener("focusout", function (event) {
+      if (!primaryNav.contains(event.relatedTarget)) glideOff();
+    });
+  }
+
+  // Footer finale: a giant wordmark rises out of the horizon as the visitor
+  // reaches the bottom of the page, centre letters first, and a glint runs
+  // across it as it lands. --finale-rise goes from 0 to 1 over the last
+  // stretch of the page; without the script, or with reduced motion, the
+  // wordmark simply stands.
+  var finale = document.querySelector(".footer-finale");
+  var footerEl = finale && finale.closest(".site-footer");
+  if (finale && footerEl && motionOK) {
+    var finaleWord = finale.querySelector(".finale-word");
+    var finaleLetters = finale.querySelectorAll(".finale-word span");
+    var riseFrom = 0;
+    var riseTo = 1;
+
+    // The rise starts once a third of the wordmark is on screen and ends
+    // just before the bottom of the page, in pixels the footer has come up
+    // from the bottom of the window.
+    var measureFinale = function () {
+      var foot = footerEl.getBoundingClientRect();
+      var box = finale.getBoundingClientRect();
+      riseFrom = box.top - foot.top + box.height / 3;
+      riseTo = Math.max(foot.height - 6, riseFrom + 1);
+      // Each letter paints its share of one glint that spans the whole word.
+      finale.style.setProperty("--finale-w", finaleWord.offsetWidth + "px");
+      finaleLetters.forEach(function (letter) {
+        letter.style.setProperty("--finale-x", letter.offsetLeft + "px");
+      });
+    };
+    measureFinale();
+    finale.classList.add("is-live");
+
+    var footerWatch = watchScroll(footerEl, function (p) {
+      var risen = p * (viewportH + footerWatch.height);
+      var rise = clamp((risen - riseFrom) / (riseTo - riseFrom), 0, 1);
+      finale.style.setProperty("--finale-rise", rise.toFixed(3));
+    });
+    window.addEventListener("resize", measureFinale);
+    window.addEventListener("load", measureFinale);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureFinale);
+  }
+
+  // Moving between pages, the CSS asks for a view transition (see the end of
+  // styles.css). When the browser abandons one, say because the visitor
+  // clicked on again mid-way, its promises reject; the page simply loads,
+  // so the rejections are caught here instead of reaching the console.
+  var quietTransition = function (event) {
+    var transition = event.viewTransition;
+    if (!transition) return;
+    var ignore = function () {};
+    ["ready", "finished", "updateCallbackDone"].forEach(function (name) {
+      if (transition[name] && transition[name].catch) transition[name].catch(ignore);
+    });
+  };
+  window.addEventListener("pageswap", quietTransition);
+  window.addEventListener("pagereveal", quietTransition);
+
+  // Altimeter: on wide screens, a slim gauge on the right edge lists the
+  // page's numbered sections between zenith (the top of the page) and nadir
+  // (the bottom). A marker glides down it with the scroll, the current
+  // section lights up, and hovering or focusing it slides out the section
+  // names. It needs at least three numbered sections to be worth showing.
+  var altMain = document.querySelector("main");
+  var altSections = [];
+  if (altMain) {
+    altMain.querySelectorAll("section").forEach(function (section) {
+      var eyebrow = section.querySelector(".eyebrow");
+      var index = eyebrow && eyebrow.querySelector(".index");
+      var num = index ? index.textContent.trim() : "";
+      if (!/^\d+$/.test(num)) return;
+      // The label is the eyebrow's own text, without its number, tags, or
+      // any decorative copy another effect may have added.
+      var copy = eyebrow.cloneNode(true);
+      copy.querySelectorAll(".index, .tag, [aria-hidden='true']").forEach(function (el) {
+        el.parentNode.removeChild(el);
+      });
+      var label = copy.textContent.replace(/\s+/g, " ").trim();
+      if (!label) return;
+      if (!section.id) {
+        var slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        section.id = slug && !document.getElementById(slug) ? slug : "section-" + num;
+      }
+      altSections.push({ el: section, num: num, label: label });
+    });
+  }
+
+  if (altSections.length >= 3) {
+    var altNav = document.createElement("nav");
+    altNav.className = "altimeter";
+    altNav.setAttribute("aria-label", "Sections");
+
+    var altScale = document.createElement("div");
+    altScale.className = "alt-scale";
+    altScale.setAttribute("aria-hidden", "true");
+    ["alt-cap alt-zenith", "alt-rail", "alt-trail", "alt-marker", "alt-cap alt-nadir"].forEach(function (name) {
+      var part = document.createElement("span");
+      part.className = name;
+      if (name === "alt-cap alt-zenith") part.textContent = "Zenith";
+      if (name === "alt-cap alt-nadir") part.textContent = "Nadir";
+      altScale.appendChild(part);
+    });
+    altNav.appendChild(altScale);
+
+    var altList = document.createElement("ol");
+    altList.className = "alt-list";
+    var altCount = altSections.length;
+    altSections.forEach(function (sec, i) {
+      var item = document.createElement("li");
+      item.style.setProperty("--alt-t", ((i + 1) / (altCount + 1)).toFixed(4));
+      var link = document.createElement("a");
+      link.className = "alt-link";
+      link.href = "#" + sec.el.id;
+      var num = document.createElement("span");
+      num.className = "alt-num";
+      num.textContent = sec.num;
+      var label = document.createElement("span");
+      label.className = "alt-label";
+      label.textContent = sec.label;
+      // Read as "03 Inside the Desktop"; drawn with the name to the left.
+      link.appendChild(num);
+      link.appendChild(document.createTextNode(" "));
+      link.appendChild(label);
+      item.appendChild(link);
+      altList.appendChild(item);
+      sec.link = link;
+    });
+    altNav.appendChild(altList);
+    altMain.parentNode.insertBefore(altNav, altMain.nextSibling);
+
+    // Scroll offsets where the marker reaches each tick: the top of the page
+    // (zenith), each section once its top is a third of the way up the
+    // window, and the bottom of the page (nadir). Measured with the layout,
+    // never during a scroll.
+    var altStops = [];
+    var altShowAt = 0;
+    var altHero = document.querySelector(".hero, .page-hero");
+    var measureAltimeter = function () {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var lead = window.innerHeight / 3;
+      altStops = [0];
+      altSections.forEach(function (sec) {
+        altStops.push(clamp(docTop(sec.el) - lead, 0, max));
+      });
+      altStops.push(max);
+      // Every stop at least a little past the one before, and every section
+      // still reachable at the very bottom of the page.
+      for (var i = altStops.length - 2; i > 0; i--) {
+        altStops[i] = Math.min(altStops[i], altStops[i + 1] - 2);
+      }
+      for (var j = 1; j < altStops.length; j++) {
+        altStops[j] = Math.max(altStops[j], altStops[j - 1] + 1);
+      }
+      altShowAt = altHero ? docTop(altHero) + altHero.offsetHeight * 0.6 : 0;
+      queueScroll();
+    };
+    measureAltimeter();
+    window.addEventListener("resize", measureAltimeter);
+    window.addEventListener("load", measureAltimeter);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureAltimeter);
+    if ("ResizeObserver" in window) new ResizeObserver(measureAltimeter).observe(document.body);
+
+    var altShown = null;
+    var altCurrent = -1;
+    var altLastPos = -1;
+    scrollHooks.push(function (y) {
+      var shown = y > altShowAt;
+      if (shown !== altShown) {
+        altShown = shown;
+        altNav.classList.toggle("is-shown", shown);
+      }
+
+      var stops = altStops;
+      var k = 0;
+      while (k < stops.length - 2 && y >= stops[k + 1]) k++;
+      var span = stops[k + 1] - stops[k];
+      var frac = span > 0 ? clamp((y - stops[k]) / span, 0, 1) : 0;
+      var current = clamp(frac >= 1 ? k + 1 : k, 0, altCount) - 1;
+      // With reduced motion the marker steps from section to section.
+      var pos = (reduceMotion ? current + 1 : k + frac) / (altCount + 1);
+      pos = Math.round(pos * 1000) / 1000;
+      if (pos !== altLastPos) {
+        altLastPos = pos;
+        altNav.style.setProperty("--alt", String(pos));
+      }
+
+      if (current !== altCurrent) {
+        if (altCurrent >= 0) altSections[altCurrent].link.removeAttribute("aria-current");
+        if (current >= 0) altSections[current].link.setAttribute("aria-current", "location");
+        altCurrent = current;
+      }
+    });
+  }
 
 
   /* ---------- Surfaces [fx-surfaces] ---------- */
