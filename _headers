@@ -1,0 +1,39 @@
+# Response headers for hosts that read a _headers file (Netlify, Cloudflare Pages).
+# GitHub Pages ignores this file; there the meta CSP in each page still applies.
+#
+# A path that matches several rules receives every rule's headers, so each header
+# name is set by only one rule that can match a given path.
+#
+# Keep Content-Security-Policy identical to the meta tag in every page, plus
+# frame-ancestors, which browsers honor only as a header.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests; frame-ancestors 'none'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), usb=(), xr-spatial-tracking=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+
+# Font files never change in place: give a changed font a new filename.
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Cross-Origin-Resource-Policy: same-origin
+
+# Stylesheets and scripts keep their names between releases, so browsers
+# revalidate them (a cheap 304) instead of running stale code against new HTML.
+/assets/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+  Cross-Origin-Resource-Policy: same-origin
+
+/assets/js/*
+  Cache-Control: public, max-age=0, must-revalidate
+  Cross-Origin-Resource-Policy: same-origin
+
+# Images stay loadable from other origins so link previews can show og-image.png.
+/assets/img/*
+  Cache-Control: public, max-age=86400
+
+/.well-known/security.txt
+  Cache-Control: public, max-age=86400

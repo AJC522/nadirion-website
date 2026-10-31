@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Certified Reseller Program | Nadirion</title>
-  <meta name="description" content="Become a certified reseller of Nadirion Desktop and its add-on modules. Tracks for companies and individuals, product certification, and a reseller ID buyers can verify." />
+  <meta name="description" content="Become a certified Nadirion reseller. Tracks for companies and individuals, product certification, and a reseller ID that buyers can verify." />
   <link rel="canonical" href="https://nadirion.us/resellers.html" />
   <meta name="theme-color" content="#050506" />
   <meta name="color-scheme" content="dark" />
@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="Nadirion" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="Certified Reseller Program | Nadirion" />
-  <meta property="og:description" content="Become a certified reseller of Nadirion Desktop and its add-on modules. Tracks for companies and individuals, product certification, and a reseller ID buyers can verify." />
+  <meta property="og:description" content="Become a certified Nadirion reseller. Tracks for companies and individuals, product certification, and a reseller ID that buyers can verify." />
   <meta property="og:url" content="https://nadirion.us/resellers.html" />
   <meta property="og:image" content="https://nadirion.us/assets/img/og-image.png" />
   <meta property="og:image:width" content="1200" />
@@ -30,6 +30,7 @@
 
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <script src="assets/js/boot.js"></script>
   <link rel="stylesheet" href="assets/css/styles.css" />
 
   <script type="application/ld+json">
@@ -69,16 +70,16 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" id="top">
     <div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="Nadirion home">
+      <a class="brand" href="./" aria-label="Nadirion home">
         <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="22" height="34" />
         <span class="brand-word">NADIRION</span>
       </a>
 
-      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Toggle navigation menu">
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Menu">
         <span></span><span></span>
       </button>
 
-      <nav class="primary-nav" id="primaryNav">
+      <nav class="primary-nav" id="primaryNav" aria-label="Primary">
         <a href="desktop.html">Nadirion Desktop</a>
         <a href="modules.html">Modules</a>
         <a href="pricing.html">Pricing</a>
@@ -89,23 +90,23 @@
             <span class="caret" aria-hidden="true"></span>
           </button>
           <div class="nav-menu" id="capsMenu">
-            <div class="nav-menu-col">
-              <p class="nav-menu-head">Digital &amp; Security Services</p>
+            <div class="nav-menu-col" role="group" aria-labelledby="navHeadServices">
+              <p class="nav-menu-head" id="navHeadServices">Digital &amp; Security Services</p>
               <a href="cyber.html">Cyber Operations</a>
               <a href="software-development.html">Software Development</a>
               <a href="digital-forensics.html">Digital Forensics</a>
               <a href="it-consulting.html">IT Consulting</a>
-              <a href="training.html">Business, IT &amp; Sales Training</a>
+              <a href="training.html">Training</a>
             </div>
-            <div class="nav-menu-col">
-              <p class="nav-menu-head">Autonomous Platforms</p>
+            <div class="nav-menu-col" role="group" aria-labelledby="navHeadPlatforms">
+              <p class="nav-menu-head" id="navHeadPlatforms">Autonomous Platforms</p>
               <a href="satellites.html">Satellites</a>
               <a href="maritime-drones.html">Maritime Drones</a>
               <a href="aerial-drones.html">Aerial Drones</a>
             </div>
           </div>
         </div>
-        <a href="contact.html?interest=quote" class="nav-cta">Get a Quote</a>
+        <a href="contact.html?interest=quote" class="nav-cta">Request a Quote</a>
       </nav>
     </div>
   </header>
@@ -116,9 +117,10 @@
       <div class="wrap page-hero-inner">
         <div class="page-hero-copy">
           <nav class="crumb" aria-label="Breadcrumb">
-            <a href="index.html">Home</a>
-            <span aria-hidden="true">/</span>
-            <span>Resellers</span>
+            <ol>
+              <li><a href="./">Home</a></li>
+              <li><span aria-current="page">Resellers</span></li>
+            </ol>
           </nav>
           <p class="eyebrow"><span class="index">&rarr;</span> Certified Reseller Program</p>
           <h1 id="pageTitle">Sell Nadirion. <span class="metal">Certified.</span></h1>
@@ -503,7 +505,7 @@
     <div class="wrap">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a class="brand" href="index.html" aria-label="Nadirion home">
+          <a class="brand" href="./" aria-label="Nadirion home">
             <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="18" height="28" />
             <span class="brand-word">NADIRION</span>
           </a>
@@ -512,39 +514,42 @@
             enrichment, triage, and storage, sold direct and through certified resellers.
           </p>
         </div>
-        <div class="footer-col">
-          <p class="footer-head">Product</p>
-          <a href="desktop.html">Nadirion Desktop</a>
-          <a href="modules.html">Module Catalog</a>
-          <a href="pricing.html">Pricing &amp; Licensing</a>
-          <a href="contact.html?interest=quote">Request a Quote</a>
-          <a href="contact.html?interest=demo">Book a Demo</a>
-        </div>
-        <div class="footer-col">
-          <p class="footer-head">Resellers</p>
-          <a href="resellers.html">Reseller Program</a>
-          <a href="resellers.html#apply">Apply to Resell</a>
-          <a href="resellers.html#verify">Verify a Reseller</a>
-        </div>
-        <div class="footer-col">
-          <p class="footer-head">Services &amp; Platforms</p>
-          <a href="cyber.html">Cyber Operations</a>
-          <a href="software-development.html">Software Development</a>
-          <a href="digital-forensics.html">Digital Forensics</a>
-          <a href="it-consulting.html">IT Consulting</a>
-          <a href="training.html">Business, IT &amp; Sales Training</a>
-          <a href="satellites.html">Satellites</a>
-          <a href="maritime-drones.html">Maritime Drones</a>
-          <a href="aerial-drones.html">Aerial Drones</a>
-        </div>
-        <div class="footer-col">
-          <p class="footer-head">Company</p>
-          <a href="index.html#about">About</a>
-          <a href="contact.html">Contact</a>
-          <a href="mailto:contact@nadirion.us">contact@nadirion.us</a>
-        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <div class="footer-col" role="group" aria-labelledby="footHeadProduct">
+            <p class="footer-head" id="footHeadProduct">Product</p>
+            <a href="desktop.html">Nadirion Desktop</a>
+            <a href="modules.html">Module Catalog</a>
+            <a href="pricing.html">Pricing &amp; Licensing</a>
+            <a href="contact.html?interest=quote">Request a Quote</a>
+            <a href="contact.html?interest=demo">Book a Demo</a>
+          </div>
+          <div class="footer-col" role="group" aria-labelledby="footHeadResellers">
+            <p class="footer-head" id="footHeadResellers">Resellers</p>
+            <a href="resellers.html">Reseller Program</a>
+            <a href="resellers.html#apply">Apply to Resell</a>
+            <a href="resellers.html#verify">Verify a Reseller</a>
+          </div>
+          <div class="footer-col" role="group" aria-labelledby="footHeadServices">
+            <p class="footer-head" id="footHeadServices">Services &amp; Platforms</p>
+            <a href="cyber.html">Cyber Operations</a>
+            <a href="software-development.html">Software Development</a>
+            <a href="digital-forensics.html">Digital Forensics</a>
+            <a href="it-consulting.html">IT Consulting</a>
+            <a href="training.html">Training</a>
+            <a href="satellites.html">Satellites</a>
+            <a href="maritime-drones.html">Maritime Drones</a>
+            <a href="aerial-drones.html">Aerial Drones</a>
+          </div>
+          <div class="footer-col" role="group" aria-labelledby="footHeadCompany">
+            <p class="footer-head" id="footHeadCompany">Company</p>
+            <a href="./#about">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="mailto:contact@nadirion.us">contact@nadirion.us</a>
+          </div>
+        </nav>
       </div>
-      <p class="footer-note">&copy; <span id="year"></span> Nadirion. All rights reserved.</p>
+      <p class="footer-note">&copy; <span id="year">2026</span> Nadirion. All rights reserved.</p>
     </div>
   </footer>
 

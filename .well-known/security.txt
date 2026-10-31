@@ -1,0 +1,5 @@
+Contact: mailto:contact@nadirion.us
+Expires: 2027-10-30T23:59:59Z
+Preferred-Languages: en
+Canonical: https://nadirion.us/.well-known/security.txt
+Policy: https://nadirion.us/contact.html#security
