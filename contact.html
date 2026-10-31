@@ -123,7 +123,7 @@
             </ol>
           </nav>
           <p class="eyebrow"><span class="index">&rarr;</span> Get in Touch</p>
-          <h1 id="pageTitle">Quotes, demos, and <span class="metal">everything else.</span></h1>
+          <h1 id="pageTitle">Quotes, demos, and <span class="metal">everything else</span></h1>
           <p class="page-lede">
             Request a quote for Nadirion Desktop and the modules you've chosen, book a demo,
             ask about the reseller program, or reach one of our service teams. Your message
@@ -154,33 +154,20 @@
               <dt>Urgent matters</dt>
               <dd>For a live incident or a preservation deadline, say so in the first line and we will prioritize it.</dd>
             </div>
+            <div id="security">
+              <dt>Security reports</dt>
+              <dd>
+                For a vulnerability in Nadirion Desktop or this website, email
+                <a href="mailto:contact@nadirion.us?subject=Security%20report">contact@nadirion.us</a>
+                (also listed in our <a href=".well-known/security.txt">security.txt</a>) or choose
+                &ldquo;Reporting a security vulnerability&rdquo; in the form. Include steps to
+                reproduce, and please allow reasonable time for a fix before disclosing it publicly.
+              </dd>
+            </div>
           </dl>
-
-          <div class="contact-routes">
-            <p class="footer-head">Nadirion Desktop</p>
-            <div class="route-links">
-              <a href="desktop.html">The Desktop</a>
-              <a href="modules.html">Module Catalog</a>
-              <a href="pricing.html">Pricing</a>
-              <a href="resellers.html">Reseller Program</a>
-            </div>
-          </div>
-          <div class="contact-routes">
-            <p class="footer-head">Services &amp; platforms</p>
-            <div class="route-links">
-              <a href="cyber.html">Cyber Operations</a>
-              <a href="software-development.html">Software Development</a>
-              <a href="digital-forensics.html">Digital Forensics</a>
-              <a href="it-consulting.html">IT Consulting</a>
-              <a href="training.html">Training</a>
-              <a href="satellites.html">Satellites</a>
-              <a href="maritime-drones.html">Maritime Drones</a>
-              <a href="aerial-drones.html">Aerial Drones</a>
-            </div>
-          </div>
         </div>
 
-        <form class="contact-form js-send" id="contactForm" data-subject="Nadirion website" data-subject-field="interest" novalidate>
+        <form class="contact-form js-send" id="contactForm" method="post" data-subject="Nadirion website" data-subject-field="interest" novalidate>
           <div class="form-row">
             <label for="interest">I'm interested in</label>
             <select id="interest" name="interest">
@@ -199,18 +186,19 @@
                 <option value="software">Software development</option>
                 <option value="forensics">Digital forensics</option>
                 <option value="itconsulting">IT consulting</option>
-                <option value="training">Business, IT &amp; sales training</option>
+                <option value="training">Training: business, IT, cyber, or sales</option>
                 <option value="satellites">Satellites</option>
                 <option value="maritime">Maritime drones</option>
                 <option value="aerial">Aerial drones</option>
               </optgroup>
-              <option value="other">Something else</option>
+              <option value="security">Reporting a security vulnerability</option>
+              <option value="other" selected>Something else</option>
             </select>
           </div>
 
           <div class="quote-box" data-show-when="interest:quote">
-            <div class="quote-box-head"><span>Your license</span><a href="modules.html">Edit modules</a></div>
-            <ul class="quote-items" id="quoteItems">
+            <div class="quote-box-head"><span id="quoteHead">Your license</span><a href="modules.html">Edit modules</a></div>
+            <ul class="quote-items" id="quoteItems" aria-labelledby="quoteHead">
               <li class="is-base">Nadirion Desktop</li>
             </ul>
             <p class="quote-empty" id="quoteEmpty">
@@ -219,52 +207,96 @@
             </p>
             <p class="quote-total" id="quoteTotal" hidden></p>
             <input type="hidden" name="license" id="quoteModules" data-label="License" value="Nadirion Desktop" />
+            <p id="quoteStatus" class="visually-hidden" role="status"></p>
           </div>
 
           <div class="form-split">
             <div class="form-row">
               <label for="name">Name</label>
-              <input type="text" id="name" name="name" autocomplete="name" required />
+              <input type="text" id="name" name="name" autocomplete="name" maxlength="120" required />
             </div>
             <div class="form-row">
               <label for="email">Email</label>
-              <input type="email" id="email" name="email" autocomplete="email" required />
+              <input type="email" id="email" name="email" autocomplete="email" maxlength="254" spellcheck="false" required />
             </div>
           </div>
           <div class="form-row">
             <label for="organization">Organization <span class="optional">(optional)</span></label>
-            <input type="text" id="organization" name="organization" autocomplete="organization" />
+            <input type="text" id="organization" name="organization" autocomplete="organization" maxlength="160" />
           </div>
 
           <div class="form-split" data-show-when="interest:quote">
             <div class="form-row">
               <label for="seats">Seats <span class="optional">(optional)</span></label>
-              <input type="number" id="seats" name="seats" min="1" step="1" inputmode="numeric" placeholder="People using it" />
+              <input type="number" id="seats" name="seats" min="1" max="100000" step="1" placeholder="People using it" />
             </div>
             <div class="form-row">
               <label for="resellerId">Reseller ID <span class="optional">(optional)</span></label>
-              <input type="text" id="resellerId" name="reseller_id" placeholder="If buying through one" />
+              <input type="text" id="resellerId" name="reseller_id" maxlength="64" autocomplete="off" spellcheck="false" placeholder="If buying through one" />
             </div>
           </div>
 
           <div class="form-split" data-show-when="interest:verify">
             <div class="form-row">
               <label for="verifyName">Reseller's name</label>
-              <input type="text" id="verifyName" name="verify_name" required />
+              <input type="text" id="verifyName" name="verify_name" maxlength="160" autocomplete="off" required />
             </div>
             <div class="form-row">
               <label for="verifyId">Reseller ID they gave you</label>
-              <input type="text" id="verifyId" name="verify_id" required />
+              <input type="text" id="verifyId" name="verify_id" maxlength="64" autocomplete="off" spellcheck="false" required />
             </div>
           </div>
 
           <div class="form-row">
             <label for="message">How can we help?</label>
-            <textarea id="message" name="message" rows="5" required></textarea>
+            <textarea id="message" name="message" rows="5" maxlength="3000" required></textarea>
+          </div>
+          <div class="form-trap" aria-hidden="true">
+            <label for="cTrap">Leave this field empty</label>
+            <input type="text" id="cTrap" name="_gotcha" tabindex="-1" autocomplete="off" data-trap />
           </div>
           <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+          <p class="form-note" data-send-mode="email">
+            Sending opens your email app with this message addressed to contact@nadirion.us.
+            Nothing reaches us until you send it from there.
+            <a href="privacy.html">Privacy</a>
+          </p>
+          <p class="form-note" data-send-mode="endpoint" hidden>
+            Sending delivers this message to the Nadirion team.
+            <a href="privacy.html">Privacy</a>
+          </p>
           <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
         </form>
+        <p class="no-js-note">
+          This form needs JavaScript to send. Email
+          <a href="mailto:contact@nadirion.us">contact@nadirion.us</a> instead, and for a
+          quote, list the modules you want.
+        </p>
+
+        <div class="contact-more">
+          <div class="contact-routes">
+            <p class="footer-head">Nadirion Desktop</p>
+            <div class="route-links">
+              <a href="desktop.html">The Desktop</a>
+              <a href="modules.html">Module Catalog</a>
+              <a href="pricing.html">Pricing</a>
+              <a href="resellers.html">Reseller Program</a>
+            </div>
+          </div>
+          <div class="contact-routes">
+            <p class="footer-head">Services &amp; Platforms</p>
+            <div class="route-links">
+              <a href="cyber.html">Cyber Operations</a>
+              <a href="software-development.html">Software Development</a>
+              <a href="digital-forensics.html">Digital Forensics</a>
+              <a href="it-consulting.html">IT Consulting</a>
+              <a href="training.html">Training</a>
+              <a href="satellites.html">Satellites</a>
+              <a href="maritime-drones.html">Maritime Drones</a>
+              <a href="aerial-drones.html">Aerial Drones</a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>

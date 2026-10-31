@@ -113,12 +113,12 @@
         <div class="hero-copy">
           <a class="hero-badge" href="desktop.html">
             <span class="badge-pulse" aria-hidden="true"></span>
-            <span>Introducing Nadirion Desktop</span>
+            <span>Formerly the Threat Operations Toolset<span class="visually-hidden">, now Nadirion Desktop</span></span>
             <span class="badge-arrow" aria-hidden="true">&rarr;</span>
           </a>
           <h1 id="heroTitle">
             One desktop for<br />
-            <span class="metal">the whole operation.</span>
+            <span class="metal">the whole operation</span>
           </h1>
           <p class="hero-lede">
             Nadirion Desktop carries an analyst from collection to enrichment, triage, and
@@ -127,10 +127,10 @@
             post-quantum readiness, and more.
           </p>
           <div class="hero-actions">
-            <a href="modules.html" class="btn btn-primary">Explore the Modules</a>
+            <a href="modules.html" class="btn btn-primary">Browse the Catalog</a>
             <a href="contact.html?interest=quote" class="btn btn-ghost">Request a Quote</a>
           </div>
-          <ul class="hero-meta" aria-label="At a glance">
+          <ul class="hero-meta">
             <li>Windows &middot; macOS &middot; Linux</li>
             <li>33 add-on modules</li>
             <li>Offline-first</li>
@@ -149,7 +149,7 @@
               <div class="app-search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
                 <span>Search modules, e.g. <span class="typed">autoruns</span></span>
-                <kbd>Ctrl F</kbd>
+                <kbd>Ctrl+F</kbd>
               </div>
               <div>
                 <p class="app-cat">Intelligence</p>
@@ -178,7 +178,7 @@
             </div>
           </div>
 
-          <div class="hud hud-license" role="presentation">
+          <div class="hud hud-license">
             <div class="hud-row"><span>License</span><strong>Nadirion Desktop</strong></div>
             <div class="hud-row"><span>Add-ons</span><strong>Email Analysis &middot; Malware Scan</strong></div>
             <div class="hud-row"><span>Add later</span><strong>Any of 33 modules</strong></div>
@@ -189,14 +189,16 @@
       <a class="scroll-cue" href="#how" aria-label="Scroll to how it works">
         <span></span>
       </a>
+
+      <button type="button" class="motion-toggle" id="motionToggle" aria-pressed="false">Pause motion</button>
     </section>
 
     <section class="stat-strip" aria-label="Nadirion Desktop at a glance">
       <div class="wrap stat-row">
         <div class="stat"><strong>33</strong><span>Add-on modules, each sold on its own</span></div>
-        <div class="stat"><strong>08</strong><span>Categories, from forensics to post-quantum</span></div>
-        <div class="stat"><strong>03</strong><span>Desktop platforms: Windows, macOS, Linux</span></div>
-        <div class="stat"><strong>01</strong><span>Launcher, search box, and console for all of it</span></div>
+        <div class="stat"><strong>8</strong><span>Categories, from forensics to post-quantum</span></div>
+        <div class="stat"><strong>3</strong><span>Desktop platforms: Windows, macOS, Linux</span></div>
+        <div class="stat"><strong>1</strong><span>Launcher, search box, and console for all of it</span></div>
       </div>
     </section>
 
@@ -255,99 +257,100 @@
         </div>
 
         <div class="focus-grid four">
-          <a class="focus-card" href="modules.html#cat-intelligence">
-            <span class="focus-index">03 modules</span>
+          <article class="focus-card">
+            <span class="focus-index">3 modules</span>
             <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="1.6"/><circle cx="19" cy="5" r="1.6"/><circle cx="12" cy="13" r="1.6"/><circle cx="6" cy="19" r="1.6"/><circle cx="19" cy="17" r="1.6"/><path d="M6.4 7.1l4.5 4.6M17.7 6.1l-4.6 5.6M10.9 14.3l-3.8 3.6M13.5 13.9l4.2 2.4"/></svg></div>
-            <h3>Intelligence</h3>
+            <h3><a class="card-link" href="modules.html#cat-intelligence">Intelligence</a></h3>
             <p>Extract, enrich, store, and follow indicators and threat reporting.</p>
             <ul class="focus-points">
               <li>Intelligence Processor</li>
               <li>IOC Vault</li>
               <li>Intelligence Feed</li>
             </ul>
-            <span class="focus-link">Browse Intelligence <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="focus-card" href="modules.html#cat-forensics">
+            <span class="focus-link" aria-hidden="true">Browse Intelligence <span>&rarr;</span></span>
+          </article>
+          <article class="focus-card">
             <span class="focus-index">11 modules</span>
             <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/><circle cx="16.5" cy="16.5" r="3"/><path d="M18.7 18.7L21 21"/></svg></div>
-            <h3>Forensics</h3>
+            <h3><a class="card-link" href="modules.html#cat-forensics">Forensics</a></h3>
             <p>Read-only analysis of files, email, processes, persistence, and logs.</p>
             <ul class="focus-points">
               <li>Email Analysis</li>
               <li>Registry &amp; Persistence Analysis</li>
               <li>AI Analysis</li>
+              <li>And 8 more</li>
             </ul>
-            <span class="focus-link">Browse Forensics <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="focus-card" href="modules.html#cat-triage">
-            <span class="focus-index">04 modules</span>
+            <span class="focus-link" aria-hidden="true">Browse Forensics <span>&rarr;</span></span>
+          </article>
+          <article class="focus-card">
+            <span class="focus-index">4 modules</span>
             <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12.2l2.1 2.1 4-4.3"/></svg></div>
-            <h3>Triage</h3>
+            <h3><a class="card-link" href="modules.html#cat-triage">Triage</a></h3>
             <p>Sweep a suspect host, isolate it, or carry a kit to it.</p>
             <ul class="focus-points">
               <li>Malware Scan</li>
               <li>Secure Host</li>
               <li>Triage Kit USB</li>
+              <li>USB ISO Burner</li>
             </ul>
-            <span class="focus-link">Browse Triage <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="focus-card" href="modules.html#cat-quantum">
-            <span class="focus-index">01 module</span>
-            <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9.5" ry="3.8"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(-60 12 12)"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg></div>
-            <h3>Quantum</h3>
-            <p>Find quantum-vulnerable cryptography and plan the migration.</p>
-            <ul class="focus-points">
-              <li>Cryptographic Inventory</li>
-              <li>CycloneDX CBOM &amp; SARIF</li>
-            </ul>
-            <span class="focus-link">Browse Quantum <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="focus-card" href="modules.html#cat-cryptography">
-            <span class="focus-index">01 module</span>
+            <span class="focus-link" aria-hidden="true">Browse Triage <span>&rarr;</span></span>
+          </article>
+          <article class="focus-card">
+            <span class="focus-index">1 module</span>
             <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/></svg></div>
-            <h3>Cryptography</h3>
-            <p>Decode, peel nested encodings, and identify hashes, offline.</p>
+            <h3><a class="card-link" href="modules.html#cat-cryptography">Cryptography</a></h3>
+            <p>Decode, peel nested encodings, and identify hashes, offline, across 21 codecs.</p>
             <ul class="focus-points">
               <li>Decoder</li>
-              <li>21 codecs &amp; auto-peel</li>
             </ul>
-            <span class="focus-link">Browse Cryptography <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="focus-card" href="modules.html#cat-identity">
-            <span class="focus-index">02 modules</span>
+            <span class="focus-link" aria-hidden="true">Browse Cryptography <span>&rarr;</span></span>
+          </article>
+          <article class="focus-card">
+            <span class="focus-index">1 module</span>
+            <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9.5" ry="3.8"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(-60 12 12)"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg></div>
+            <h3><a class="card-link" href="modules.html#cat-quantum">Quantum</a></h3>
+            <p>Find quantum-vulnerable cryptography and plan the migration, with CycloneDX CBOM and SARIF exports.</p>
+            <ul class="focus-points">
+              <li>Cryptographic Inventory</li>
+            </ul>
+            <span class="focus-link" aria-hidden="true">Browse Quantum <span>&rarr;</span></span>
+          </article>
+          <article class="focus-card">
+            <span class="focus-index">2 modules</span>
             <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.5-1.6 1.6-2.4 3-2.4s2.5.8 3 2.4M14 10h4.5M14 13h3"/></svg></div>
-            <h3>Identity</h3>
+            <h3><a class="card-link" href="modules.html#cat-identity">Identity</a></h3>
             <p>Persona-driven open-source research on people of interest.</p>
             <ul class="focus-points">
               <li>Persona Manager</li>
               <li>Identity Lookup</li>
             </ul>
-            <span class="focus-link">Browse Identity <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="focus-card" href="modules.html#cat-network">
-            <span class="focus-index">03 modules</span>
+            <span class="focus-link" aria-hidden="true">Browse Identity <span>&rarr;</span></span>
+          </article>
+          <article class="focus-card">
+            <span class="focus-index">3 modules</span>
             <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9.5" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/><path d="M12 8v4M5.5 16v-2.5h13V16"/></svg></div>
-            <h3>Network</h3>
+            <h3><a class="card-link" href="modules.html#cat-network">Network</a></h3>
             <p>Reachability, route paths, and local topology checks.</p>
             <ul class="focus-points">
               <li>Uptime Monitor</li>
               <li>Route Mapper</li>
               <li>Network Mapper</li>
             </ul>
-            <span class="focus-link">Browse Network <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="focus-card" href="modules.html#cat-host-utilities">
-            <span class="focus-index">08 modules</span>
+            <span class="focus-link" aria-hidden="true">Browse Network <span>&rarr;</span></span>
+          </article>
+          <article class="focus-card">
+            <span class="focus-index">8 modules</span>
             <div class="focus-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></div>
-            <h3>Host Utilities</h3>
+            <h3><a class="card-link" href="modules.html#cat-host-utilities">Host Utilities</a></h3>
             <p>Inventory and upkeep for the machine you're working on.</p>
             <ul class="focus-points">
               <li>Startup Manager</li>
               <li>Software Inventory &amp; Patch Checker</li>
               <li>Disk Space Analyzer</li>
+              <li>And 5 more</li>
             </ul>
-            <span class="focus-link">Browse Host Utilities <span aria-hidden="true">&rarr;</span></span>
-          </a>
+            <span class="focus-link" aria-hidden="true">Browse Host Utilities <span>&rarr;</span></span>
+          </article>
         </div>
       </div>
     </section>
@@ -358,7 +361,7 @@
         <div class="section-head split">
           <div>
             <p class="eyebrow"><span class="index">03</span> Inside the Desktop</p>
-            <h2 id="consoleTitle">Click through it, <span class="metal">or type it.</span></h2>
+            <h2 id="consoleTitle">Click through it, <span class="metal">or type it</span></h2>
           </div>
           <p class="section-lede">
             Every module has a window, and nearly every one also has a headless variant you
@@ -387,7 +390,7 @@
           <div class="toolkit-points">
             <div class="point">
               <h3>Search by what you're hunting</h3>
-              <p>Type "autoruns", "evtx", or "netstat" and the launcher finds the module that does it. Enter opens the first match.</p>
+              <p>Type &ldquo;autoruns&rdquo;, &ldquo;evtx&rdquo;, or &ldquo;netstat&rdquo; and the launcher finds the module that does it. Enter opens the first match.</p>
             </div>
             <div class="point">
               <h3>Keyboard first</h3>
@@ -437,7 +440,7 @@
           </div>
           <div class="sector">
             <h3>Verified</h3>
-            <p>USB ISO Burner checks checksums before writing and reads back after. Triage kits ship a SHA-256 manifest. Updates are hash-checked.</p>
+            <p>USB ISO Burner verifies the image checksum before writing and reads the drive back after. Triage kits ship a SHA-256 manifest. Updates are hash-checked.</p>
           </div>
           <div class="sector">
             <h3>Cross-platform</h3>
@@ -453,7 +456,7 @@
         <div class="section-head split">
           <div>
             <p class="eyebrow"><span class="index">05</span> Certified Resellers</p>
-            <h2 id="resellersTitle">Sell Nadirion. <span class="metal">Certified.</span></h2>
+            <h2 id="resellersTitle">Buy or sell through <span class="metal">certified resellers</span></h2>
           </div>
           <p class="section-lede">
             Companies and individuals can become certified resellers of Nadirion Desktop and
@@ -462,21 +465,21 @@
           </p>
         </div>
         <div class="related-grid">
-          <a class="related-card" href="resellers.html#tracks">
-            <h3>For companies</h3>
+          <article class="related-card">
+            <h3><a class="card-link" href="resellers.html#tracks">For companies</a></h3>
             <p>Resellers, MSSPs, IT consultancies, and integrators selling Nadirion to their clients.</p>
-            <span class="focus-link">The company track <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="related-card" href="resellers.html#tracks">
-            <h3>For individuals</h3>
+            <span class="focus-link" aria-hidden="true">The company track <span>&rarr;</span></span>
+          </article>
+          <article class="related-card">
+            <h3><a class="card-link" href="resellers.html#tracks">For individuals</a></h3>
             <p>Independent consultants, responders, and trainers selling Nadirion under their own name.</p>
-            <span class="focus-link">The individual track <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="related-card" href="resellers.html#verify">
-            <h3>Buying from a reseller?</h3>
+            <span class="focus-link" aria-hidden="true">The individual track <span>&rarr;</span></span>
+          </article>
+          <article class="related-card">
+            <h3><a class="card-link" href="resellers.html#verify">Buying from a reseller?</a></h3>
             <p>Every certified reseller has a reseller ID. Check it with us before you pay.</p>
-            <span class="focus-link">Verify a reseller <span aria-hidden="true">&rarr;</span></span>
-          </a>
+            <span class="focus-link" aria-hidden="true">Verify a reseller <span>&rarr;</span></span>
+          </article>
         </div>
       </div>
     </section>
@@ -508,13 +511,13 @@
         </div>
         <div class="about-copy">
           <p class="eyebrow"><span class="index">06</span> About Nadirion</p>
-          <h2 id="aboutTitle">Founded by practitioners, named for a point of reference.</h2>
+          <h2 id="aboutTitle">Founded by practitioners, named for a point of reference</h2>
           <p>
             The nadir is the point directly beneath an observer: the fixed reference from
-            which everything above is measured. Nadirion was established by cybersecurity
-            professionals with backgrounds in federal service, defense consulting, and critical
-            infrastructure protection, and that grounding shapes how we work: methodical,
-            discreet, and rooted in operational reality rather than theory.
+            which everything above is measured. Nadirion was founded by cybersecurity
+            professionals with backgrounds in federal service, defense consulting, and
+            critical-infrastructure protection. We work methodically and discreetly, and we
+            build for conditions in the field rather than the lab.
           </p>
           <p>
             Nadirion Desktop is built to the same standard. Findings rest on evidence, every
@@ -523,7 +526,7 @@
             forensics, training, and engineering work.
           </p>
           <div class="contact-routes" id="services">
-            <p class="footer-head">Beyond the software</p>
+            <p class="footer-head">Services &amp; Platforms</p>
             <div class="route-links">
               <a href="cyber.html">Cyber Operations</a>
               <a href="digital-forensics.html">Digital Forensics</a>
@@ -543,11 +546,11 @@
       <div class="wrap cta-inner">
         <div>
           <p class="eyebrow"><span class="index">&rarr;</span> Next Step</p>
-          <h2 id="ctaTitle">Build your license.</h2>
+          <h2 id="ctaTitle">Build your license</h2>
           <p>Choose the modules your work needs and send them to us for a quote, or buy through a certified reseller. Demos are available for teams evaluating Nadirion Desktop.</p>
         </div>
         <div class="cta-actions">
-          <a href="modules.html" class="btn btn-primary">Choose Modules</a>
+          <a href="modules.html" class="btn btn-primary">Build Your License</a>
           <a href="contact.html?interest=demo" class="btn btn-ghost">Book a Demo</a>
         </div>
       </div>

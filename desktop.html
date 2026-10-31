@@ -135,7 +135,7 @@
             </ol>
           </nav>
           <p class="eyebrow"><span class="index">&rarr;</span> The Platform</p>
-          <h1 id="pageTitle">Nadirion Desktop: <span class="metal">one application, every module.</span></h1>
+          <h1 id="pageTitle">Nadirion Desktop: <span class="metal">one application, every module</span></h1>
           <p class="page-lede">
             Nadirion Desktop is the platform every license starts with. A single launcher hosts
             the modules you choose, a keyboard-driven console runs them by name, and settings,
@@ -143,7 +143,7 @@
             as the Threat Operations Toolset.
           </p>
           <div class="hero-actions">
-            <a href="modules.html" class="btn btn-primary">Choose Your Modules</a>
+            <a href="modules.html" class="btn btn-primary">Build Your License</a>
             <a href="contact.html?interest=demo" class="btn btn-ghost">Book a Demo</a>
           </div>
         </div>
@@ -167,9 +167,9 @@
 
     <section class="stat-strip" aria-label="Nadirion Desktop at a glance">
       <div class="wrap stat-row">
-        <div class="stat"><strong>03</strong><span>Platforms, each with a native installer</span></div>
+        <div class="stat"><strong>3</strong><span>Platforms, each with a native installer</span></div>
         <div class="stat"><strong>33</strong><span>Add-on modules it can host</span></div>
-        <div class="stat"><strong>Ctrl + F</strong><span>Search every module by what it finds</span></div>
+        <div class="stat"><strong>Ctrl+F</strong><span>Search every module by what it finds</span></div>
         <div class="stat"><strong>SHA-256</strong><span>Checked on every in-place update</span></div>
       </div>
     </section>
@@ -198,7 +198,7 @@
             <span class="module-index">D-02</span>
             <div class="module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></div>
             <h3>Search by what you're hunting</h3>
-            <p>The filter box matches names, descriptions, and the words analysts actually type: "autoruns", "netstat", "evtx". Enter opens the first match.</p>
+            <p>The filter box matches names, descriptions, and the words analysts actually type: &ldquo;autoruns&rdquo;, &ldquo;netstat&rdquo;, &ldquo;evtx&rdquo;. Enter opens the first match.</p>
           </article>
           <article class="module">
             <span class="module-index">D-03</span>
@@ -220,7 +220,7 @@
             <span class="module-index">D-05</span>
             <div class="module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></div>
             <h3>Settings &amp; keys</h3>
-            <p>Themes, bundled typefaces, a colour-vision mode, display scaling, and API keys stored in the operating system's keyring.</p>
+            <p>Themes, bundled typefaces, a color-vision mode, display scaling, and API keys stored in the operating system's keyring.</p>
           </article>
           <article class="module">
             <span class="module-index">D-06</span>
@@ -237,7 +237,7 @@
         <div class="section-head split">
           <div>
             <p class="eyebrow"><span class="index">02</span> Command Console</p>
-            <h2 id="consoleTitle">Every module, <span class="metal">by name.</span></h2>
+            <h2 id="consoleTitle">Every module, <span class="metal">by name</span></h2>
           </div>
           <p class="section-lede">
             The console runs inside the desktop or as its own shell. Each module you license
@@ -322,33 +322,35 @@
             install first. Once installed, Nadirion Desktop updates itself in place.
           </p>
         </div>
-        <div class="table-scroll">
+        <!-- [html-validate-disable-next prefer-native-element: a focusable scroll container, not a page section] -->
+        <div class="table-scroll" role="region" tabindex="0" aria-labelledby="platformsCaption">
           <table class="spec-table">
+            <caption class="visually-hidden" id="platformsCaption">Nadirion Desktop packages by platform</caption>
             <thead>
               <tr><th scope="col">Platform</th><th scope="col">Package</th><th scope="col">Installs as</th><th scope="col">Updates</th></tr>
             </thead>
             <tbody>
-              <tr><td><strong>WINDOWS</strong></td><td>Setup wizard (.exe), x86_64</td><td>Per-user install with no admin rights needed; Desktop and Start Menu shortcuts</td><td>In place, SHA-256 verified</td></tr>
-              <tr><td><strong>MACOS</strong></td><td>Disk image (.dmg), x86_64</td><td>Drag to Applications</td><td>In place, SHA-256 verified</td></tr>
-              <tr><td><strong>LINUX</strong></td><td>Archive (.tar.gz), x86_64</td><td>Install script places it in ~/.local/bin with an application-menu launcher</td><td>In place, SHA-256 verified</td></tr>
+              <tr><th scope="row">Windows</th><td data-label="Package">Setup wizard (.exe), x86_64</td><td data-label="Installs as">Per-user install with no admin rights needed; Desktop and Start Menu shortcuts</td><td data-label="Updates">In place, SHA-256 verified</td></tr>
+              <tr><th scope="row">macOS</th><td data-label="Package">Disk image (.dmg), x86_64</td><td data-label="Installs as">Drag to Applications</td><td data-label="Updates">In place, SHA-256 verified</td></tr>
+              <tr><th scope="row">Linux</th><td data-label="Package">Archive (.tar.gz), x86_64</td><td data-label="Installs as">Install script places it in ~/.local/bin with an application-menu launcher</td><td data-label="Updates">In place, SHA-256 verified</td></tr>
             </tbody>
           </table>
         </div>
         <div class="spec-notes">
           <div class="spec-note">
-            <h4>Nothing else to install</h4>
+            <h3>Nothing else to install</h3>
             <p>Each package is self-contained. Optional extras, such as ffmpeg for audio and video conversion, are detected when present.</p>
           </div>
           <div class="spec-note">
-            <h4>Admin only when needed</h4>
+            <h3>Admin only when needed</h3>
             <p>Day-to-day use runs as a normal user. Modules that write whole drives, such as USB ISO Burner, ask for administrator rights.</p>
           </div>
           <div class="spec-note">
-            <h4>Your data stays local</h4>
+            <h3>Your data stays local</h3>
             <p>Settings, cases, and caches live in a per-user folder on the workstation. API keys live in the OS keyring.</p>
           </div>
           <div class="spec-note">
-            <h4>Platform notes</h4>
+            <h3>Platform notes</h3>
             <p>A few modules read Windows-specific artifacts or behave differently per platform. Each module's catalog entry says where.</p>
           </div>
         </div>
@@ -359,7 +361,7 @@
       <div class="wrap cta-inner">
         <div>
           <p class="eyebrow"><span class="index">&rarr;</span> Next Step</p>
-          <h2 id="ctaTitle">See which modules fit your work.</h2>
+          <h2 id="ctaTitle">See which modules fit your work</h2>
           <p>Browse the catalog and add modules to a license, or book a demo and we'll walk through Nadirion Desktop against the work you do.</p>
         </div>
         <div class="cta-actions">

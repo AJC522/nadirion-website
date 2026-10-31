@@ -123,13 +123,13 @@
               <li><span aria-current="page">Aerial Drones</span></li>
             </ol>
           </nav>
-          <p class="eyebrow"><span class="index">08</span> Focus Area <span class="tag">In development</span></p>
+          <p class="eyebrow"><span class="index">&rarr;</span> Autonomous Platforms <span class="tag">In development</span></p>
           <h1 id="pageTitle">Airframes repaired <span class="metal">where they fly</span></h1>
           <p class="page-lede">
             A damaged aircraft that has to ship back to a depot is an aircraft your operation
-            does not have. Every airframe we build is fixed wing, printed in house, and designed
-            so a broken boom, tail, or wing section is replaced from a printer near the flight
-            line, and the aircraft is back up the same day.
+            does not have. Every airframe we are developing is fixed-wing, printed in-house, and
+            designed so a broken boom, tail, or wing section can be replaced from a printer near
+            the flight line, with the aircraft flying again the same day.
           </p>
           <div class="hero-actions">
             <a href="contact.html?interest=aerial" class="btn btn-primary">Talk to the Program Team</a>
@@ -138,10 +138,14 @@
         </div>
         <div class="page-hero-glyph" aria-hidden="true">
           <svg viewBox="0 0 240 240" fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M120 40 L127 95 L205 125 L205 133 L127 120 L125 165 L158 182 L158 189 L124 178 L120 196 L116 178 L82 189 L82 182 L115 165 L113 120 L35 133 L35 125 L113 95 Z" stroke-opacity="0.55" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M35 129h170" stroke-opacity="0.18"/>
-            <path d="M120 40v156" stroke-opacity="0.18"/>
-            <circle cx="120" cy="129" r="8" stroke-opacity="0.3"/>
+            <circle cx="120" cy="120" r="104" stroke-opacity="0.12" stroke-dasharray="3 7"/>
+            <path d="M120 6v24M120 210v24M6 120h24M210 120h24" stroke-opacity="0.3"/>
+            <g transform="translate(120 120) scale(0.82) translate(-120 -118)" stroke-width="1.22">
+              <path d="M120 40 L127 95 L205 125 L205 133 L127 120 L125 165 L158 182 L158 189 L124 178 L120 196 L116 178 L82 189 L82 182 L115 165 L113 120 L35 133 L35 125 L113 95 Z" stroke-opacity="0.55" stroke-width="2.44" stroke-linejoin="round"/>
+              <path d="M35 129h170" stroke-opacity="0.18"/>
+              <path d="M120 40v156" stroke-opacity="0.18"/>
+              <circle cx="120" cy="129" r="8" stroke-opacity="0.3"/>
+            </g>
           </svg>
         </div>
       </div>
@@ -149,80 +153,10 @@
 
     <section class="stat-strip" aria-label="Aerial program at a glance">
       <div class="wrap stat-row">
-        <div class="stat"><strong>03</strong><span>Fixed wing airframes in development</span></div>
-        <div class="stat"><strong>Field level</strong><span>Parts replaced at the flight line</span></div>
+        <div class="stat"><strong>3</strong><span>Fixed-wing airframes in development</span></div>
+        <div class="stat"><strong>Field-level</strong><span>Parts replaced at the flight line</span></div>
         <div class="stat"><strong>EO / IR / RF</strong><span>Payload options targeted</span></div>
         <div class="stat"><strong>Autonomous</strong><span>Survey and patrol routing</span></div>
-      </div>
-    </section>
-
-    <section class="specs" id="airframes" aria-labelledby="airframeTitle">
-      <div class="wrap">
-        <div class="section-head split">
-          <div>
-            <p class="eyebrow"><span class="index">01</span> Airframes</p>
-            <h2 id="airframeTitle">Three fixed wing airframes, three jobs</h2>
-          </div>
-          <p class="section-lede">
-            We build fixed wing aircraft only. No multirotors, no hybrids. What changes
-            between the three is span, launch method, and endurance; the printed structure and
-            the payload interface are common, so a sensor moves between airframes without a
-            redesign. These are design targets for current development articles rather than
-            delivered performance.
-          </p>
-        </div>
-        <div class="table-scroll">
-          <table class="spec-table">
-            <caption class="visually-hidden">Aerial platform design targets</caption>
-            <thead>
-              <tr>
-                <th scope="col">Airframe</th>
-                <th scope="col">Type</th>
-                <th scope="col">Design emphasis</th>
-                <th scope="col">Typical role</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>ND-S</strong></td>
-                <td>Fixed wing, hand launched</td>
-                <td>Low weight, launched and recovered by one operator</td>
-                <td>Small area survey, rapid response imagery, dismounted teams</td>
-              </tr>
-              <tr>
-                <td><strong>ND-W</strong></td>
-                <td>Fixed wing, catapult launched</td>
-                <td>Range and endurance per unit of energy</td>
-                <td>Long corridor survey, area reconnaissance, patrol</td>
-              </tr>
-              <tr>
-                <td><strong>ND-M</strong></td>
-                <td>Fixed wing, shipboard launch and recovery</td>
-                <td>Catapult launch and arrested recovery, no prepared strip</td>
-                <td>Maritime and remote operations from a vessel or a clearing</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="spec-notes">
-          <div class="spec-note">
-            <h4>Payloads</h4>
-            <p>Optical, thermal, and RF packages on a common interface, so a mission change is a payload swap rather than a different aircraft.</p>
-          </div>
-          <div class="spec-note">
-            <h4>Autonomy</h4>
-            <p>Autonomous survey and patrol routing with supervised control. Behavior on link loss is defined, tested, and documented.</p>
-          </div>
-          <div class="spec-note">
-            <h4>Command link</h4>
-            <p>Authenticated command and telemetry, signed firmware, and a ground station built by our <a href="software-development.html">software team</a>.</p>
-          </div>
-          <div class="spec-note">
-            <h4>Launch &amp; recovery</h4>
-            <p>Hand launch, catapult, and arrested recovery. Nothing in the fleet needs a runway, and nothing in it trades cruise efficiency for a vertical takeoff.</p>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -230,7 +164,7 @@
       <div class="wrap">
         <div class="section-head split">
           <div>
-            <p class="eyebrow"><span class="index">02</span> Missions</p>
+            <p class="eyebrow"><span class="index">01</span> Missions</p>
             <h2 id="useTitle">Where they earn their keep</h2>
           </div>
           <p class="section-lede">
@@ -240,7 +174,7 @@
         </div>
         <div class="service-list-grid">
           <article class="service">
-            <span class="service-index">A-01</span>
+            <span class="service-index">01</span>
             <h3>Infrastructure Inspection</h3>
             <p>
               Transmission corridors, pipelines, rail, levees, and coastline, inspected on a
@@ -250,11 +184,11 @@
             <ul class="bullets">
               <li>Repeatable flight lines for change detection</li>
               <li>Thermal survey for fault and moisture detection</li>
-              <li>Corridor length covered in one sortie rather than a dozen</li>
+              <li>Long corridors covered in fewer sorties</li>
             </ul>
           </article>
           <article class="service">
-            <span class="service-index">A-02</span>
+            <span class="service-index">02</span>
             <h3>Reconnaissance &amp; Patrol</h3>
             <p>
               Area coverage for perimeter security, site protection, and situational awareness,
@@ -267,8 +201,8 @@
             </ul>
           </article>
           <article class="service">
-            <span class="service-index">A-03</span>
-            <h3>Rapid Response Imagery</h3>
+            <span class="service-index">03</span>
+            <h3>Rapid-Response Imagery</h3>
             <p>
               After a storm, a spill, or an incident, decisions get made on whatever imagery
               exists. Getting current imagery in the first hours changes the decision.
@@ -276,14 +210,14 @@
             <ul class="bullets">
               <li>Damage assessment and access route survey</li>
               <li>Search support over difficult terrain</li>
-              <li>Imagery delivered into an existing command view</li>
+              <li>Imagery delivered into the systems your team already uses</li>
             </ul>
           </article>
           <article class="service">
-            <span class="service-index">A-04</span>
+            <span class="service-index">04</span>
             <h3>Maritime Cooperation</h3>
             <p>
-              Aircraft operating from or alongside our
+              Aircraft designed to operate from or alongside our
               <a href="maritime-drones.html">uncrewed surface vessels</a>, extending sensor
               reach beyond what a hull-mounted sensor can see.
             </p>
@@ -297,7 +231,78 @@
       </div>
     </section>
 
-    <section class="process" aria-labelledby="thesisTitle">
+    <section class="specs" id="airframes" aria-labelledby="airframeTitle">
+      <div class="wrap">
+        <div class="section-head split">
+          <div>
+            <p class="eyebrow"><span class="index">02</span> Airframes</p>
+            <h2 id="airframeTitle">Three fixed-wing airframes, three jobs</h2>
+          </div>
+          <p class="section-lede">
+            We build fixed-wing aircraft only. No multirotors, no hybrids. What changes
+            between the three is span, launch method, and endurance; the printed structure and
+            the payload interface are common, so a sensor moves between airframes without a
+            redesign. These are design targets for current development articles rather than
+            delivered performance.
+          </p>
+        </div>
+        <!-- [html-validate-disable-next prefer-native-element: a focusable scroll container, not a page section] -->
+        <div class="table-scroll" role="region" tabindex="0" aria-labelledby="airframeCaption">
+          <table class="spec-table">
+            <caption id="airframeCaption" class="visually-hidden">Aerial platform design targets</caption>
+            <thead>
+              <tr>
+                <th scope="col">Airframe</th>
+                <th scope="col">Type</th>
+                <th scope="col">Design emphasis</th>
+                <th scope="col">Typical role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">ND-S</th>
+                <td data-label="Type">Fixed-wing, hand-launched</td>
+                <td data-label="Design emphasis">Low weight, launched and recovered by one operator</td>
+                <td data-label="Typical role">Small-area survey, rapid-response imagery, dismounted teams</td>
+              </tr>
+              <tr>
+                <th scope="row">ND-W</th>
+                <td data-label="Type">Fixed-wing, catapult-launched</td>
+                <td data-label="Design emphasis">Range and endurance per unit of energy</td>
+                <td data-label="Typical role">Long-corridor survey, area reconnaissance, patrol</td>
+              </tr>
+              <tr>
+                <th scope="row">ND-M</th>
+                <td data-label="Type">Fixed-wing, shipboard launch and recovery</td>
+                <td data-label="Design emphasis">Catapult launch and arrested recovery, no prepared strip</td>
+                <td data-label="Typical role">Maritime and remote operations from a vessel or a clearing</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="spec-notes">
+          <div class="spec-note">
+            <h3>Payloads</h3>
+            <p>Optical, thermal, and RF packages on a common interface, so a mission change is a payload swap rather than a different aircraft.</p>
+          </div>
+          <div class="spec-note">
+            <h3>Autonomy</h3>
+            <p>Autonomous survey and patrol routing with supervised control. Behavior on link loss is defined, tested, and documented.</p>
+          </div>
+          <div class="spec-note">
+            <h3>Command link</h3>
+            <p>Authenticated command and telemetry, signed firmware, and a ground station built by our <a href="software-development.html">software team</a>.</p>
+          </div>
+          <div class="spec-note">
+            <h3>Launch &amp; recovery</h3>
+            <p>Hand launch, catapult, and arrested recovery. Nothing in the fleet needs a runway, and nothing in it trades cruise efficiency for a vertical takeoff.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="light" aria-labelledby="thesisTitle">
       <div class="wrap">
         <div class="section-head split">
           <div>
@@ -310,30 +315,18 @@
             <a href="maritime-drones.html">maritime</a> programs.
           </p>
         </div>
-        <div class="program-thesis">
-          <div class="thesis-point">
-            <h4>Additive First</h4>
-            <p>
-              Printing the structure collapses the distance between a design change and a flying
-              article. Short build cycles keep the fleet current instead of frozen at the date it
-              was ordered, and a print file with a spool at the operating location replaces a
-              depot return and a shipping window.
-            </p>
+        <div class="sector-grid">
+          <div class="sector">
+            <h3>Additive first</h3>
+            <p>Short build cycles keep the fleet current instead of frozen at the date it was ordered.</p>
           </div>
-          <div class="thesis-point">
-            <h4>Sensor to Decision</h4>
-            <p>
-              These platforms are collection assets. What they gather lands in the same evidence
-              store and command view that runs our cyber operations work, so imagery and signal
-              reach an analyst in usable form.
-            </p>
+          <div class="sector">
+            <h3>Sensor to decision</h3>
+            <p>These platforms are collection assets, built so imagery and signal reach an analyst in usable form, handled with the same evidence discipline as our cyber and forensics work.</p>
           </div>
-          <div class="thesis-point">
-            <h4>Hardened by Default</h4>
-            <p>
-              We build these as a security company. Firmware, command links, and supply chain are
-              treated as attack surface from the first print rather than patched after delivery.
-            </p>
+          <div class="sector">
+            <h3>Hardened by default</h3>
+            <p>Firmware, command links, and supply chain are treated as attack surface from the first print.</p>
           </div>
         </div>
       </div>
@@ -345,35 +338,34 @@
         <div class="program-status">
           <p>
             <span class="status-tag">Program status</span>
-            The aerial program is in active development. We are talking with agencies, utilities,
-            infrastructure operators, and integrators about pilot programs, payload requirements,
-            and the regulatory path for the operations they have in mind.
+            The aerial program is in active development. We want to hear from agencies,
+            utilities, infrastructure operators, and integrators about pilot programs, payload
+            requirements, and the regulatory path for the operations they have in mind.
           </p>
-          <a href="contact.html?interest=aerial" class="btn btn-ghost">Talk to the Program Team</a>
         </div>
       </div>
     </section>
 
     <section class="related" aria-labelledby="relatedTitle">
       <div class="wrap">
-        <p class="eyebrow"><span class="index">&rarr;</span> Related Focus Areas</p>
+        <p class="eyebrow"><span class="index">&rarr;</span> Related</p>
         <h2 id="relatedTitle" class="related-title">Where this work connects</h2>
         <div class="related-grid">
-          <a class="related-card" href="maritime-drones.html">
-            <h3>Maritime Drones</h3>
-            <p>Surface vessels these aircraft launch from and share a picture with.</p>
-            <span class="focus-link">Go to Maritime Drones <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="related-card" href="satellites.html">
-            <h3>Satellites</h3>
+          <article class="related-card">
+            <h3><a class="card-link" href="maritime-drones.html">Maritime Drones</a></h3>
+            <p>Surface vessels these aircraft are designed to launch from and share a picture with.</p>
+            <span class="focus-link" aria-hidden="true">Go to Maritime Drones <span>&rarr;</span></span>
+          </article>
+          <article class="related-card">
+            <h3><a class="card-link" href="satellites.html">Satellites</a></h3>
             <p>Overhead collection that cues where an aircraft should look next.</p>
-            <span class="focus-link">Go to Satellites <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="related-card" href="software-development.html">
-            <h3>Software Development</h3>
+            <span class="focus-link" aria-hidden="true">Go to Satellites <span>&rarr;</span></span>
+          </article>
+          <article class="related-card">
+            <h3><a class="card-link" href="software-development.html">Software Development</a></h3>
             <p>Flight software, ground station, and the imagery pipeline behind it.</p>
-            <span class="focus-link">Go to Software Development <span aria-hidden="true">&rarr;</span></span>
-          </a>
+            <span class="focus-link" aria-hidden="true">Go to Software Development <span>&rarr;</span></span>
+          </article>
         </div>
       </div>
     </section>
@@ -385,7 +377,7 @@
           <p>Tell us the area, the sensor, and how often it needs looking at. We will be clear about where the program stands.</p>
         </div>
         <div class="cta-actions">
-          <a href="contact.html?interest=aerial" class="btn btn-primary">Request a Briefing</a>
+          <a href="contact.html?interest=aerial" class="btn btn-primary">Talk to the Program Team</a>
           <a href="mailto:contact@nadirion.us" class="btn btn-ghost">contact@nadirion.us</a>
         </div>
       </div>

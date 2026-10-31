@@ -156,7 +156,7 @@
     <section class="catalog" id="catalog" aria-label="Module catalog">
       <div class="catalog-bar">
         <div class="wrap catalog-bar-inner">
-          <div class="catalog-search">
+          <div class="catalog-search" role="search">
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
             <label class="visually-hidden" for="catalogSearch">Search modules</label>
             <input type="search" id="catalogSearch" placeholder="Search, e.g. autoruns" autocomplete="off" />
@@ -200,13 +200,13 @@
                 <li>Parallel enrichment across VirusTotal, AbuseIPDB, and Hybrid Analysis</li>
                 <li>Exports the normalized set as JSON, CSV, or STIX 2.1</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Uses your API keys</li>
               </ul>
-              <button type="button" class="mod-add" data-module="tip" aria-pressed="false" aria-label="Add Intelligence Processor to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="tip" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Intelligence Processor</span>
               </button>
             </article>
             <article class="mod-card" id="ioc-vault" data-category="intelligence" data-aliases="indicators database campaigns actors mitre misp sentinelone">
@@ -221,13 +221,13 @@
                 <li>CSV, Excel, STIX, and MISP import and export, plus a SentinelOne IOC Management export</li>
                 <li>Team sync over a network share with concurrent-writer protection</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Encrypted</li>
               </ul>
-              <button type="button" class="mod-add" data-module="ioc_vault" aria-pressed="false" aria-label="Add IOC Vault to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="ioc_vault" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: IOC Vault</span>
               </button>
             </article>
             <article class="mod-card" id="news" data-category="intelligence" data-aliases="rss cve feed headlines news advisories">
@@ -242,12 +242,12 @@
                 <li>Tags severity, extracts CVE identifiers, and flags your watchlist hits</li>
                 <li>Search, priority filters, and export to TXT, CSV, JSON, or HTML</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
               </ul>
-              <button type="button" class="mod-add" data-module="news" aria-pressed="false" aria-label="Add Intelligence Feed to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="news" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Intelligence Feed</span>
               </button>
             </article>
           </div>
@@ -277,13 +277,13 @@
                 <li>Filename anomalies and embedded string signals</li>
                 <li>Separates likely-benign files from the ones that need escalation</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Read-only</li>
               </ul>
-              <button type="button" class="mod-add" data-module="file_review" aria-pressed="false" aria-label="Add File Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="file_review" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: File Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="email-review" data-category="forensics" data-aliases="eml msg phishing headers bec spoofing">
@@ -298,13 +298,13 @@
                 <li>Explainable rules with a severity and MITRE ATT&amp;CK technique on every finding</li>
                 <li>A decision-first verdict, from Benign through Likely Phishing to Malicious</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Opt-in enrichment</li>
               </ul>
-              <button type="button" class="mod-add" data-module="email_review" aria-pressed="false" aria-label="Add Email Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="email_review" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Email Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="process-checker" data-category="forensics" data-aliases="tasklist pid running processes">
@@ -319,13 +319,13 @@
                 <li>Each process&#x27;s listening and established network connections</li>
                 <li>Baseline comparison and exportable reports for handoff</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Windows-first</li>
               </ul>
-              <button type="button" class="mod-add" data-module="process_checker" aria-pressed="false" aria-label="Add Process Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="process_checker" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Process Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="browser-analysis" data-category="forensics" data-aliases="history downloads chrome firefox edge">
@@ -340,13 +340,13 @@
                 <li>Flags URL shorteners, paste sites, tunneling and remote-access services, and risky downloads</li>
                 <li>Full Scan covers every profile on the host, including Volume Shadow Copy history</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Full Scan: Windows</li>
               </ul>
-              <button type="button" class="mod-add" data-module="browser_analysis" aria-pressed="false" aria-label="Add Browser Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="browser_analysis" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Browser Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="service-analysis" data-category="forensics" data-aliases="services svchost daemons systemd launchd">
@@ -361,13 +361,13 @@
                 <li>Flags unsigned binaries, user-writable or unusual paths, and missing descriptions</li>
                 <li>Windows services, Linux systemd units, and macOS launchd</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Read-only</li>
               </ul>
-              <button type="button" class="mod-add" data-module="service_analysis" aria-pressed="false" aria-label="Add Service Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="service_analysis" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Service Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="scheduled-task-analysis" data-category="forensics" data-aliases="schtasks cron jobs at timers">
@@ -382,13 +382,13 @@
                 <li>Flags very frequent triggers and unsigned, user-writable, or LOLBin action binaries</li>
                 <li>Surfaces disabled-but-present entries</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Read-only</li>
               </ul>
-              <button type="button" class="mod-add" data-module="scheduled_task_analysis" aria-pressed="false" aria-label="Add Scheduled Task Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="scheduled_task_analysis" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Scheduled Task Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="registry-persistence" data-category="forensics" data-aliases="hives run keys autoruns asep ifeo shellbags">
@@ -403,13 +403,13 @@
                 <li>UserAssist, RecentDocs, and ShellBags activity</li>
                 <li>Works on exported hives or auto-detects them on the host</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Windows artifacts</li>
               </ul>
-              <button type="button" class="mod-add" data-module="registry_persistence" aria-pressed="false" aria-label="Add Registry &amp; Persistence Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="registry_persistence" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Registry &amp; Persistence Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="execution-evidence" data-category="forensics" data-aliases="prefetch amcache shimcache bam timeline">
@@ -424,13 +424,13 @@
                 <li>Merges every source into a single scored timeline</li>
                 <li>Read-only, with scans on a background thread</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Windows artifacts</li>
               </ul>
-              <button type="button" class="mod-add" data-module="execution_evidence" aria-pressed="false" aria-label="Add Execution Evidence Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="execution_evidence" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Execution Evidence Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="event-log-logon" data-category="forensics" data-aliases="evtx sysmon 4625 4624 logons powershell">
@@ -445,13 +445,13 @@
                 <li>Scores process-creation and PowerShell script-block evidence</li>
                 <li>Cross-references findings exported from other analysis modules</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Windows logs</li>
               </ul>
-              <button type="button" class="mod-add" data-module="event_log_logon" aria-pressed="false" aria-label="Add Event Log &amp; Logon Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="event_log_logon" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Event Log &amp; Logon Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="ai-analysis" data-category="forensics" data-aliases="deepfake synthetic media generated genai llm c2pa content credentials provenance">
@@ -466,13 +466,13 @@
                 <li>Style-only verdicts stop at 70/100; anything higher needs evidence that names a generator</li>
                 <li>Scores “created” and “edited” separately, so a retouched camera photo isn&#x27;t called synthetic</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Read-only</li>
               </ul>
-              <button type="button" class="mod-add" data-module="ai_analysis" aria-pressed="false" aria-label="Add AI Analysis to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="ai_analysis" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: AI Analysis</span>
               </button>
             </article>
             <article class="mod-card" id="network-connections" data-category="forensics" data-aliases="netstat ports arp dns cache firewall">
@@ -487,13 +487,13 @@
                 <li>Firewall and listening-port exposure audit</li>
                 <li>ARP table and the DNS resolver cache (Windows)</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Read-only</li>
               </ul>
-              <button type="button" class="mod-add" data-module="network_connections" aria-pressed="false" aria-label="Add Network Connection Forensics to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="network_connections" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Network Connection Forensics</span>
               </button>
             </article>
           </div>
@@ -523,13 +523,13 @@
                 <li>Blocklist escalation and opt-in VirusTotal verdicts</li>
                 <li>Reversible remediation that confirms first and verifies the result</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Full Scan: Windows</li>
               </ul>
-              <button type="button" class="mod-add" data-module="malware_scan" aria-pressed="false" aria-label="Add Malware Scan to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="malware_scan" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Malware Scan</span>
               </button>
             </article>
             <article class="mod-card" id="secure-host" data-category="triage" data-aliases="isolate quarantine containment network block lockdown">
@@ -544,13 +544,13 @@
                 <li>Snapshots the firewall configuration first, so Restore is exact</li>
                 <li>Snapshot-exact on Windows and Linux; best-effort on macOS</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Reversible</li>
               </ul>
-              <button type="button" class="mod-add" data-module="secure_host" aria-pressed="false" aria-label="Add Secure Host to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="secure_host" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Secure Host</span>
               </button>
             </article>
             <article class="mod-card" id="triage-kit-usb" data-category="triage" data-aliases="jump kit responder offline usb">
@@ -565,13 +565,13 @@
                 <li>Nothing on the host is modified; results write back to the kit</li>
                 <li>SHA-256 manifest and Verify Kit for chain of custody</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Read-only kit</li>
               </ul>
-              <button type="button" class="mod-add" data-module="triage_kit_usb" aria-pressed="false" aria-label="Add Triage Kit USB to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="triage_kit_usb" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Triage Kit USB</span>
               </button>
             </article>
             <article class="mod-card" id="usb-iso-burner" data-category="triage" data-aliases="dd rufus etcher flash bootable live usb img windows installer">
@@ -586,13 +586,13 @@
                 <li>Checks the expected checksum before writing and reads the drive back after</li>
                 <li>Only ever offers removable drives, re-identified at burn time</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Admin rights</li>
               </ul>
-              <button type="button" class="mod-add" data-module="usb_iso_burner" aria-pressed="false" aria-label="Add USB ISO Burner to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="usb_iso_burner" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: USB ISO Burner</span>
               </button>
             </article>
           </div>
@@ -622,13 +622,13 @@
                 <li>Auto-peel strips nested layers and reports exactly what it removed</li>
                 <li>Ranks likely hash algorithms and recovers plaintext by dictionary, salted schemes included</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI</li>
                 <li>Fully offline</li>
               </ul>
-              <button type="button" class="mod-add" data-module="decoder" aria-pressed="false" aria-label="Add Decoder to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="decoder" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Decoder</span>
               </button>
             </article>
           </div>
@@ -658,13 +658,13 @@
                 <li>Scores harvest-now-decrypt-later exposure against NIST IR 8547, CNSA 2.0, and other deadlines</li>
                 <li>Four-wave migration plan with HTML, CSV, CycloneDX CBOM, and SARIF exports</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>CI-ready</li>
               </ul>
-              <button type="button" class="mod-add" data-module="crypto_inventory" aria-pressed="false" aria-label="Add Cryptographic Inventory to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="crypto_inventory" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Cryptographic Inventory</span>
               </button>
             </article>
           </div>
@@ -694,12 +694,12 @@
                 <li>Profiles stay local to the workstation</li>
                 <li>Pairs with Identity Lookup to drive person-focused queries</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
               </ul>
-              <button type="button" class="mod-add" data-module="persona_manager" aria-pressed="false" aria-label="Add Persona Manager to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="persona_manager" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Persona Manager</span>
               </button>
             </article>
             <article class="mod-card" id="identity-lookup" data-category="identity" data-aliases="people search osint username">
@@ -714,13 +714,13 @@
                 <li>SerpAPI-backed search</li>
                 <li>Works from Persona Manager profiles or a name you type</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Needs SerpAPI key</li>
               </ul>
-              <button type="button" class="mod-add" data-module="identity_lookup" aria-pressed="false" aria-label="Add Identity Lookup to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="identity_lookup" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Identity Lookup</span>
               </button>
             </article>
           </div>
@@ -750,12 +750,12 @@
                 <li>Latency tracking with status history</li>
                 <li>Lightweight availability checks from the analyst&#x27;s own workstation</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
               </ul>
-              <button type="button" class="mod-add" data-module="uptime" aria-pressed="false" aria-label="Add Uptime Monitor to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="uptime" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Uptime Monitor</span>
               </button>
             </article>
             <article class="mod-card" id="traceroute" data-category="network" data-aliases="tracert hops path mtr">
@@ -770,12 +770,12 @@
                 <li>Surfaces path changes, high-latency segments, and chokepoints</li>
                 <li>Useful for scoping an incident&#x27;s network footprint</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
               </ul>
-              <button type="button" class="mod-add" data-module="traceroute" aria-pressed="false" aria-label="Add Route Mapper to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="traceroute" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Route Mapper</span>
               </button>
             </article>
             <article class="mod-card" id="net-mapper" data-category="network" data-aliases="discovery subnet scan vlan topology">
@@ -790,12 +790,12 @@
                 <li>Classifies hosts against the network segments you declare</li>
                 <li>Flags loops, bridging, shadow subnets, and vendors that don&#x27;t belong on a segment</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
               </ul>
-              <button type="button" class="mod-add" data-module="net_mapper" aria-pressed="false" aria-label="Add Network Mapper to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="net_mapper" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Network Mapper</span>
               </button>
             </article>
           </div>
@@ -825,13 +825,13 @@
                 <li>Version and signature status for each</li>
                 <li>No bundled vendor database; updates come from the OS</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="driver_manager" aria-pressed="false" aria-label="Add Driver Update Manager to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="driver_manager" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Driver Update Manager</span>
               </button>
             </article>
             <article class="mod-card" id="file-organizer" data-category="host-utilities" data-aliases="sort tidy folders rename">
@@ -846,13 +846,13 @@
                 <li>Preview the result before anything moves</li>
                 <li>Changes apply only after you confirm</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="file_organizer" aria-pressed="false" aria-label="Add File Organizer to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="file_organizer" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: File Organizer</span>
               </button>
             </article>
             <article class="mod-card" id="startup-manager" data-category="host-utilities" data-aliases="autoruns boot run keys msconfig">
@@ -867,13 +867,13 @@
                 <li>XDG autostart and systemd on Linux; launchd on macOS</li>
                 <li>Every disable can be undone</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Reversible</li>
               </ul>
-              <button type="button" class="mod-add" data-module="startup_manager" aria-pressed="false" aria-label="Add Startup Manager to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="startup_manager" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Startup Manager</span>
               </button>
             </article>
             <article class="mod-card" id="system-health" data-category="host-utilities" data-aliases="cpu memory ram disk battery">
@@ -888,13 +888,13 @@
                 <li>Nothing flagged or scored, just recorded</li>
                 <li>Diff a later run against the first</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Read-only</li>
               </ul>
-              <button type="button" class="mod-add" data-module="system_health" aria-pressed="false" aria-label="Add System Health Snapshot to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="system_health" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: System Health Snapshot</span>
               </button>
             </article>
             <article class="mod-card" id="disk-space-analyzer" data-category="host-utilities" data-aliases="storage cleanup large files temp">
@@ -909,13 +909,13 @@
                 <li>Stale temp and cache items, plus orphaned installers in Downloads</li>
                 <li>Deletes only what you confirm</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="disk_space_analyzer" aria-pressed="false" aria-label="Add Disk Space Analyzer to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="disk_space_analyzer" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Disk Space Analyzer</span>
               </button>
             </article>
             <article class="mod-card" id="duplicate-finder" data-category="host-utilities" data-aliases="dedupe copies identical">
@@ -930,13 +930,13 @@
                 <li>Keep the first, oldest, or newest copy of each group</li>
                 <li>The last remaining copy can never be deleted</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="duplicate_finder" aria-pressed="false" aria-label="Add Duplicate File Finder to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="duplicate_finder" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Duplicate File Finder</span>
               </button>
             </article>
             <article class="mod-card" id="software-inventory" data-category="host-utilities" data-aliases="installed programs patching winget versions">
@@ -951,13 +951,13 @@
                 <li>Flags out-of-date versions</li>
                 <li>Updates through winget, apt, dnf, yum, or Homebrew</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="software_inventory" aria-pressed="false" aria-label="Add Software Inventory &amp; Patch Checker to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="software_inventory" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: Software Inventory &amp; Patch Checker</span>
               </button>
             </article>
             <article class="mod-card" id="file-converter" data-category="host-utilities" data-aliases="convert pdf docx xlsx png mp4">
@@ -972,12 +972,12 @@
                 <li>Images, CSV/XLSX/JSON, TXT/DOCX/PDF, and audio/video through ffmpeg</li>
                 <li>Only offers formats every queued file can reach</li>
               </ul>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>GUI + console</li>
               </ul>
-              <button type="button" class="mod-add" data-module="file_converter" aria-pressed="false" aria-label="Add File Conversion Kit to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
+              <button type="button" class="mod-add" data-module="file_converter" aria-pressed="false">
+                <span class="when-off" aria-hidden="true">+</span><span class="when-on" aria-hidden="true">&#10003;</span>
+                Add to license<span class="visually-hidden">: File Conversion Kit</span>
               </button>
             </article>
           </div>
@@ -1006,7 +1006,7 @@
               </div>
               <h3>Intelligence Map</h3>
               <p>Plot geolocated threat activity across an interactive world map.</p>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>In development</li>
                 <li>Not yet sold</li>
               </ul>
@@ -1018,7 +1018,7 @@
               </div>
               <h3>Investigation Queue</h3>
               <p>Track analyst cases from intake through triage to closure, with an optional encrypted team queue.</p>
-              <ul class="mod-tags" aria-label="Details">
+              <ul class="mod-tags">
                 <li>In development</li>
                 <li>Not yet sold</li>
               </ul>
@@ -1029,27 +1029,29 @@
       </div>
     </section>
 
+    <p id="catalogStatus" class="visually-hidden" role="status"></p>
+
     <section class="cta-band" aria-labelledby="ctaTitle">
       <div class="wrap cta-inner">
         <div>
           <p class="eyebrow"><span class="index">&rarr;</span> Not Sure Yet?</p>
           <h2 id="ctaTitle">Tell us the work. We'll suggest the modules.</h2>
-          <p>Describe what your team investigates or maintains and we'll put together a license that covers it, with nothing you won't open.</p>
+          <p>Describe what your team investigates or maintains and we'll put together a license that covers it.</p>
         </div>
         <div class="cta-actions">
           <a href="contact.html?interest=modules" class="btn btn-primary">Ask for a Recommendation</a>
-          <a href="pricing.html" class="btn btn-ghost">See Pricing</a>
+          <a href="pricing.html" class="btn btn-ghost">How Licensing Works</a>
         </div>
       </div>
     </section>
   </main>
 
-  <div class="license-tray" id="licenseTray" role="region" aria-label="Your license">
-    <p class="tray-summary" id="traySummary" aria-live="polite">Nadirion Desktop</p>
+  <aside class="license-tray" id="licenseTray" aria-label="Your license">
+    <p class="tray-summary" id="traySummary">Nadirion Desktop</p>
     <span class="tray-total" id="trayTotal" hidden></span>
     <button type="button" class="tray-clear" id="trayClear">Clear</button>
     <a class="btn btn-primary" id="trayCta" href="contact.html?interest=quote">Request a Quote <span aria-hidden="true">&rarr;</span></a>
-  </div>
+  </aside>
   <footer class="site-footer">
     <div class="wrap">
       <div class="footer-grid">

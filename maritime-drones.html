@@ -123,7 +123,7 @@
               <li><span aria-current="page">Maritime Drones</span></li>
             </ol>
           </nav>
-          <p class="eyebrow"><span class="index">07</span> Focus Area <span class="tag">In development</span></p>
+          <p class="eyebrow"><span class="index">&rarr;</span> Autonomous Platforms <span class="tag">In development</span></p>
           <h1 id="pageTitle">Persistent presence on <span class="metal">water you cannot watch</span></h1>
           <p class="page-lede">
             Coastlines, port approaches, and offshore infrastructure need watching continuously,
@@ -138,12 +138,16 @@
         </div>
         <div class="page-hero-glyph" aria-hidden="true">
           <svg viewBox="0 0 240 240" fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M40 132h150l-22 40H62z" stroke-opacity="0.5" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M74 132V78h80l20 54" stroke-opacity="0.35" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M114 78V44" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="114" cy="38" r="6" stroke-opacity="0.4" stroke-width="2"/>
-            <path d="M16 190c16 0 16 10 32 10s16-10 32-10 16 10 32 10 16-10 32-10 16 10 32 10 16-10 32-10" stroke-opacity="0.28" stroke-width="2" stroke-linecap="round"/>
-            <path d="M16 212c16 0 16 10 32 10s16-10 32-10 16 10 32 10 16-10 32-10 16 10 32 10 16-10 32-10" stroke-opacity="0.16" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="120" cy="120" r="104" stroke-opacity="0.12" stroke-dasharray="3 7"/>
+            <path d="M120 6v24M120 210v24M6 120h24M210 120h24" stroke-opacity="0.3"/>
+            <g transform="translate(120 120) scale(0.9) translate(-117 -150)" stroke-width="1.11">
+              <path d="M42 132h150l-22 40H64z" stroke-opacity="0.55" stroke-width="2.22" stroke-linejoin="round"/>
+              <path d="M96 132v-14h40l10 14" stroke-opacity="0.3" stroke-width="2.22" stroke-linejoin="round"/>
+              <path d="M116 118V92M104 100h24" stroke-opacity="0.3" stroke-width="2.22" stroke-linecap="round"/>
+              <circle cx="116" cy="84" r="6" stroke-opacity="0.55" stroke-width="2.22"/>
+              <path d="M53 190c16 0 16 10 32 10s16-10 32-10 16 10 32 10 16-10 32-10" stroke-opacity="0.3" stroke-width="2.22" stroke-linecap="round"/>
+              <path d="M53 212c16 0 16 10 32 10s16-10 32-10 16 10 32 10 16-10 32-10" stroke-opacity="0.18" stroke-width="2.22" stroke-linecap="round"/>
+            </g>
           </svg>
         </div>
       </div>
@@ -153,7 +157,7 @@
       <div class="wrap stat-row">
         <div class="stat"><strong>Printed hulls</strong><span>Additively manufactured structure</span></div>
         <div class="stat"><strong>Modular</strong><span>Payload bays swapped at the dock</span></div>
-        <div class="stat"><strong>Long endurance</strong><span>Patrol and survey profiles</span></div>
+        <div class="stat"><strong>Long-endurance</strong><span>Patrol and survey profiles</span></div>
         <div class="stat"><strong>Attritable</strong><span>Unit cost that permits real risk</span></div>
       </div>
     </section>
@@ -172,7 +176,7 @@
         </div>
         <div class="service-list-grid">
           <article class="service">
-            <span class="service-index">M-01</span>
+            <span class="service-index">01</span>
             <h3>Coastal &amp; Port Patrol</h3>
             <p>
               Continuous watch on approaches, anchorages, and restricted water. Persistent
@@ -180,12 +184,12 @@
             </p>
             <ul class="bullets">
               <li>Vessel traffic monitoring and anomaly detection</li>
-              <li>Restricted area and exclusion zone watch</li>
+              <li>Restricted-area and exclusion-zone watch</li>
               <li>Small craft detection in cluttered water</li>
             </ul>
           </article>
           <article class="service">
-            <span class="service-index">M-02</span>
+            <span class="service-index">02</span>
             <h3>Offshore Infrastructure Watch</h3>
             <p>
               Cables, pipelines, wind farms, and platforms, monitored on a schedule rather than
@@ -198,7 +202,7 @@
             </ul>
           </article>
           <article class="service">
-            <span class="service-index">M-03</span>
+            <span class="service-index">03</span>
             <h3>Survey &amp; Environmental</h3>
             <p>
               Repeatable survey lines run at low cost, which makes change detection over time
@@ -211,7 +215,7 @@
             </ul>
           </article>
           <article class="service">
-            <span class="service-index">M-04</span>
+            <span class="service-index">04</span>
             <h3>Communications &amp; Relay</h3>
             <p>
               A surface node that extends the reach of everything else on the water, including
@@ -240,9 +244,10 @@
             each stands.
           </p>
         </div>
-        <div class="table-scroll">
+        <!-- [html-validate-disable-next prefer-native-element: a focusable scroll container, not a page section] -->
+        <div class="table-scroll" role="region" tabindex="0" aria-labelledby="vesselCaption">
           <table class="spec-table">
-            <caption class="visually-hidden">Uncrewed surface vessel design targets</caption>
+            <caption id="vesselCaption" class="visually-hidden">Uncrewed surface vessel design targets</caption>
             <thead>
               <tr>
                 <th scope="col">Class</th>
@@ -253,16 +258,16 @@
             </thead>
             <tbody>
               <tr>
-                <td><strong>ND-C</strong></td>
-                <td>Printed monohull, harbor and coastal</td>
-                <td>Multi-day station keeping</td>
-                <td>Port approaches, anchorage watch, inshore survey</td>
+                <th scope="row">ND-C</th>
+                <td data-label="Hull">Printed monohull, harbor and coastal</td>
+                <td data-label="Endurance target">Multi-day station keeping</td>
+                <td data-label="Typical role">Port approaches, anchorage watch, inshore survey</td>
               </tr>
               <tr>
-                <td><strong>ND-O</strong></td>
-                <td>Printed multihull, open water</td>
-                <td>Extended patrol between port calls</td>
-                <td>Offshore infrastructure, long survey lines, relay</td>
+                <th scope="row">ND-O</th>
+                <td data-label="Hull">Printed multihull, open water</td>
+                <td data-label="Endurance target">Extended patrol between port calls</td>
+                <td data-label="Typical role">Offshore infrastructure, long survey lines, relay</td>
               </tr>
             </tbody>
           </table>
@@ -270,19 +275,19 @@
 
         <div class="spec-notes">
           <div class="spec-note">
-            <h4>Payload bays</h4>
+            <h3>Payload bays</h3>
             <p>Standard interfaces for optical, thermal, radar, acoustic, and RF packages, swapped at the dock without a yard period.</p>
           </div>
           <div class="spec-note">
-            <h4>Autonomy</h4>
+            <h3>Autonomy</h3>
             <p>Waypoint and pattern autonomy with collision avoidance, supervised from shore. A human stays in the decision loop for anything consequential.</p>
           </div>
           <div class="spec-note">
-            <h4>Command link</h4>
+            <h3>Command link</h3>
             <p>Authenticated command and telemetry with defined behavior on link loss, written by our <a href="software-development.html">embedded team</a>.</p>
           </div>
           <div class="spec-note">
-            <h4>Sustainment</h4>
+            <h3>Sustainment</h3>
             <p>Printed structure means a damaged section is replaced from local stock rather than ordered from a hull builder.</p>
           </div>
         </div>
@@ -309,7 +314,7 @@
           </div>
           <div class="sector">
             <h3>Sensor to decision</h3>
-            <p>These are collection assets. What they gather lands in the same command view that runs our cyber work.</p>
+            <p>These are collection assets, built so what they gather reaches an analyst in usable form, handled with the same evidence discipline as our cyber and forensics work.</p>
           </div>
           <div class="sector">
             <h3>Hardened by default</h3>
@@ -325,35 +330,34 @@
         <div class="program-status">
           <p>
             <span class="status-tag">Program status</span>
-            The maritime program is in active development. We are talking with port authorities,
-            agencies, offshore operators, and integrators about pilot deployments, payload
-            requirements, and the trial water to prove them in.
+            The maritime program is in active development. We want to hear from port
+            authorities, agencies, offshore operators, and integrators about pilot deployments,
+            payload requirements, and the trial water to prove them in.
           </p>
-          <a href="contact.html?interest=maritime" class="btn btn-ghost">Talk to the Program Team</a>
         </div>
       </div>
     </section>
 
     <section class="related" aria-labelledby="relatedTitle">
       <div class="wrap">
-        <p class="eyebrow"><span class="index">&rarr;</span> Related Focus Areas</p>
+        <p class="eyebrow"><span class="index">&rarr;</span> Related</p>
         <h2 id="relatedTitle" class="related-title">Where this work connects</h2>
         <div class="related-grid">
-          <a class="related-card" href="aerial-drones.html">
-            <h3>Aerial Drones</h3>
-            <p>Air and surface assets working the same picture, over the same command link.</p>
-            <span class="focus-link">Go to Aerial Drones <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="related-card" href="satellites.html">
-            <h3>Satellites</h3>
+          <article class="related-card">
+            <h3><a class="card-link" href="aerial-drones.html">Aerial Drones</a></h3>
+            <p>Air and surface assets designed to work the same picture over the same command link.</p>
+            <span class="focus-link" aria-hidden="true">Go to Aerial Drones <span>&rarr;</span></span>
+          </article>
+          <article class="related-card">
+            <h3><a class="card-link" href="satellites.html">Satellites</a></h3>
             <p>Overhead cueing for the surface fleet, from printed CubeSats.</p>
-            <span class="focus-link">Go to Satellites <span aria-hidden="true">&rarr;</span></span>
-          </a>
-          <a class="related-card" href="cyber.html">
-            <h3>Cyber Operations</h3>
+            <span class="focus-link" aria-hidden="true">Go to Satellites <span>&rarr;</span></span>
+          </article>
+          <article class="related-card">
+            <h3><a class="card-link" href="cyber.html">Cyber Operations</a></h3>
             <p>Why the command link and supply chain get treated as attack surface.</p>
-            <span class="focus-link">Go to Cyber Operations <span aria-hidden="true">&rarr;</span></span>
-          </a>
+            <span class="focus-link" aria-hidden="true">Go to Cyber Operations <span>&rarr;</span></span>
+          </article>
         </div>
       </div>
     </section>
@@ -362,10 +366,10 @@
         <div>
           <p class="eyebrow"><span class="index">&rarr;</span> Next Step</p>
           <h2 id="ctaTitle">Water that needs watching?</h2>
-          <p>Bring the area, the sensor question, and the season. We will tell you honestly what the program can support and when.</p>
+          <p>Bring the area, the sensor question, and the season, and we will tell you what the program can support and when.</p>
         </div>
         <div class="cta-actions">
-          <a href="contact.html?interest=maritime" class="btn btn-primary">Request a Briefing</a>
+          <a href="contact.html?interest=maritime" class="btn btn-primary">Talk to the Program Team</a>
           <a href="mailto:contact@nadirion.us" class="btn btn-ghost">contact@nadirion.us</a>
         </div>
       </div>
