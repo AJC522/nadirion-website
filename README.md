@@ -3,8 +3,9 @@
 Static marketing site for Nadirion, built around selling **Nadirion Desktop** (formerly the
 Threat Operations Toolset) and its add-on modules. Every license starts with Nadirion
 Desktop; each of the 33 modules is a separate add-on. Buyers can purchase direct or through
-a certified reseller, and companies and individuals can apply to become one. Nadirion's
-consulting, training, and autonomous-platform work keeps its own pages under "Services".
+a certified reseller, and companies and individuals can apply to become one. Nadirion
+Desktop is the only thing the site sells; new products and services still in research or
+development are described on the "In Development" page until they go on sale.
 
 ## Design
 
@@ -24,30 +25,26 @@ desktop.html                Nadirion Desktop: what every license includes, conso
 modules.html                module catalog: search, category filter, "add to license"
 pricing.html                licensing model, ways to buy, buying steps, FAQ
 resellers.html              certified reseller program, tracks, application form, verify
+in-development.html         new products and services in research and development
 contact.html                quotes (with the license being built), demos, everything else
-cyber.html                  service: Cyber Operations
-software-development.html   service: Software Development
-digital-forensics.html      service: Digital Forensics
-it-consulting.html          service: IT Consulting
-training.html               service: Business, IT & Sales Training
-satellites.html             platform: Satellites
-maritime-drones.html        platform: Maritime Drones
-aerial-drones.html          platform: Aerial Drones
 assets/css/styles.css       design tokens and all styling
 assets/js/catalog.js        module ids, names, categories, and prices (the commercial record)
 assets/js/main.js           nav, menus, reveal, starfield, catalog, license tray, forms
 assets/img/                 logo mark and favicon (SVG)
+tools/sync-furniture.py     rewrites the shared header, footer, and breadcrumbs on every page
+tools/sync-heads.py         rebuilds every page's <head> from one template
 ```
 
 Every page lives at the repo root, so all internal links are flat filenames.
 
 ### Page furniture
 
-The header and footer are duplicated in each file, since the site has no build step.
-Changing either means changing it in all fourteen pages. The header links the four product
-pages, a Services dropdown (grouped into "Digital & Security Services" and "Autonomous
-Platforms"), and a Get a Quote button; the current page is marked with
-`aria-current="page"`. The footer repeats the product, reseller, and service links.
+The header and footer are duplicated in each file, since the site has no build step. Edit
+`HEADER` or `FOOTER` in `tools/sync-furniture.py` and run it to update all seven pages,
+then run `tools/sync-heads.py` if a page's title or description changed. The header links
+the four product pages, In Development, and a Request a Quote button; the current page is
+marked with `aria-current="page"`. The footer is deliberately short: one row with the logo
+and the same six destinations, and one row with the copyright and contact email.
 
 ## Selling: modules, prices, and quotes
 

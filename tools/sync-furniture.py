@@ -5,9 +5,9 @@ Usage: python3 tools/sync-furniture.py [repo-root]
 
 Edit HEADER or FOOTER below, then run this script: every page gets the same
 markup, with aria-current="page" on its own nav link. Breadcrumbs are rebuilt
-as an ordered list from the page's current crumb label; pages under the
-Services menu get a plain-text middle level from SECTION. 404.html is served at
-any path, so all of its local URLs are made root-absolute.
+as an ordered list from the page's current crumb label, with an optional
+plain-text middle level from SECTION. 404.html is served at any path, so all of
+its local URLs are made root-absolute.
 Idempotent: safe to run repeatedly. Run tools/check-site.mjs afterwards.
 """
 import re
@@ -33,28 +33,7 @@ HEADER = """<a class="skip-link" href="#main">Skip to content</a>
         <a href="modules.html">Modules</a>
         <a href="pricing.html">Pricing</a>
         <a href="resellers.html">Resellers</a>
-        <div class="nav-group" id="capsGroup">
-          <button type="button" class="nav-group-btn" id="capsToggle" aria-expanded="false" aria-controls="capsMenu">
-            Services
-            <span class="caret" aria-hidden="true"></span>
-          </button>
-          <div class="nav-menu" id="capsMenu">
-            <div class="nav-menu-col" role="group" aria-labelledby="navHeadServices">
-              <p class="nav-menu-head" id="navHeadServices">Digital &amp; Security Services</p>
-              <a href="cyber.html">Cyber Operations</a>
-              <a href="software-development.html">Software Development</a>
-              <a href="digital-forensics.html">Digital Forensics</a>
-              <a href="it-consulting.html">IT Consulting</a>
-              <a href="training.html">Training</a>
-            </div>
-            <div class="nav-menu-col" role="group" aria-labelledby="navHeadPlatforms">
-              <p class="nav-menu-head" id="navHeadPlatforms">Autonomous Platforms</p>
-              <a href="satellites.html">Satellites</a>
-              <a href="maritime-drones.html">Maritime Drones</a>
-              <a href="aerial-drones.html">Aerial Drones</a>
-            </div>
-          </div>
-        </div>
+        <a href="in-development.html">In Development</a>
         <a href="contact.html?interest=quote" class="nav-cta">Request a Quote</a>
       </nav>
     </div>
@@ -62,68 +41,31 @@ HEADER = """<a class="skip-link" href="#main">Skip to content</a>
 
 FOOTER = """<footer class="site-footer">
     <div class="wrap">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a class="brand" href="./" aria-label="Nadirion home">
-            <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="18" height="28" />
-            <span class="brand-word">NADIRION</span>
-          </a>
-          <p>
-            Nadirion Desktop and its add-on modules: one application for collection,
-            enrichment, triage, and storage, sold direct and through certified resellers.
-          </p>
-        </div>
+      <div class="footer-main">
+        <a class="brand" href="./" aria-label="Nadirion home">
+          <img class="brand-mark" src="assets/img/logo-mark.svg" alt="" width="18" height="28" />
+          <span class="brand-word">NADIRION</span>
+        </a>
         <nav class="footer-nav" aria-label="Footer">
-          <div class="footer-col" role="group" aria-labelledby="footHeadProduct">
-            <p class="footer-head" id="footHeadProduct">Product</p>
-            <a href="desktop.html">Nadirion Desktop</a>
-            <a href="modules.html">Module Catalog</a>
-            <a href="pricing.html">Pricing &amp; Licensing</a>
-            <a href="contact.html?interest=quote">Request a Quote</a>
-            <a href="contact.html?interest=demo">Book a Demo</a>
-          </div>
-          <div class="footer-col" role="group" aria-labelledby="footHeadResellers">
-            <p class="footer-head" id="footHeadResellers">Resellers</p>
-            <a href="resellers.html">Reseller Program</a>
-            <a href="resellers.html#apply">Apply to Resell</a>
-            <a href="resellers.html#verify">Verify a Reseller</a>
-          </div>
-          <div class="footer-col" role="group" aria-labelledby="footHeadServices">
-            <p class="footer-head" id="footHeadServices">Services &amp; Platforms</p>
-            <a href="cyber.html">Cyber Operations</a>
-            <a href="software-development.html">Software Development</a>
-            <a href="digital-forensics.html">Digital Forensics</a>
-            <a href="it-consulting.html">IT Consulting</a>
-            <a href="training.html">Training</a>
-            <a href="satellites.html">Satellites</a>
-            <a href="maritime-drones.html">Maritime Drones</a>
-            <a href="aerial-drones.html">Aerial Drones</a>
-          </div>
-          <div class="footer-col" role="group" aria-labelledby="footHeadCompany">
-            <p class="footer-head" id="footHeadCompany">Company</p>
-            <a href="./#about">About</a>
-            <a href="contact.html">Contact</a>
-            <a href="privacy.html">Privacy</a>
-            <a href="mailto:contact@nadirion.us">contact@nadirion.us</a>
-          </div>
+          <a href="desktop.html">Nadirion Desktop</a>
+          <a href="modules.html">Modules</a>
+          <a href="pricing.html">Pricing</a>
+          <a href="resellers.html">Resellers</a>
+          <a href="in-development.html">In Development</a>
+          <a href="contact.html">Contact</a>
         </nav>
       </div>
-      <p class="footer-note">&copy; <span id="year">2026</span> Nadirion. All rights reserved.</p>
+      <div class="footer-meta">
+        <p>&copy; <span id="year">2026</span> Nadirion. All rights reserved.</p>
+        <a href="mailto:contact@nadirion.us">contact@nadirion.us</a>
+      </div>
     </div>
   </footer>"""
 
-# Middle breadcrumb level for pages under the Services menu.
-SECTION = {
-    "cyber.html": "Services",
-    "software-development.html": "Services",
-    "digital-forensics.html": "Services",
-    "it-consulting.html": "Services",
-    "training.html": "Services",
-    "satellites.html": "Autonomous Platforms",
-    "maritime-drones.html": "Autonomous Platforms",
-    "aerial-drones.html": "Autonomous Platforms",
-}
-CRUMB_NAME = {"training.html": "Training"}
+# Optional middle breadcrumb level (plain text) and crumb label overrides, by filename.
+# Every page currently sits directly under Home, so both are empty.
+SECTION = {}
+CRUMB_NAME = {}
 
 
 def header_for(name):

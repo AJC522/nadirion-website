@@ -48,7 +48,7 @@ def crumbs(body, name):
         return None
     items = []
     # Linked items are the ancestors and aria-current marks this page. Unlinked
-    # grouping labels (Services, Autonomous Platforms) have no URL, so they are skipped.
+    # grouping labels (from SECTION in sync-furniture.py) have no URL, so they are skipped.
     for li in re.findall(r"<li>(.*?)</li>", m.group(1), re.S):
         link = re.search(r'<a href="([^"]+)"[^>]*>([^<]+)</a>', li)
         current = re.search(r'<span aria-current="page">([^<]+)</span>', li)
