@@ -141,8 +141,8 @@
               <div>
                 <p class="app-cat">Forensics</p>
                 <div class="app-tiles">
-                  <div class="app-tile is-focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/><circle cx="16.5" cy="16.5" r="3"/><path d="M18.7 18.7L21 21"/></svg>Email Analysis</div>
-                  <div class="app-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/><circle cx="16.5" cy="16.5" r="3"/><path d="M18.7 18.7L21 21"/></svg>Registry &amp; Persistence</div>
+                  <div class="app-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/><circle cx="16.5" cy="16.5" r="3"/><path d="M18.7 18.7L21 21"/></svg>Email Analysis</div>
+                  <div class="app-tile is-focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/><circle cx="16.5" cy="16.5" r="3"/><path d="M18.7 18.7L21 21"/></svg>Registry &amp; Persistence</div>
                   <div class="app-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/><circle cx="16.5" cy="16.5" r="3"/><path d="M18.7 18.7L21 21"/></svg>Event Log &amp; Logon</div>
                 </div>
               </div>
@@ -178,6 +178,9 @@
         <div class="stat"><strong>01</strong><span>Launcher, search box, and console for all of it</span></div>
       </div>
     </section>
+
+    <!-- Every module's name, filled in from assets/js/catalog.js -->
+    <div class="marquee" data-marquee aria-hidden="true"></div>
 
     <!-- HOW LICENSING WORKS -->
     <section class="process" id="how" aria-labelledby="howTitle">
@@ -466,13 +469,13 @@
         <div class="about-visual" aria-hidden="true">
           <svg class="constellation" viewBox="0 0 420 420" fill="none">
             <circle cx="210" cy="210" r="190" stroke="rgba(255,255,255,0.08)"/>
-            <circle cx="210" cy="210" r="120" stroke="rgba(255,255,255,0.10)" stroke-dasharray="3 9"/>
-            <g stroke="rgba(255,255,255,0.28)" stroke-linecap="round">
-              <path d="M80 300 L150 220 L210 250 L275 150 L340 120"/>
-              <path d="M150 220 L120 130 L200 90"/>
-              <path d="M275 150 L310 230 L250 320"/>
+            <circle class="c-ring" cx="210" cy="210" r="120" stroke="rgba(255,255,255,0.10)" stroke-dasharray="3 9"/>
+            <g class="c-lines" stroke="rgba(255,255,255,0.28)" stroke-linecap="round">
+              <path d="M80 300 L150 220 L210 250 L275 150 L340 120" pathLength="1"/>
+              <path d="M150 220 L120 130 L200 90" pathLength="1"/>
+              <path d="M275 150 L310 230 L250 320" pathLength="1"/>
             </g>
-            <g fill="#ffffff">
+            <g class="c-stars" fill="#ffffff">
               <circle cx="80" cy="300" r="2.5"/><circle cx="150" cy="220" r="3.5"/><circle cx="210" cy="250" r="2"/>
               <circle cx="275" cy="150" r="4"/><circle cx="340" cy="120" r="2.5"/><circle cx="120" cy="130" r="2"/>
               <circle cx="200" cy="90" r="3"/><circle cx="310" cy="230" r="2.5"/><circle cx="250" cy="320" r="3"/>
@@ -542,6 +545,7 @@
     </div>
   </footer>
 
+  <script src="assets/js/catalog.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>

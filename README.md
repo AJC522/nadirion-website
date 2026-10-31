@@ -15,6 +15,15 @@ development are described on the "In Development" page until they go on sale.
   name.
 - **Typography:** Space Grotesk for display, Inter for body copy, JetBrains Mono for
   labels and the console mockups.
+- **Motion:** scroll-driven and kept in `main.js` and the "Motion and finish" section at
+  the end of `styles.css`. A comet-style reading-progress line runs along the header. Every
+  hero has a starfield with depth and parallax, and the home hero adds a planet's rim, an
+  entrance, a product window that tilts toward the pointer and searches by itself, and
+  parallax as it scrolls away. Content rises out of a soft blur as it enters, stat figures
+  count up, consoles type themselves, the constellation draws in, and a module-name ticker
+  speeds up (or reverses) with the scroll. Cards and hairline grids carry a light that
+  follows the pointer. Everything that moves stops for visitors who prefer reduced
+  motion, and the pages read fully without the script.
 
 ## Structure
 
@@ -29,8 +38,9 @@ in-development.html         new products and services in research and developmen
 contact.html                quotes (with the license being built), demos, everything else
 assets/css/styles.css       design tokens and all styling
 assets/js/catalog.js        module ids, names, categories, and prices (the commercial record)
-assets/js/main.js           nav, menus, reveal, starfield, catalog, license tray, forms
-assets/img/                 logo mark and favicon (SVG)
+assets/js/main.js           nav, menus, scroll effects, reveal, starfields, pointer
+                            effects, catalog, license tray, forms
+assets/img/                 logo mark, favicon, and the film-grain tile (SVG)
 tools/sync-furniture.py     rewrites the shared header, footer, and breadcrumbs on every page
 tools/sync-heads.py         rebuilds every page's <head> from one template
 ```
@@ -59,7 +69,8 @@ search finds the same modules the app's does ("autoruns", "evtx", "netstat").
 
 When a module is added, removed, or renamed, update three places together: its card in
 `modules.html`, its entry in `assets/js/catalog.js` (same id), and the counts quoted on the
-home, desktop, and pricing pages.
+home, desktop, and pricing pages. The ticker of module names on the home page is built from
+`catalog.js`, so it follows on its own.
 
 ### Prices
 
