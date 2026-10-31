@@ -3617,7 +3617,433 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
 
 
 /* ---------- Frame: header, footer, wayfinding [fx-frame] ---------- */
-/* fx-frame: reserved */
+
+/* Header links share one soft highlight that glides between them (built by
+   the script for mouse and trackpad users), so the links themselves no longer
+   draw an underline on hover. The current page keeps a small glowing mark. */
+@media (min-width: 961px) {
+  .primary-nav.has-glide { position: relative; }
+}
+.nav-glide {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: calc(var(--glide-w, 0px) + 28px);
+  height: 34px;
+  margin-top: -17px;
+  border-radius: 999px;
+  pointer-events: none;
+  background: radial-gradient(120% 160% at 50% 0%, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 6px 24px -10px rgba(255, 255, 255, 0.25);
+  opacity: 0;
+  transform: translate3d(calc(var(--glide-x, 0px) - 14px), 0, 0);
+  transition: opacity 0.3s var(--ease);
+}
+.nav-glide.is-on {
+  opacity: 1;
+  transition:
+    opacity 0.3s var(--ease),
+    transform 0.5s var(--ease),
+    width 0.5s var(--ease);
+}
+.primary-nav.has-glide a:not([aria-current]):hover::after { transform: scaleX(0); }
+
+.primary-nav a[aria-current="page"]::after {
+  left: 50%;
+  right: auto;
+  bottom: -4px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  transform: none;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.7), 0 0 16px 2px rgba(255, 255, 255, 0.25);
+}
+
+/* The mobile menu draws down like a blind and its links arrive one by one.
+   Closed, it is out of the tab order as well as out of sight. Without the
+   script the menu button can't open anything, so it stays hidden and the
+   footer carries the same links. */
+@media (max-width: 960px) {
+  .nav-glide { display: none; }
+  /* The reading-progress line would cut across the open menu. */
+  .site-header:has(.primary-nav.is-open)::after { opacity: 0; }
+  html:not(.js) .nav-toggle { display: none; }
+  .js .primary-nav {
+    visibility: hidden;
+    transition: transform 0.3s var(--ease), opacity 0.3s var(--ease), visibility 0s linear 0.3s;
+  }
+  .js .primary-nav.is-open {
+    visibility: visible;
+    transition: transform 0.3s var(--ease), opacity 0.3s var(--ease), visibility 0s;
+  }
+  .motion .primary-nav {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 0.4s var(--ease), visibility 0s linear 0.4s;
+  }
+  .motion .primary-nav.is-open {
+    clip-path: inset(0 0 -1px 0);
+    transition: clip-path 0.6s var(--ease), visibility 0s;
+  }
+  .motion .primary-nav a,
+  .motion .primary-nav a.nav-cta {
+    opacity: 0;
+    transform: translate3d(0, -12px, 0);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .motion .primary-nav.is-open a,
+  .motion .primary-nav.is-open a.nav-cta {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.5s var(--ease) var(--nav-delay, 0ms),
+      transform 0.7s var(--ease) var(--nav-delay, 0ms);
+  }
+  .primary-nav a:nth-of-type(1) { --nav-delay: 60ms; }
+  .primary-nav a:nth-of-type(2) { --nav-delay: 110ms; }
+  .primary-nav a:nth-of-type(3) { --nav-delay: 160ms; }
+  .primary-nav a:nth-of-type(4) { --nav-delay: 210ms; }
+  .primary-nav a:nth-of-type(5) { --nav-delay: 260ms; }
+  .primary-nav a:nth-of-type(6) { --nav-delay: 330ms; }
+}
+
+/* Footer finale: the wordmark spans the footer and stands on a horizon. The
+   script sets --finale-rise from 0 to 1 over the last stretch of the page: the
+   letters climb out of the horizon, centre first, the horizon brightens and
+   widens, and a glint crosses the word as it lands. */
+.footer-finale {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  container-type: inline-size;
+  margin-top: 44px;
+  pointer-events: none;
+  user-select: none;
+}
+.finale-word {
+  display: flex;
+  justify-content: space-between;
+  /* Trimmed to the capitals, so the letters stand right on the horizon. */
+  margin: -0.12em 0 -0.154em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: min(17vw, 217px);
+  font-size: 19.3cqi;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.finale-word span {
+  display: block;
+  color: transparent;
+  background-image: linear-gradient(180deg, #ffffff 14%, #d6d6dc 34%, #8c8c97 60%, rgba(70, 70, 80, 0.2) 86%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+/* Faint light behind the letters, and the horizon line itself. */
+.footer-finale::before,
+.footer-finale::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+.footer-finale::before {
+  z-index: -1;
+  height: 100%;
+  background: radial-gradient(46% 100% at 50% 100%, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 75%);
+  opacity: calc(0.2 + var(--finale-rise) * 0.8);
+}
+.footer-finale::after {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0));
+  box-shadow: 0 0 14px 1px rgba(255, 255, 255, 0.3);
+  transform: scaleX(calc(0.35 + var(--finale-rise) * 0.65));
+}
+/* Registered, so the rise can be eased: even a quick flick of the wheel
+   lets the letters glide up and the glint sweep across. */
+@property --finale-rise {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+.motion .footer-finale { transition: --finale-rise 1.2s cubic-bezier(0.3, 0.65, 0.25, 1); }
+.footer-finale + .footer-meta {
+  margin-top: 0;
+  border-top: 0;
+}
+
+.motion .finale-word span {
+  --finale-d: 3;
+  transform: translate3d(0, calc((1 - clamp(0, var(--finale-rise) * 1.6 - var(--finale-d) * 0.2, 1)) * 0.76em), 0);
+}
+.motion .finale-word span:nth-child(2),
+.motion .finale-word span:nth-child(7) { --finale-d: 2; }
+.motion .finale-word span:nth-child(3),
+.motion .finale-word span:nth-child(6) { --finale-d: 1; }
+.motion .finale-word span:nth-child(4),
+.motion .finale-word span:nth-child(5) { --finale-d: 0; }
+/* One glint spans the word: each letter paints its slice, offset by its
+   position (--finale-x) within the word's width (--finale-w). */
+.motion .footer-finale.is-live .finale-word span {
+  background-image:
+    linear-gradient(112deg, rgba(255, 255, 255, 0) 22%, rgba(255, 255, 255, 0.75) 50%, rgba(255, 255, 255, 0) 78%),
+    linear-gradient(180deg, #ffffff 14%, #d6d6dc 34%, #8c8c97 60%, rgba(70, 70, 80, 0.2) 86%);
+  background-size: 2.4em 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position:
+    calc(((var(--finale-rise) - 0.7) * 4.33 - 0.2) * var(--finale-w, 0px) - var(--finale-x, 0px) - 1.2em) 0,
+    0 0;
+}
+
+/* Altimeter: a gauge on the right edge, in the margin beside the content, so
+   it only appears where there is room for it. The script builds it, places
+   each section's tick (--alt-t), and moves the marker (--alt). */
+.altimeter { display: none; }
+@media (min-width: 1340px) and (min-height: 560px) {
+  .altimeter {
+    --alt-h: min(50vh, 420px);
+    --alt-pad: 38px;
+    --alt-w: 50px;
+    position: fixed;
+    top: 50%;
+    right: 24px;
+    z-index: 40;
+    display: block;
+    width: var(--alt-w);
+    height: calc(var(--alt-h) + var(--alt-pad) * 2);
+    margin-top: calc((var(--alt-h) + var(--alt-pad) * 2) / -2);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate3d(14px, 0, 0);
+    transition: opacity 0.6s var(--ease), transform 0.8s var(--ease);
+  }
+  .altimeter.is-shown,
+  .altimeter:focus-within {
+    opacity: 1;
+    transform: none;
+  }
+  /* Dark glass, so the gauge reads over light sections too. Hovering or
+     focusing it widens the glass to the left to show the section names. */
+  .altimeter::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 244px;
+    border-radius: 18px;
+    background: rgba(9, 9, 12, 0.9);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.09),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    clip-path: inset(0 0 0 calc(100% - var(--alt-w)) round 25px);
+    transition: clip-path 0.55s var(--ease);
+  }
+  .altimeter.is-shown::before { pointer-events: auto; }
+  .altimeter.is-shown:hover::before,
+  .altimeter:focus-within::before { clip-path: inset(0 0 0 0 round 18px); }
+
+  .alt-scale {
+    position: absolute;
+    inset: 0;
+    left: auto;
+    width: var(--alt-w);
+  }
+  .alt-cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--silver-700);
+  }
+  .alt-zenith { top: 12px; }
+  .alt-nadir { bottom: 12px; }
+  /* The rail: the logo mark's own axis, with a dot at zenith and at nadir
+     and fine graduations along it. */
+  .alt-rail,
+  .alt-trail {
+    position: absolute;
+    top: var(--alt-pad);
+    right: 16px;
+    width: 1px;
+    height: var(--alt-h);
+  }
+  .alt-rail { background: rgba(255, 255, 255, 0.16); }
+  .alt-rail::before,
+  .alt-rail::after {
+    content: "";
+    position: absolute;
+    left: -2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--silver-500);
+  }
+  .alt-rail::before { top: -6px; }
+  .alt-rail::after { bottom: -6px; }
+  .alt-scale::before {
+    content: "";
+    position: absolute;
+    top: var(--alt-pad);
+    right: 18px;
+    width: 4px;
+    height: var(--alt-h);
+    background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0 1px, transparent 1px 9px);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  /* The stretch already travelled, brightest at the marker. */
+  .alt-trail {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.85));
+    transform: scaleY(var(--alt, 0));
+    transform-origin: 50% 0;
+  }
+  .alt-marker {
+    position: absolute;
+    top: var(--alt-pad);
+    right: 8px;
+    width: 17px;
+    height: 1px;
+    background: #ffffff;
+    box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.65);
+    transform: translate3d(0, calc(var(--alt, 0) * var(--alt-h)), 0);
+  }
+  /* A small pointer on the marker, aimed at the rail. */
+  .alt-marker::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -6px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 3.5px 0 3.5px 5px;
+    border-color: transparent transparent transparent #ffffff;
+  }
+  .motion .alt-marker,
+  .motion .alt-trail { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+  .alt-list {
+    position: absolute;
+    top: var(--alt-pad);
+    right: 0;
+    height: var(--alt-h);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .alt-list li {
+    position: absolute;
+    top: calc(var(--alt-t, 0) * 100%);
+    right: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  .alt-link {
+    position: relative;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    padding: 5px 30px 5px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .altimeter.is-shown .alt-link { pointer-events: auto; }
+  /* The section's own tick, longer than the graduations. */
+  .alt-link::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 17px;
+    width: 9px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.4);
+    transition: width 0.4s var(--ease), background 0.4s var(--ease);
+  }
+  .alt-num {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--silver-500);
+    transition: color 0.4s var(--ease), text-shadow 0.4s var(--ease);
+  }
+  /* Folded away to nothing until the glass widens, so a closed gauge
+     takes no room (and no clicks) from the content beside it. */
+  .alt-label {
+    max-width: 0;
+    margin-right: 0;
+    overflow: hidden;
+    font-size: 0.8rem;
+    color: var(--silver-300);
+    opacity: 0;
+    transition:
+      max-width 0.5s var(--ease),
+      margin-right 0.5s var(--ease),
+      opacity 0.25s var(--ease),
+      color 0.2s ease;
+  }
+  .altimeter.is-shown:hover .alt-label,
+  .altimeter:focus-within .alt-label {
+    max-width: 150px;
+    margin-right: 12px;
+    opacity: 1;
+    transition:
+      max-width 0.55s var(--ease) calc(var(--alt-t, 0) * 120ms),
+      margin-right 0.55s var(--ease) calc(var(--alt-t, 0) * 120ms),
+      opacity 0.45s var(--ease) calc(var(--alt-t, 0) * 120ms + 80ms),
+      color 0.2s ease;
+  }
+  .alt-link:hover .alt-label,
+  .alt-link:focus-visible .alt-label { color: var(--white); }
+  .alt-link:hover .alt-num { color: var(--silver-300); }
+  .alt-link[aria-current] .alt-num {
+    color: var(--white);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  }
+  .alt-link[aria-current]::after { width: 13px; background: #ffffff; }
+  .alt-link[aria-current] .alt-label { color: var(--white); }
+  .alt-link:focus-visible { outline-offset: 0; }
+}
+
+/* Cross-page transitions: moving between pages, the header holds still while
+   the page beneath it fades up into place. Browsers without cross-document
+   view transitions simply load the page. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  .site-header { view-transition-name: site-header; }
+  ::view-transition-old(root) { animation: vt-leave 0.22s ease both; }
+  ::view-transition-new(root) { animation: vt-arrive 0.6s var(--ease) both; }
+}
+@keyframes vt-leave { to { opacity: 0; } }
+@keyframes vt-arrive { from { opacity: 0; transform: translate3d(0, 18px, 0); } }
+
+@media (max-width: 720px) {
+  .footer-finale { margin-top: 32px; }
+  /* The license tray wraps to two rows here; keep the footer clear of it. */
+  body.has-tray .site-footer { padding-bottom: 168px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-glide, .nav-glide.is-on { transition: opacity 0.01s; }
+  .js .primary-nav, .js .primary-nav.is-open { transform: none; }
+  .altimeter, .altimeter::before, .alt-link::after, .alt-num,
+  .altimeter .alt-label,
+  .altimeter.is-shown:hover .alt-label,
+  .altimeter:focus-within .alt-label { transition: none; }
+}
 
 
 /* ---------- Surfaces [fx-surfaces] ---------- */
