@@ -2502,6 +2502,591 @@ section.light {
   .btn-primary::after, .primary-nav a.nav-cta::before { transition: none; }
 }
 
+/* ---------- Inner pages [fx-inner] ---------- */
+/* Movement for components that live only on the inner pages. The script
+   builds every decorative element here and, when motion is allowed, drives
+   the scroll-linked parts through custom properties. Each property falls
+   back to its settled value, so without motion every piece simply rests in
+   its finished state, and nothing is hidden unless html.motion is set. */
+
+/* Icons trace their strokes in (Desktop's included features, the catalog's
+   category heads). --trace-len is each shape's own length. */
+.motion .fx-draw .fx-trace {
+  stroke-dasharray: var(--trace-len) calc(var(--trace-len) + 2px);
+  stroke-dashoffset: calc(var(--trace-len) + 1px);
+  transition: stroke-dashoffset 1.5s var(--ease) calc(0.3s + var(--trace-k, 0) * 110ms);
+}
+.motion .fx-draw .fx-fade { opacity: 0; transition: opacity 0.6s ease 0.6s; }
+.motion .fx-draw.is-drawn .fx-trace { stroke-dashoffset: 0; }
+.motion .fx-draw.is-drawn .fx-fade { opacity: 1; }
+.motion .fx-draw.is-drawn { animation: trace-flash 1.8s var(--ease) 0.3s; }
+@keyframes trace-flash {
+  30% {
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.04), 0 10px 30px -8px rgba(255, 255, 255, 0.45);
+  }
+}
+
+/* Pricing: the license assembles. --fx-glide brings the plans together,
+   --fx-turn turns the "+" into place and --fx-beam runs the light between
+   the cards; each goes from 0 to 1 with the scroll. Only the individual
+   translate property moves the cards, so it stacks with any transform. */
+.license-anatomy.fx-assembly {
+  --fx-gap: 22px;
+  --fx-reach: clamp(40px, 8vw, 120px);
+}
+.motion .fx-clip-x { overflow-x: clip; }
+.motion .fx-assembly > .plan.is-base { translate: calc((var(--fx-glide, 1) - 1) * var(--fx-reach)) 0; }
+.motion .fx-assembly > .plan:not(.is-base) { translate: calc((1 - var(--fx-glide, 1)) * var(--fx-reach)) 0; }
+
+.fx-assembly .plan-plus { position: relative; }
+/* The "+" sits in a small dark ring, a junction on the beam. */
+.plan-plus-mark {
+  position: relative;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  color: rgba(255, 255, 255, calc(0.62 + var(--fx-beam, 1) * 0.38));
+  filter: drop-shadow(0 0 calc(var(--fx-beam, 1) * 8px) rgba(255, 255, 255, calc(var(--fx-beam, 1) * 0.55)));
+  rotate: calc((1 - var(--fx-turn, 1)) * -135deg);
+  scale: calc(0.45 + var(--fx-turn, 1) * 0.55);
+}
+.plan-plus-mark .plus-node {
+  fill: var(--black-2);
+  stroke-width: 1;
+  stroke-opacity: calc(0.22 + var(--fx-beam, 1) * 0.5);
+}
+.plan-beam,
+.plan-spark-track {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--fx-gap) * -1);
+  right: calc(var(--fx-gap) * -1);
+  height: 1px;
+  margin-top: -0.5px;
+  pointer-events: none;
+}
+.plan-beam {
+  z-index: 2;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.55), #ffffff 50%, rgba(255, 255, 255, 0.55));
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  transform-origin: 0 50%;
+  scale: var(--fx-beam, 1) 1;
+}
+.plan-spark-track { z-index: 2; height: 5px; margin-top: -2.5px; overflow: hidden; opacity: 0; }
+.plan-spark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: radial-gradient(closest-side, #ffffff, rgba(255, 255, 255, 0));
+  translate: -100% 0;
+}
+.motion .fx-assembly.is-assembled .plan-spark-track { opacity: 1; }
+.motion .fx-assembly.is-assembled .plan-spark { animation: plan-spark 5s cubic-bezier(0.55, 0, 0.45, 1) 0.4s infinite; }
+.motion .fx-assembly.is-resting .plan-spark { animation-play-state: paused; }
+@keyframes plan-spark {
+  0% { translate: -100% 0; }
+  32%, 100% { translate: 225% 0; }
+}
+/* Where the beam meets each card's edge, a point of light makes contact. */
+.plan-contact {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: calc(var(--fx-gap) * -1);
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.07), 0 0 14px 2px rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+  opacity: clamp(0, var(--fx-beam, 1) * 10, 1);
+}
+.plan-contact.is-end {
+  left: calc(100% + var(--fx-gap));
+  opacity: clamp(0, (var(--fx-beam, 1) - 0.94) * 16.7, 1);
+}
+
+/* In Development: work in progress. The card's own dashed border gives way
+   to a drawn frame whose dashes march slowly round it; a blueprint grid
+   sits faintly inside; a scanner passes down now and then, lighting the
+   grid under it. Each card's scan waits its turn (--wip-i). */
+.mod-card.is-preview.has-lab {
+  position: relative;
+  isolation: isolate;
+  border-color: transparent;
+}
+.wip-lab {
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+.wip-grid,
+.wip-scan,
+.wip-scan-grid { position: absolute; inset: 0; }
+.wip-grid,
+.wip-scan-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, var(--wip-ink)) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, var(--wip-ink)) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 10px 10px;
+}
+.wip-grid {
+  --wip-ink: 0.035;
+  -webkit-mask-image: radial-gradient(140% 110% at 100% 0%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(140% 110% at 100% 0%, #000 0%, transparent 72%);
+}
+.wip-scan {
+  overflow: hidden;
+  translate: 0 -100%;
+  opacity: 0;
+  -webkit-mask-image: linear-gradient(180deg, transparent 50%, #000 100%);
+  mask-image: linear-gradient(180deg, transparent 50%, #000 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.03) 100%);
+}
+.wip-scan::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.38) 30%, rgba(255, 255, 255, 0.38) 70%, rgba(255, 255, 255, 0));
+}
+/* The grid inside the scanner moves against it, so it stays put on the card. */
+.wip-scan-grid { --wip-ink: 0.065; translate: 0 100%; }
+.wip-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1;
+  stroke-dasharray: 5 5;
+  transition: stroke 0.3s var(--ease);
+}
+.wip-frame rect { x: 0.5px; y: 0.5px; width: calc(100% - 1px); height: calc(100% - 1px); rx: 13.5px; }
+.mod-card.is-preview:hover .wip-frame { stroke: rgba(255, 255, 255, 0.5); }
+.mod-card.is-preview:target .wip-frame { stroke: #ffffff; }
+.motion .wip-frame { animation: wip-march 2.4s steps(10) infinite; }
+.motion .wip-scan,
+.motion .wip-scan-grid {
+  animation: 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) calc(1.6s + var(--wip-i, 0) * 3.8s) infinite;
+}
+.motion .wip-scan { animation-name: wip-scan; }
+.motion .wip-scan-grid { animation-name: wip-scan-counter; }
+.motion .is-resting .wip-frame,
+.motion .is-resting .wip-scan,
+.motion .is-resting .wip-scan-grid { animation-play-state: paused; }
+@keyframes wip-march { to { stroke-dashoffset: -10; } }
+@keyframes wip-scan {
+  0% { translate: 0 -100%; opacity: 0; }
+  4% { opacity: 1; }
+  26% { translate: 0 4%; opacity: 1; }
+  30%, 100% { translate: 0 4%; opacity: 0; }
+}
+@keyframes wip-scan-counter {
+  0% { translate: 0 100%; }
+  26% { translate: 0 -4%; }
+  30%, 100% { translate: 0 -4%; }
+}
+/* A status light on the first tag: "In development", "In research". */
+.mod-card.is-preview .mod-tags li:first-child {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--silver-300);
+}
+.mod-card.is-preview .mod-tags li:first-child::before,
+.mod-card.is-preview .mod-tags li:first-child::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mod-card.is-preview .mod-tags li:first-child::before {
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+.mod-card.is-preview .mod-tags li:first-child::after {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  margin-top: -2.5px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  opacity: 0;
+}
+.motion .mod-card.is-preview .mod-tags li:first-child::before { animation: wip-blink 2.6s ease-in-out infinite; }
+.motion .mod-card.is-preview .mod-tags li:first-child::after { animation: wip-ping 2.6s cubic-bezier(0.2, 0.6, 0.35, 1) infinite; }
+.motion .mod-card.is-preview.is-resting .mod-tags li:first-child::before,
+.motion .mod-card.is-preview.is-resting .mod-tags li:first-child::after { animation-play-state: paused; }
+@keyframes wip-blink { 50% { opacity: 0.45; } }
+@keyframes wip-ping {
+  0% { scale: 1; opacity: 0.85; }
+  70%, 100% { scale: 2.6; opacity: 0; }
+}
+
+/* Stage lists share a drawn rule along each item's top edge (--stage-fill).
+   From research to release: one line of progress runs through the stages
+   in order, crossing the gap between columns, and a head rides its tip.
+   Each stage's label lights as the line reaches it. */
+.stage-fill,
+.stage-head {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: calc(100% + var(--stage-bridge, 0px));
+  height: 1px;
+  pointer-events: none;
+}
+.stage-fill {
+  background: var(--black);
+  transform-origin: 0 50%;
+  scale: var(--stage-fill, 1) 1;
+}
+.stage-head {
+  opacity: 0;
+  translate: calc((var(--stage-fill, 1) - 1) * 100%) 0;
+  transition: opacity 0.3s var(--ease);
+}
+.stage-head::after {
+  content: "";
+  position: absolute;
+  top: -3.5px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--black);
+  box-shadow: 0 0 0 4px rgba(5, 5, 6, 0.08), 0 0 0 9px rgba(5, 5, 6, 0.04);
+}
+.fx-timeline .is-current > .stage-head { opacity: 1; }
+.fx-timeline .service-index { color: var(--black); transition: color 0.4s var(--ease); }
+.fx-timeline .service-index::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 10px;
+  vertical-align: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: currentColor;
+  transition: background-color 0.4s var(--ease);
+}
+.motion .fx-timeline .service { border-top-color: rgba(5, 5, 6, 0.14); }
+.motion .fx-timeline .service:not(.is-reached) .service-index { color: var(--silver-700); }
+.motion .fx-timeline .service:not(.is-reached) .service-index::before { background-color: transparent; }
+@media (min-width: 1001px) {
+  .motion .fx-timeline .service:nth-child(odd) { --stage-bridge: 32px; }
+}
+
+/* What "certified" means: each requirement's rule draws across and its
+   label ticks on, one after another. */
+.fx-checklist .service-index { display: flex; align-items: center; gap: 10px; color: var(--black); }
+.service-check {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.service-check rect { stroke-width: 1; stroke-opacity: 0.4; }
+.service-check path { stroke-width: 1.6; stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+.motion .fx-checklist .service { border-top-color: rgba(5, 5, 6, 0.14); }
+.motion .fx-checklist .stage-fill { transition: scale 1.1s var(--ease); }
+.motion .fx-checklist .service-index { transition: color 0.5s var(--ease) 0.2s; }
+.motion .fx-checklist .service-check path { transition: stroke-dashoffset 0.6s var(--ease) 0.5s; }
+.motion .fx-checklist .service:not(.is-ticked) .stage-fill { scale: 0 1; }
+.motion .fx-checklist .service:not(.is-ticked) .service-index { color: var(--silver-700); }
+.motion .fx-checklist .service:not(.is-ticked) .service-check path { stroke-dashoffset: 1.01; }
+
+/* Desktop: the install table is scanned in. The scan line's position is
+   linear in time, so each row can be timed to it from its own position
+   (--row-top, --row-mid): rows settle just ahead of the line and the
+   platform names flare as it crosses them. */
+.table-scroll.fx-scan { position: relative; }
+.spec-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  translate: 0 -100%;
+  opacity: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.04) 100%);
+}
+.spec-scan::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6) 25%, rgba(255, 255, 255, 0.6) 75%, rgba(255, 255, 255, 0));
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+}
+.motion .fx-scan.is-scanning .spec-scan { animation: spec-scan 1.9s linear 0.3s both; }
+.motion .fx-scan:not(.is-scanning) tbody td { opacity: 0; }
+.motion .fx-scan.is-scanning tbody td {
+  animation: spec-row-in 0.8s var(--ease) both;
+  animation-delay: calc(0.15s + var(--row-top, 0.5) * 1.6s);
+}
+.motion .fx-scan.is-scanning tbody td strong {
+  animation: spec-flare 1.5s ease-out both;
+  animation-delay: calc(0.3s + var(--row-mid, 0.5) * 1.6s);
+}
+.motion .fx-notes .spec-note:not(.is-lit) h4 { color: var(--silver-700); }
+.motion .fx-notes .spec-note.is-lit h4 { animation: spec-flare 1.5s ease-out both; }
+@keyframes spec-scan {
+  0% { translate: 0 -100%; opacity: 0; }
+  8% { opacity: 1; }
+  84% { translate: 0 0; opacity: 1; }
+  100% { translate: 0 0; opacity: 0; }
+}
+@keyframes spec-row-in {
+  from { opacity: 0; translate: -12px 0; filter: blur(3px); }
+}
+@keyframes spec-flare {
+  0% { color: var(--silver-700); text-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+  18% { color: #ffffff; text-shadow: 0 0 16px rgba(255, 255, 255, 0.85), 0 0 2px rgba(255, 255, 255, 0.9); }
+  100% { color: #ffffff; text-shadow: 0 0 0 rgba(255, 255, 255, 0), 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* Contact: a beacon transmitting from the right of the short hero. Rings
+   leave a bright point every 1.5s under a slow radar sweep, over a faint
+   scope of range rings and bearing marks. Without motion the rings rest at
+   three radii, like a signal symbol. --beacon-drift (0 to 1) eases it back
+   as the hero scrolls away. */
+.fx-beacon {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 470px);
+  width: 360px;
+  height: 360px;
+  margin: -180px 0 0 -180px;
+  pointer-events: none;
+  translate: 0 calc(var(--beacon-drift, 0) * 110px);
+  opacity: calc(1 - var(--beacon-drift, 0) * 1.3);
+}
+.fx-beacon > * { position: absolute; inset: 0; border-radius: 50%; }
+.fx-beacon-scope { width: 100%; height: 100%; overflow: visible; fill: none; stroke: #ffffff; stroke-width: 1; }
+.fx-beacon-scope .scope-ring { stroke-opacity: 0.08; }
+.fx-beacon-scope .scope-ring-1 { stroke-opacity: 0.1; stroke-dasharray: 2 6; }
+.fx-beacon-scope .scope-ring-2 { stroke-opacity: 0.14; }
+.fx-beacon-scope .scope-marks { stroke-opacity: 0.22; }
+.fx-beacon-scope .scope-cross { stroke-opacity: 0.06; }
+.fx-beacon-sweep {
+  background: conic-gradient(rgba(255, 255, 255, 0) 0deg 280deg, rgba(255, 255, 255, 0.06) 340deg, rgba(255, 255, 255, 0.2) 359deg, rgba(255, 255, 255, 0) 360deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 8%, #000 30%, #000 92%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 8%, #000 30%, #000 92%, transparent 100%);
+  rotate: 35deg;
+}
+.fx-beacon-ring {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  scale: calc(0.3 + var(--ring, 0) * 0.3);
+  opacity: calc(0.45 - var(--ring, 0) * 0.15);
+}
+.fx-beacon-core {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: #ffffff;
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.9), 0 0 50px 12px rgba(255, 255, 255, 0.16);
+}
+/* A star's cross of light through the point. */
+.fx-beacon-core::before,
+.fx-beacon-core::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90px;
+  height: 1px;
+  margin: -0.5px 0 0 -45px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
+}
+.fx-beacon-core::after { rotate: 90deg; }
+.motion .fx-beacon-sweep { animation: beacon-sweep 9s linear infinite; }
+.motion .fx-beacon-ring { animation: beacon-ring 4.5s cubic-bezier(0.2, 0.55, 0.35, 1) calc(var(--ring, 0) * -1.5s) infinite; }
+.motion .fx-beacon-core { animation: beacon-core 1.5s ease-out infinite; }
+.motion .fx-beacon.is-resting > * { animation-play-state: paused; }
+@keyframes beacon-sweep { from { rotate: 0deg; } to { rotate: 360deg; } }
+@keyframes beacon-ring {
+  0% { scale: 0.03; opacity: 0; }
+  6% { opacity: 0.85; }
+  100% { scale: 1; opacity: 0; }
+}
+@keyframes beacon-core {
+  0% { scale: 1.7; }
+  30%, 100% { scale: 1; }
+}
+@media (max-width: 1180px) {
+  .fx-beacon { left: auto; right: -110px; margin-left: 0; opacity: calc(0.7 - var(--beacon-drift, 0)); }
+}
+/* Once the copy runs full width the scope's outer rings fade before they
+   reach the text. */
+@media (max-width: 1000px) {
+  .fx-beacon {
+    -webkit-mask-image: radial-gradient(closest-side, #000 45%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 45%, transparent 100%);
+  }
+}
+/* On a phone it sits up beside the breadcrumb, smaller and fainter, its
+   outer scope fading out before it reaches the heading. */
+@media (max-width: 720px) {
+  .fx-beacon {
+    top: -92px;
+    right: -90px;
+    width: 260px;
+    height: 260px;
+    margin: 0;
+    opacity: calc(0.6 - var(--beacon-drift, 0) * 0.7);
+  }
+  .fx-beacon-core::before, .fx-beacon-core::after { width: 60px; margin-left: -30px; }
+}
+
+/* Resellers: the verification seal. Its rim draws round, the bearing ticks
+   fade up and the check strokes in last; once drawn the ticks turn very
+   slowly. --seal-x and --seal-y place it just after the heading. */
+.has-seal { position: relative; }
+.verify-seal {
+  position: absolute;
+  top: var(--seal-y, 0);
+  left: var(--seal-x, auto);
+  width: 76px;
+  height: 76px;
+  margin-top: -38px;
+  overflow: visible;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+}
+.verify-seal.is-cornered { top: -66px; right: 0; left: auto; width: 52px; height: 52px; margin-top: 0; }
+.verify-seal .seal-rim { stroke-opacity: 0.8; stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+.verify-seal .seal-ticks { stroke-opacity: 0.55; transform-box: view-box; transform-origin: 60px 60px; }
+.verify-seal .seal-inner { stroke-opacity: 0.3; stroke-dasharray: 1.5 4; }
+.verify-seal .seal-check {
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 0;
+}
+.motion .verify-seal .seal-rim { transition: stroke-dashoffset 1.4s var(--ease); }
+.motion .verify-seal .seal-ticks,
+.motion .verify-seal .seal-inner { transition: opacity 0.9s var(--ease) 0.5s; }
+.motion .verify-seal .seal-check { transition: stroke-dashoffset 0.7s var(--ease) 1.05s; }
+.motion .verify-seal:not(.is-sealed) .seal-rim { stroke-dashoffset: 1.01; }
+.motion .verify-seal:not(.is-sealed) .seal-ticks,
+.motion .verify-seal:not(.is-sealed) .seal-inner { opacity: 0; }
+.motion .verify-seal:not(.is-sealed) .seal-check { stroke-dashoffset: 1.01; }
+.motion .verify-seal.is-sealed { animation: seal-glint 1.6s ease-out 1.5s; }
+.motion .verify-seal.is-sealed .seal-ticks { animation: seal-turn 90s linear 1.4s infinite; }
+.motion .verify-seal.is-resting .seal-ticks { animation-play-state: paused; }
+@keyframes seal-glint {
+  25% { filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.7)); }
+}
+@keyframes seal-turn { to { rotate: 360deg; } }
+
+/* Contact details, then the links beneath them, settle one after another
+   once their column has risen into view (--detail-i is each one's place). */
+.motion .fx-details .contact-details > div,
+.motion .fx-details .route-links a {
+  transition:
+    opacity 0.7s var(--ease) calc(0.3s + var(--detail-i, 0) * 0.1s),
+    translate 0.9s var(--ease) calc(0.3s + var(--detail-i, 0) * 0.1s),
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+.motion .fx-details:not(.is-visible) .contact-details > div,
+.motion .fx-details:not(.is-visible) .route-links a { opacity: 0; translate: -14px 0; }
+
+/* Responsive: the license stacks, so it assembles downward. */
+@media (max-width: 1000px) {
+  .motion .fx-assembly > .plan.is-base { translate: none; }
+  .motion .fx-assembly > .plan:not(.is-base) { translate: 0 calc((1 - var(--fx-glide, 1)) * 64px); }
+  .plan-plus-mark { width: 20px; height: 20px; }
+  .plan-beam,
+  .plan-spark-track {
+    top: calc(var(--fx-gap) * -1);
+    bottom: calc(var(--fx-gap) * -1);
+    left: 50%;
+    right: auto;
+    width: 1px;
+    height: auto;
+    margin: 0 0 0 -0.5px;
+  }
+  .plan-beam {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), #ffffff 50%, rgba(255, 255, 255, 0.55));
+    transform-origin: 50% 0;
+    scale: 1 var(--fx-beam, 1);
+  }
+  .plan-spark-track { width: 5px; margin-left: -2.5px; }
+  .plan-spark { top: 0; right: 0; bottom: auto; width: auto; height: 45%; translate: 0 -100%; }
+  .motion .fx-assembly.is-assembled .plan-spark { animation-name: plan-spark-down; }
+  .plan-contact { top: calc(var(--fx-gap) * -1); left: 50%; }
+  .plan-contact.is-end { top: calc(100% + var(--fx-gap)); left: 50%; }
+}
+@keyframes plan-spark-down {
+  0% { translate: 0 -100%; }
+  32%, 100% { translate: 0 225%; }
+}
+
+/* Reduced motion: nothing here moves, and every piece rests drawn. */
+@media (prefers-reduced-motion: reduce) {
+  .motion .fx-draw.is-drawn,
+  .motion .wip-frame,
+  .motion .wip-scan,
+  .motion .wip-scan-grid,
+  .motion .mod-card.is-preview .mod-tags li:first-child::before,
+  .motion .mod-card.is-preview .mod-tags li:first-child::after,
+  .motion .fx-assembly.is-assembled .plan-spark,
+  .motion .fx-scan.is-scanning .spec-scan,
+  .motion .fx-scan.is-scanning tbody td,
+  .motion .fx-scan.is-scanning tbody td strong,
+  .motion .fx-notes .spec-note.is-lit h4,
+  .motion .fx-beacon-sweep,
+  .motion .fx-beacon-ring,
+  .motion .fx-beacon-core,
+  .motion .verify-seal.is-sealed,
+  .motion .verify-seal.is-sealed .seal-ticks { animation: none; }
+  .motion .fx-draw .fx-trace,
+  .motion .fx-draw .fx-fade,
+  .motion .stage-head,
+  .motion .fx-checklist .stage-fill,
+  .motion .fx-checklist .service-index,
+  .motion .fx-checklist .service-check path,
+  .motion .verify-seal .seal-rim,
+  .motion .verify-seal .seal-ticks,
+  .motion .verify-seal .seal-inner,
+  .motion .verify-seal .seal-check,
+  .motion .fx-details .contact-details > div,
+  .motion .fx-details .route-links a { transition: none; }
+}
+
 /* =========================================================
    Round two. Each block below holds one area's styling,
    including its own reduced-motion rules.
