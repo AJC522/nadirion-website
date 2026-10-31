@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="metal" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="64" y2="64">
       <stop offset="0" stop-color="#ffffff"/>
       <stop offset="0.5" stop-color="#c9c9d0"/>
       <stop offset="1" stop-color="#ffffff"/>

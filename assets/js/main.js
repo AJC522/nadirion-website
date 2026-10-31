@@ -327,8 +327,10 @@
 
     var summary = document.getElementById("traySummary");
     if (summary) {
-      summary.innerHTML =
-        "Nadirion Desktop + <strong>" + plural(selected.length, "add-on module") + "</strong>";
+      var count = document.createElement("strong");
+      count.textContent = plural(selected.length, "add-on module");
+      summary.textContent = "Nadirion Desktop + ";
+      summary.appendChild(count);
     }
     var totalEl = document.getElementById("trayTotal");
     if (totalEl) {
@@ -488,7 +490,7 @@
     if (!quoteItems || !catalog) return;
     var selected = readSelection();
 
-    quoteItems.innerHTML = "";
+    quoteItems.textContent = "";
     var base = document.createElement("li");
     base.className = "is-base";
     base.textContent = catalog.desktop.name;
