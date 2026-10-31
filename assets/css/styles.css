@@ -965,9 +965,11 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
 .form-row textarea:focus,
 .form-row select:focus {
   outline: none;
-  border-color: var(--silver-300);
+  /* Softer than white, so the line of light along the lower edge (see
+     "Catalog and commerce" at the end) reads as the focus mark. */
+  border-color: rgba(255, 255, 255, 0.36);
   background-color: var(--black);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.06), 0 0 24px -8px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05), 0 16px 30px -18px rgba(255, 255, 255, 0.55);
 }
 
 .form-status {
@@ -2008,7 +2010,7 @@ body.has-tray .site-footer { padding-bottom: 120px; }
 .faq summary {
   position: relative;
   list-style: none;
-  padding: 22px 44px 22px 0;
+  padding: 22px 52px 22px 0;
   cursor: pointer;
   font-family: var(--font-display);
   font-size: 1.05rem;
@@ -2016,20 +2018,51 @@ body.has-tray .site-footer { padding-bottom: 120px; }
   color: var(--black);
 }
 .faq summary::-webkit-details-marker { display: none; }
+/* A drawn plus in a ring: the ring holds the crossbar, and the upright
+   turns flat to make a minus once the answer is open, as the ring fills. */
+.faq summary::before,
 .faq summary::after {
-  content: "+";
+  content: "";
   position: absolute;
-  right: 6px;
   top: 50%;
-  transform: translateY(-50%);
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-  font-weight: 400;
-  color: var(--silver-700);
+  pointer-events: none;
 }
-.faq summary::after { transition: transform 0.35s var(--ease); }
-.faq details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+.faq summary::before {
+  right: 0;
+  width: 30px;
+  height: 30px;
+  margin-top: -15px;
+  border: 1px solid rgba(5, 5, 6, 0.16);
+  border-radius: 50%;
+  color: var(--black);
+  background: linear-gradient(currentColor, currentColor) center / 11px 1.5px no-repeat;
+  transition: background-color 0.4s var(--ease), border-color 0.4s var(--ease), color 0.4s var(--ease);
+}
+.faq summary::after {
+  right: 14.25px;
+  width: 1.5px;
+  height: 11px;
+  margin-top: -5.5px;
+  background: var(--black);
+  transition: transform 0.45s var(--ease), background-color 0.4s var(--ease);
+}
+.faq summary:hover::before { border-color: rgba(5, 5, 6, 0.5); }
+.faq details[open] summary::before {
+  border-color: var(--black);
+  background-color: var(--black);
+  color: #ffffff;
+}
+.faq details[open] summary::after { background-color: #ffffff; transform: rotate(90deg); }
 .faq summary:focus-visible { outline-color: var(--black); }
+/* The open question's rule darkens, drawn in from the left. (The
+   transition waits until the row's reveal has settled, so it doesn't
+   replace the reveal's own.) */
+.faq details {
+  background: linear-gradient(var(--black), var(--black)) 0 100% / 0% 1px no-repeat;
+  background-origin: border-box;
+}
+.faq details:not(.reveal) { transition: background-size 0.6s var(--ease); }
+.faq details[open] { background-size: 100% 1px; }
 .faq details p { margin: 0; padding: 0 0 24px; max-width: 72ch; font-size: 0.96rem; }
 .faq details p + p { margin-top: -10px; }
 
@@ -2528,4 +2561,288 @@ section.light {
 
 
 /* ---------- Catalog and commerce [fx-commerce] ---------- */
-/* fx-commerce: reserved */
+/* Catalog bar: once it sticks under the header (the script sets .is-stuck),
+   it turns to frosted glass with a soft shadow and a lit lower edge, so it
+   reads as floating over the cards. */
+.catalog-bar-marker { height: 1px; margin-bottom: -1px; pointer-events: none; }
+.catalog-bar {
+  transition: background-color 0.5s var(--ease), border-color 0.5s var(--ease), box-shadow 0.5s var(--ease);
+}
+.catalog-bar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.42) 50%, rgba(255, 255, 255, 0));
+  opacity: 0;
+  transform: scaleX(0.6);
+  transition: opacity 0.6s var(--ease), transform 0.9s var(--ease);
+}
+.catalog-bar.is-stuck {
+  background-color: rgba(5, 5, 6, 0.8);
+  -webkit-backdrop-filter: saturate(140%) blur(18px);
+  backdrop-filter: saturate(140%) blur(18px);
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 28px 50px -30px rgba(0, 0, 0, 1);
+}
+.catalog-bar.is-stuck::after { opacity: 1; transform: none; }
+
+/* Category chips: the pressed chip is one white pill that slides between
+   chips, beneath them. The labels blend by difference against it (inside
+   the row only), so the pressed label reads black on white, and outlines
+   it passes simply disappear into it. */
+.chip-row.has-glider { position: relative; isolation: isolate; }
+.chip-row.has-glider .chip-label { mix-blend-mode: difference; }
+.chip-glider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  width: var(--gw, 0px);
+  height: var(--gh, 0px);
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 0 22px -6px rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+  transform: translate3d(var(--gx, 0px), var(--gy, 0px), 0);
+}
+.chip-row.glider-ready .chip-glider {
+  transition: transform 0.6s var(--ease), width 0.6s var(--ease), height 0.6s var(--ease);
+}
+/* The narrow, sideways-scrolling row would clip the glow to a box. */
+@media (max-width: 1000px) {
+  .chip-glider { box-shadow: none; }
+}
+.chip-row.has-glider .chip[aria-pressed="true"],
+.chip-row.has-glider .chip[aria-pressed="true"]:hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--white);
+}
+/* While every category is listed, the chip for the category passing under
+   the bar lights up. */
+.chip.is-current:not([aria-pressed="true"]) {
+  border-color: rgba(255, 255, 255, 0.6);
+  color: var(--white);
+  box-shadow: inset 0 0 14px -6px rgba(255, 255, 255, 0.5);
+}
+.chip { transition: border-color 0.35s var(--ease), color 0.35s var(--ease), background 0.35s var(--ease), box-shadow 0.35s var(--ease); }
+
+/* Each category's rule draws in from the left as the category arrives
+   (--rule, 0 to 1, follows the scroll). A bright tip leads the line and
+   fades once it reaches the end. */
+.motion .cat-head.has-rule { position: relative; border-bottom-color: rgba(255, 255, 255, 0.04); }
+.motion .cat-head.has-rule::before,
+.motion .cat-head.has-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  pointer-events: none;
+}
+.motion .cat-head.has-rule::after {
+  background: rgba(255, 255, 255, 0.13);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--rule, 0));
+}
+.motion .cat-head.has-rule::before {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) calc(100% - 160px), rgba(255, 255, 255, 0.85));
+  transform: translate3d(calc((var(--rule, 0) - 1) * 100%), 0, 0);
+  opacity: min(calc(var(--rule, 0) * 10), calc((1 - var(--rule, 0)) * 5));
+}
+
+/* Filtering: stand-in copies of cards that dropped out fade where they
+   stood, above the cards, below the catalog bar, and never outside the
+   catalog. */
+.flip-ghosts { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+.catalog .flip-ghost { position: absolute; margin: 0; pointer-events: none; }
+
+/* Add to license: the mark's two strokes turn from a plus into a check. */
+.mod-add-mark {
+  position: relative;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+}
+.mod-add-bar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 1.6px;
+  border-radius: 1px;
+  background: currentColor;
+  transform: translate(-50%, -50%) rotate(0deg);
+  transition: transform 0.55s var(--ease), width 0.55s var(--ease);
+}
+.mod-add-bar + .mod-add-bar { transform: translate(-50%, -50%) rotate(90deg); }
+.mod-add[aria-pressed="true"] .mod-add-bar {
+  width: 4.8px;
+  transform: translate(-50%, -50%) translate(-2.9px, 1.7px) rotate(45deg);
+}
+.mod-add[aria-pressed="true"] .mod-add-bar + .mod-add-bar {
+  width: 9px;
+  transform: translate(-50%, -50%) translate(1.6px, 0.2px) rotate(135deg);
+}
+.mod-add-ring {
+  position: absolute;
+  inset: -3px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.mod-add { transition: border-color 0.3s var(--ease), background 0.3s var(--ease), color 0.3s var(--ease); }
+.mod-add[aria-pressed="true"] { box-shadow: 0 10px 30px -14px rgba(255, 255, 255, 0.45); }
+
+/* Module cards rise out of the blur like everything else: their own
+   transition list above would otherwise replace the reveal's. */
+.mod-card.reveal {
+  transition:
+    opacity 0.9s var(--ease) var(--reveal-delay, 0ms),
+    transform 1s var(--ease) var(--reveal-delay, 0ms),
+    filter 0.9s var(--ease) var(--reveal-delay, 0ms),
+    border-color 0.3s var(--ease), background 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+/* A module in the license: a lit top edge, a glow from above, and a halo
+   beneath. */
+.mod-card.is-selected {
+  border-color: rgba(255, 255, 255, 0.5);
+  background:
+    radial-gradient(90% 55% at 50% 0%, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0) 70%),
+    var(--black-2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 0 0 4px rgba(255, 255, 255, 0.025),
+    0 34px 70px -40px rgba(255, 255, 255, 0.5);
+}
+.mod-card.is-selected:hover {
+  background:
+    radial-gradient(90% 55% at 50% 0%, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 70%),
+    var(--graphite);
+}
+
+/* License tray: rises with a little spring, and a single sheen crosses the
+   glass as it arrives. The count rolls when it changes (script). */
+.license-tray::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(105deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.16) 50%, rgba(255, 255, 255, 0) 60%) no-repeat;
+  background-size: 250% 100%;
+  background-position: 130% 0;
+}
+.motion .license-tray {
+  opacity: 0;
+  transform: translate(-50%, 150%) scale(0.94);
+  transition: transform 0.45s var(--ease), opacity 0.3s ease, visibility 0s linear 0.45s;
+}
+.motion .license-tray.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  transition: transform 0.85s cubic-bezier(0.18, 1.45, 0.3, 1), opacity 0.35s ease, visibility 0s;
+}
+.motion .license-tray.is-visible::before { animation: tray-sheen 1.4s var(--ease) 0.25s both; }
+@keyframes tray-sheen {
+  from { background-position: 130% 0; }
+  to { background-position: -30% 0; }
+}
+.tray-summary strong,
+.tray-num { display: inline-block; }
+.tray-summary strong { transform-origin: 0 60%; }
+.tray-num { font-variant-numeric: tabular-nums; }
+
+/* Contact: the quote list's items rise in one after another once the form
+   is in view, and a removed one folds away (script). Rows that appear for
+   a topic slide in. */
+.motion .contact-form.is-visible .quote-items li.is-arriving {
+  animation: quote-in 0.6s var(--ease) calc(0.3s + var(--i, 0) * 70ms) backwards;
+}
+@keyframes quote-in {
+  from { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.9); filter: blur(4px); }
+}
+.quote-items li.is-leaving { overflow: hidden; white-space: nowrap; pointer-events: none; }
+.quote-items li { transition: border-color 0.25s ease, background-color 0.25s ease; }
+.quote-items li:not(.is-base):hover { border-color: rgba(255, 255, 255, 0.5); }
+.motion .contact-form [data-show-when]:not([hidden]) { animation: row-in 0.5s var(--ease) both; }
+@keyframes row-in {
+  from { opacity: 0; transform: translate3d(0, -8px, 0); }
+}
+
+/* Fields: a line of light runs out from the middle of the lower edge as a
+   field takes focus, and its label brightens. */
+.form-row input:not([type="radio"]):not([type="checkbox"]),
+.form-row textarea {
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), #ffffff 30%, #ffffff 70%, rgba(255, 255, 255, 0));
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: 0% 1px;
+}
+.form-row select {
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0), #ffffff 30%, #ffffff 70%, rgba(255, 255, 255, 0)),
+    url("../img/select-caret.svg");
+  background-repeat: no-repeat, no-repeat;
+  background-position: 50% 100%, right 14px center;
+  background-size: 0% 1px, auto;
+}
+.form-row input:not([type="radio"]):not([type="checkbox"]),
+.form-row textarea,
+.form-row select {
+  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.35s var(--ease), background-size 0.6s var(--ease);
+}
+.form-row input:not([type="radio"]):not([type="checkbox"]):focus,
+.form-row textarea:focus { background-size: 100% 1px; }
+.form-row select:focus { background-size: 100% 1px, auto; }
+.form-row > label { transition: color 0.3s ease; }
+.form-row:focus-within > label { color: var(--white); }
+
+/* Choices: the chosen card takes a soft lit edge. */
+.form-row .choice { transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease), box-shadow 0.4s var(--ease); }
+.form-row .choice:has(input:checked) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 16px 36px -24px rgba(255, 255, 255, 0.4);
+}
+
+/* Sending: the button dims to silver and light keeps sweeping across it
+   until there's an answer. */
+.contact-form .btn.is-sending { cursor: progress; }
+.contact-form .btn-primary.is-sending,
+.contact-form .btn-primary.is-sending:hover {
+  background: linear-gradient(180deg, #e4e4e9 0%, #b9b9c2 100%);
+  box-shadow: inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(5, 5, 6, 0.08);
+}
+.motion .contact-form .btn-primary.is-sending::after {
+  transition: none;
+  animation: send-sweep 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes send-sweep {
+  from { transform: translateX(-68%); }
+  to { transform: translateX(68%); }
+}
+
+/* FAQ: the open answer fades and rises as it slides open, and fades as it
+   closes. The plus and minus are drawn in "FAQ (light sections)" above. */
+.motion .faq details p { transition: opacity 0.3s ease, transform 0.4s var(--ease); }
+.motion .faq details[open] p { animation: faq-answer 0.6s var(--ease) 0.05s both; }
+.motion .faq details:not([open]) p { opacity: 0; transform: translate3d(0, -4px, 0); }
+@keyframes faq-answer {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-bar, .catalog-bar::after, .chip, .chip-row.glider-ready .chip-glider,
+  .mod-add, .mod-add-bar, .form-row > label, .form-row .choice, .quote-items li,
+  .form-row input:not([type="radio"]):not([type="checkbox"]), .form-row textarea, .form-row select,
+  .faq summary::before, .faq summary::after, .faq details:not(.reveal),
+  .license-tray, .license-tray.is-visible { transition: none; }
+  .faq details::details-content { transition: none; }
+}
