@@ -84,6 +84,7 @@ _headers                          security and cache headers (Netlify, Cloudflar
 tools/check-site.mjs              invariant checks; run before every commit
 tools/sync-heads.py               rebuilds every <head> from one template
 tools/sync-furniture.py           rewrites the shared header, footer, and breadcrumbs
+tools/brand/                      sources for og-image.png and the icons (render.js)
 .github/workflows/check-site.yml  runs the checks on every push and pull request
 ```
 
@@ -122,8 +123,10 @@ Every `<head>` except 404.html's holds, in this order (the order `build_head` in
    manifest.
 5. Preloads for Inter and Space Grotesk (Latin), the two fonts every page needs first.
 6. `assets/js/boot.js`, then the stylesheet. boot.js is one line that adds class `js` to
-   `<html>` before first paint, so CSS scoped to `html.js` (reveal animations, controls
-   that need the script) never flashes. It stays a separate file, loaded without `defer`.
+   `<html>` before first paint, so CSS keyed to `html.js` or `html:not(.js)` (the folded
+   mobile menu, the no-JavaScript notes, and controls that need the script) never
+   flashes. Reveal classes are added by main.js, and only to content below the fold. boot.js
+   stays a separate file, loaded without `defer`.
 7. Structured data (JSON-LD): the Organization on every page, WebSite on the home page,
    SoftwareApplication on desktop.html, and a BreadcrumbList built from the visible
    breadcrumb. It carries no prices or ratings, because the site states none.
@@ -189,6 +192,14 @@ modules) on the home page; the plan and per-category list on pricing.html; and t
 figures on desktop.html, resellers.html (products to sell is the desktop plus the
 add-ons), and cyber.html. It reads phrases such as "N modules", "all N", "N products", and
 "N categories" on every page, spelled-out numbers ("Thirty-three") included.
+
+The link-preview image (`assets/img/og-image.png`) also says "33 add-on modules". It is
+rendered from `tools/brand/og.html`, so when the count changes, edit that file and run
+`node tools/brand/render.js`. It needs Playwright with Chromium; to keep `node_modules`
+out of the repo, install it in another folder (`npm install playwright` there) and run
+`NODE_PATH=/that/folder/node_modules node tools/brand/render.js`. The same script redraws `favicon.ico`, the Apple touch icon, and the manifest
+icons from `tools/brand/icon.html`. The checks fail while `og.html` and the catalog disagree,
+but they cannot read the image itself, so re-render after every edit.
 
 ### Prices
 
@@ -298,7 +309,7 @@ The site has no publish step: the host serves the repo root as it is.
 that drift when every page carries its own copy of the shared parts:
 
 - markup basics: doctype and `lang`, one `<h1>` and `<main>`, heading levels, unique ids,
-  every `aria-controls`/`aria-labelledby`/`for` target, `<button type>`, labelled
+  every `aria-controls`/`aria-labelledby`/`for` target, `<button type>`, labeled
   `<nav>`s, and `alt` on every image
 - every local link, `#fragment`, `?interest=`/`?track=` value, and CSS `url()` target, and
   root-absolute URLs in 404.html
@@ -325,7 +336,8 @@ descriptions over 160 characters, and a security.txt expiry under 30 days away o
 than a year ahead (`--quiet` hides warnings). Run it before every commit. GitHub Actions
 runs it on every push and pull request (`.github/workflows/check-site.yml`, with read-only
 permissions, no credentials kept in the checkout, and `actions/checkout` pinned to the
-full commit SHA of v6.1.0).
+full commit SHA of v6.1.0). The same workflow then runs the two sync scripts below and
+fails if they change any page, which catches hand edits to generated markup.
 
 ### Shared head and furniture
 

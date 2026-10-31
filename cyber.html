@@ -173,18 +173,19 @@
         </div>
 
         <div class="toolkit-showcase">
-          <div class="console" aria-hidden="true">
-            <div class="console-bar">
+          <div class="console">
+            <div class="console-bar" aria-hidden="true">
               <span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span>
               <span class="console-title">nadirion desktop &middot; command console</span>
             </div>
-            <pre class="console-body"><code><span class="c-prompt">nadirion&gt;</span> extract -f partner-advisory.txt
-<span class="c-time">  &rsaquo;</span> indicators extracted, re-fanged ......... <span class="c-ok">27</span>
+            <!-- [html-validate-disable-next prefer-native-element: a focusable scroll container, not a page section] -->
+            <pre class="console-body" role="region" tabindex="0" aria-label="Example Command Console session"><code><span class="c-prompt">nadirion&gt;</span> extract -f partner-advisory.txt
+<span class="c-time" aria-hidden="true">  &rsaquo;</span> indicators extracted, re-fanged <span aria-hidden="true">.........</span> <span class="c-ok">27</span>
 <span class="c-prompt">nadirion&gt;</span> malwarescan --days 30 --deep
-<span class="c-time">  &rsaquo;</span> findings correlated across sources ...... <span class="c-ok">4 to review</span>
+<span class="c-time" aria-hidden="true">  &rsaquo;</span> findings correlated across sources <span aria-hidden="true">......</span> <span class="c-ok">4 to review</span>
 <span class="c-prompt">nadirion&gt;</span> securehost --lockdown --allow-ip 10.0.4.12 --yes
-<span class="c-time">  &rsaquo;</span> host isolated, firewall snapshot saved .. <span class="c-ok">restore ready</span>
-<span class="c-prompt">nadirion&gt;</span> <span class="c-cursor"></span></code></pre>
+<span class="c-time" aria-hidden="true">  &rsaquo;</span> host isolated, firewall snapshot saved <span aria-hidden="true">..</span> <span class="c-ok">restore ready</span>
+<span class="c-prompt">nadirion&gt;</span> <span class="c-cursor" aria-hidden="true"></span></code></pre>
           </div>
 
           <div class="toolkit-points">

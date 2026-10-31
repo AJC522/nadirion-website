@@ -208,11 +208,12 @@
     openedForPrint = [];
   });
 
-  /* ---------- Wide tables ---------- */
-  // A table's scrolling wrapper is a tab stop, so the keyboard can scroll it,
-  // only while it is actually wider than its box. On phones the rows stack
-  // into cards that fit, and the stop would lead nowhere.
-  var tableScrolls = document.querySelectorAll(".table-scroll");
+  /* ---------- Wide tables and console transcripts ---------- */
+  // A table's scrolling wrapper (or a console transcript) is a tab stop, so the
+  // keyboard can scroll it, only while it is actually wider than its box. On
+  // phones table rows stack into cards that fit, and on wide screens the
+  // transcript fits, so there the stop would lead nowhere.
+  var tableScrolls = document.querySelectorAll(".table-scroll, .console-body");
 
   var syncTableStop = function (wrap) {
     var scrolls = /auto|scroll/.test(window.getComputedStyle(wrap).overflowX) &&
@@ -749,14 +750,16 @@
       .filter(Boolean);
     var addOns = 0;     // shown cards on sale
     var previews = 0;   // shown cards still in development
-    var elsewhere = 0;  // matches the active category hides
+    var elsewhere = 0;  // add-on matches the active category hides
+    var hiddenPreviews = 0;  // in-development matches it hides (they show under All)
 
     modCards.forEach(function (card, index) {
       var inCategory = activeFilter === "all" || card.getAttribute("data-category") === activeFilter;
       var matches = terms.every(function (term) { return haystacks[index].indexOf(term) !== -1; });
       card.hidden = !(inCategory && matches);
       if (card.hidden) {
-        if (matches) elsewhere++;
+        if (matches && forSale[index]) elsewhere++;
+        else if (matches) hiddenPreviews++;
       } else if (forSale[index]) {
         addOns++;
       } else {
@@ -775,6 +778,9 @@
     } else if (elsewhere && allChip) {
       message = "No " + activeName + " module matches that search, but " + elsewhere +
         (elsewhere === 1 ? " in another category does." : " in other categories do.");
+    } else if (hiddenPreviews && allChip) {
+      message = "No " + activeName + " module matches that search, but " + hiddenPreviews +
+        " in development " + (hiddenPreviews === 1 ? "does." : "do.");
     } else if (previews) {
       message = "No add-on module matches that search, but " + previews +
         " in development " + (previews === 1 ? "does." : "do.");
@@ -787,7 +793,7 @@
       if (!addOns && emptyReason) emptyReason.textContent = message;
       if (!addOns && emptyNext) {
         emptyNext.textContent = "";
-        if (elsewhere && allChip) {
+        if ((elsewhere || hiddenPreviews) && allChip) {
           showAllButton = showAllButton || makeShowAllButton();
           emptyNext.appendChild(showAllButton);
           emptyNext.appendChild(document.createTextNode(" or"));

@@ -2557,7 +2557,7 @@ section.light .fine-print { color: var(--ink-muted); }
   .form-split, .choice-row { grid-template-columns: 1fr; }
 
   .spec-notes { grid-template-columns: 1fr; gap: 22px; }
-  /* Spec tables become one labelled card per row instead of a table that
+  /* Spec tables become one labeled card per row instead of a table that
      hides its last columns off screen. */
   .table-scroll { overflow: visible; }
   .spec-table { min-width: 0; }
@@ -2652,9 +2652,12 @@ section.light .fine-print { color: var(--ink-muted); }
 }
 
 /* Below that the label wraps; the cap keeps the pill around two balanced
-   lines instead of a full-width box with a gap at the end. */
+   lines instead of a full-width box with a gap at the end. The plan and track
+   buttons trim their side padding so their labels stay on one line. */
 @media (max-width: 374px) {
   .badge-text { max-width: 13em; }
+  .plan .btn,
+  .track .btn { padding-left: 20px; padding-right: 20px; }
 }
 
 /* The narrowest phones (and 400% zoom): two footer columns would break the
@@ -2720,6 +2723,11 @@ section.light .fine-print { color: var(--ink-muted); }
   .form-row input[aria-invalid="true"],
   .form-row textarea[aria-invalid="true"],
   .form-row select[aria-invalid="true"] { border-width: 2px; }
+  /* Inline icons take their color from silver tokens, which forced colors
+     leaves alone; on a light Canvas they would all but disappear. */
+  .app-tile svg,
+  .app-search svg,
+  .catalog-search svg { color: CanvasText; }
 }
 /* The logo mark is drawn black and inverted to white, which vanishes on a
    light Canvas; there it stays black. The silver caret image is as faint, so
@@ -2783,8 +2791,12 @@ section.light .fine-print { color: var(--ink-muted); }
   .catalog-bar,
   .mod-add,
   .license-tray,
-  .footer-nav,
+  .footer-col:not(:last-child),
+  .footer-col .footer-head,
+  .footer-col a:not([href^="mailto:"]),
   .faq summary::after { display: none; }
+  /* The footer keeps only the email address, so a printout says how to reach us. */
+  .footer-nav { display: block; margin-top: 12px; }
   .toolkit::before { content: none; }
 
   .site-header {

@@ -1,7 +1,8 @@
-# Runs tools/check-site.mjs on every push and pull request. The script needs
-# nothing beyond the runner's preinstalled Node, so there is no setup-node or
-# npm install, and the only third-party code is actions/checkout, pinned to a
-# full commit SHA (update the SHA and the version comment together).
+# Runs tools/check-site.mjs on every push and pull request, then confirms the
+# generated markup matches tools/sync-*.py. Both need only the runner's
+# preinstalled Node and Python, so there is no setup step or package install,
+# and the only third-party code is actions/checkout, pinned to a full commit
+# SHA (update the SHA and the version comment together).
 name: check-site
 
 on:
@@ -25,3 +26,10 @@ jobs:
           persist-credentials: false
       - name: Check site invariants
         run: node tools/check-site.mjs
+      # The head, header, footer, and breadcrumbs are generated; a hand edit to any of
+      # them shows up here as a diff after the two scripts rewrite them.
+      - name: Check generated markup is in sync
+        run: |
+          python3 tools/sync-furniture.py
+          python3 tools/sync-heads.py
+          git diff --exit-code -- '*.html'

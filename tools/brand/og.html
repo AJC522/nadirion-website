@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+@font-face{font-family:"Space Grotesk";src:url(../../assets/fonts/space-grotesk-latin.woff2) format("woff2");font-weight:300 700}
+@font-face{font-family:"Inter";src:url(../../assets/fonts/inter-latin.woff2) format("woff2");font-weight:300 700}
+@font-face{font-family:"JetBrains Mono";src:url(../../assets/fonts/jetbrains-mono-latin.woff2) format("woff2");font-weight:400 600}
+*{box-sizing:border-box;margin:0}
+html,body{width:1200px;height:630px;background:#050506;overflow:hidden}
+body{position:relative;font-family:Inter,sans-serif;color:#e7e7eb}
+.glow{position:absolute;inset:0;background:radial-gradient(55% 70% at 82% 40%,rgba(255,255,255,.10),rgba(255,255,255,0) 70%),radial-gradient(40% 40% at 0% 100%,rgba(255,255,255,.05),rgba(255,255,255,0) 70%)}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:60px 60px;-webkit-mask-image:radial-gradient(70% 80% at 80% 40%,#000,transparent)}
+canvas{position:absolute;inset:0}
+.inner{position:absolute;left:84px;top:78px;right:84px;bottom:70px;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:16px}
+.brand svg{width:22px;height:34px;color:#fff}
+.brand span{font-family:"Space Grotesk";font-weight:600;font-size:22px;letter-spacing:.24em;color:#fff}
+h1{margin-top:auto;font-family:"Space Grotesk";font-weight:600;font-size:76px;line-height:1.02;letter-spacing:-.035em;color:#fff;max-width:760px}
+.metal{background:linear-gradient(120deg,#fff 0%,#c4c4cc 35%,#f2f2f5 52%,#b0b0ba 78%,#e2e2e7 100%);-webkit-background-clip:text;color:transparent}
+.meta{padding:0;margin-top:34px;display:flex;gap:30px;font-family:"JetBrains Mono";font-size:17px;letter-spacing:.14em;text-transform:uppercase;color:#9c9ca6}
+.meta li{list-style:none;position:relative;padding-left:18px}
+.meta li:before{content:"";position:absolute;left:0;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#c9c9d0}
+.mark{position:absolute;right:110px;top:50%;width:260px;height:406px;margin-top:-188px;color:rgba(255,255,255,.9)}
+.url{position:absolute;right:84px;bottom:76px;font-family:"Space Grotesk";font-weight:500;font-size:18px;letter-spacing:.2em;color:#9c9ca6}
+</style></head><body>
+<div class="glow"></div><div class="grid"></div><canvas id="c" width="1200" height="630"></canvas>
+<svg class="mark" viewBox="0 0 64 100" fill="none"><circle cx="32" cy="50" r="26" stroke="currentColor" stroke-width="1.1"/><circle cx="32" cy="50" r="38" stroke="rgba(255,255,255,.14)" stroke-width=".5" stroke-dasharray="1 2.5"/><line x1="32" y1="6" x2="32" y2="94" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="32" cy="8" r="2.2" fill="#fff"/><circle cx="32" cy="92" r="2.2" fill="#fff"/></svg>
+<div class="url">NADIRION.US</div>
+<div class="inner">
+  <div class="brand"><svg viewBox="0 0 64 100" fill="none"><circle cx="32" cy="50" r="26" stroke="currentColor" stroke-width="5"/><line x1="32" y1="6" x2="32" y2="94" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="8" r="6" fill="currentColor"/><circle cx="32" cy="92" r="6" fill="currentColor"/></svg><span>NADIRION</span></div>
+  <h1>One desktop for<br><span class="metal">the whole operation.</span></h1>
+  <ul class="meta"><li>Nadirion Desktop</li><li>33 add-on modules</li><li>Windows · macOS · Linux</li></ul>
+</div>
+<script>
+// deterministic starfield (seeded)
+let s=7;const r=()=>{s=(s*16807)%2147483647;return (s-1)/2147483646};
+const c=document.getElementById('c').getContext('2d');
+for(let i=0;i<170;i++){const x=r()*1200,y=r()*630,rad=.3+r()*1.1,a=.12+r()*.6;if(x>950&&y>515&&y<580)continue;c.beginPath();c.fillStyle=`rgba(235,235,240,${a})`;c.arc(x,y,rad,0,7);c.fill()}
+</script></body></html>

@@ -13,7 +13,7 @@
 //
 // What it checks, in order:
 //   1. markup basics: doctype, lang, one <h1> and <main>, heading levels, unique ids,
-//      id references, <button type>, labelled <nav>s, alt text, aria-hidden controls
+//      id references, <button type>, labeled <nav>s, alt text, aria-hidden controls
 //   2. links: every local href/src and #fragment resolves, ?interest= and ?track=
 //      values exist, CSS url() targets exist; 404.html uses root-absolute URLs only
 //   3. CSP compatibility: no inline script (JSON-LD aside), <style>, style=, on*=,
@@ -51,9 +51,10 @@ const BOOT_JS = "assets/js/boot.js";
 const CRUMB_SECTION = { navHeadServices: "Services", navHeadPlatforms: "Autonomous Platforms" };
 // Wording the site has retired (matched in any capitalization), and what replaced it.
 const RETIRED = [
-  [/Get a Quote/gi, 'the quote button is "Request a Quote"'],
-  [/Focus Areas?\b/gi, '"Focus Area" is retired: heroes say "Digital & Security Services" or "Autonomous Platforms"'],
-  [/Business, IT (?:&amp;|&) Sales Training/gi, 'the page is "Training" (its tracks include cyber)'],
+  // \s+ so a phrase wrapped across a source line is still caught.
+  [/Get\s+a\s+Quote/gi, 'the quote button is "Request a Quote"'],
+  [/Focus\s+Areas?\b/gi, '"Focus Area" is retired: heroes say "Digital & Security Services" or "Autonomous Platforms"'],
+  [/Business,\s+IT\s+(?:&amp;|&)\s+Sales\s+Training/gi, 'the page is "Training" (its tracks include cyber)'],
 ];
 // Third-party license texts are kept verbatim, so the copy rules skip them.
 const VERBATIM = /^assets\/fonts\/OFL-[\w-]+\.txt$/;
@@ -351,12 +352,16 @@ const headOrder = (notFound) => [
   // 3. Open Graph and the Twitter card (not on 404.html)
   ...(notFound ? [] : [...["og:type", "og:site_name", "og:locale", "og:title", "og:description", "og:url", "og:image",
     "og:image:width", "og:image:height", "og:image:alt"].map((p) => `<meta property="${p}">`), '<meta name="twitter:card">']),
-  // 4. icons and the manifest (404.html has no manifest)
-  '<link rel="icon">', '<link rel="icon">', '<link rel="apple-touch-icon">', ...(notFound ? [] : ['<link rel="manifest">']),
+  // 4. icons and the manifest (404.html has no manifest); the ICO comes first so
+  //    browsers that read both prefer the SVG
+  '<link rel="icon" href="favicon.ico">', '<link rel="icon" href="assets/img/favicon.svg">',
+  '<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">',
+  ...(notFound ? [] : ['<link rel="manifest" href="site.webmanifest">']),
   // 5. font preloads
-  '<link rel="preload" as="font">', '<link rel="preload" as="font">',
+  '<link rel="preload" as="font" href="assets/fonts/inter-latin.woff2">',
+  '<link rel="preload" as="font" href="assets/fonts/space-grotesk-latin.woff2">',
   // 6. boot.js, then the stylesheet
-  `<script src="${BOOT_JS}">`, '<link rel="stylesheet">',
+  `<script src="${BOOT_JS}">`, '<link rel="stylesheet" href="assets/css/styles.css">',
   // 7. structured data (not on 404.html)
   ...(notFound ? [] : ['<script type="application/ld+json">']),
 ];
@@ -375,7 +380,11 @@ function headItem(f, t) {
     if (a.property !== undefined) return `<meta property="${a.property}">`;
     if (a.name !== undefined) return `<meta name="${a.name}">`;
   }
-  if (t.name === "link") return `<link rel="${a.rel || ""}"${a.as !== undefined ? ` as="${a.as}"` : ""}>`;
+  if (t.name === "link") {
+    // The canonical URL is checked on its own; every other link names the file it loads.
+    const href = a.href !== undefined && a.rel !== "canonical" ? ` href="${resolveLocal(f, a.href)?.file ?? a.href}"` : "";
+    return `<link rel="${a.rel || ""}"${a.as !== undefined ? ` as="${a.as}"` : ""}${href}>`;
+  }
   if (t.name === "script") return a.src !== undefined ? `<script src="${resolveLocal(f, a.src)?.file ?? a.src}">` : `<script type="${a.type || ""}">`;
   return `<${t.name}>`;
 }
@@ -703,6 +712,14 @@ if (catalog && docs["modules.html"]) {
     }
   }
   for (const id of ids) if (!sold.has(id)) err("assets/js/catalog.js", 1, `catalog id "${id}" has no card on modules.html`);
+
+  // The link-preview image is rendered from tools/brand/og.html, which repeats the count.
+  const OG_SRC = "tools/brand/og.html";
+  if (exists(OG_SRC)) {
+    const og = read(OG_SRC);
+    const m = /(\d+) add-on modules/i.exec(og);
+    if (m && +m[1] !== total) err(OG_SRC, lineIndex(og)(m.index), `says ${m[1]} add-on modules, catalog.js has ${total}: update it and run node tools/brand/render.js to redraw assets/img/og-image.png`);
+  }
   for (const doc of Object.values(docs)) for (const t of doc.tags) {
     const pf = t.attrs["data-price-for"];
     if (pf !== undefined && pf !== "desktop" && !catalog.modules[pf]) err(doc.file, t.line, `data-price-for="${pf}" is not in catalog.js`);
@@ -833,6 +850,8 @@ for (const f of jsFiles) {
   }
   for (const m of code.matchAll(/\b(localStorage|sessionStorage)\s*(?:\[|\.\s*(?!(?:getItem|setItem|removeItem|clear|key|length)\b)[\w$])|(?<![=!<>])=\s*(?:window\s*\.\s*)?(localStorage|sessionStorage)\s*[;,)]/g))
     err(f, lineAt(m.index), `reach ${m[1] || m[2]} only through getItem/setItem/removeItem(KEY), so the privacy check sees every key`);
+  for (const m of code.matchAll(/\[\s*(["'`])(localStorage|sessionStorage)\1\s*\]/g))
+    err(f, lineAt(m.index), `reach ${m[2]} only through getItem/setItem/removeItem(KEY), so the privacy check sees every key`);
 }
 const privacy = docs[PRIVACY];
 if (!privacy && storageKeys.size) err(PRIVACY, 1, `missing: the scripts keep ${[...storageKeys.keys()].join(", ")} in browser storage, and the site must say so`);
@@ -976,6 +995,12 @@ for (const f of walkFiles("")) {
   for (const m of s.matchAll(EM_DASH)) err(f, lineAt(m.index), "em dash: use a colon, comma, parentheses or a new sentence");
 }
 for (const doc of Object.values(docs)) for (const [re, why] of RETIRED) for (const m of doc.masked.matchAll(re)) err(doc.file, doc.lineAt(m.index), `"${m[0]}": ${why}`);
+// main.js builds some visible copy (announcements, form messages), so its code is checked too.
+for (const f of jsFiles) {
+  const src = read(f);
+  const lineAt = lineIndex(src);
+  for (const [re, why] of RETIRED) for (const m of jsCode(src).matchAll(re)) err(f, lineAt(m.index), `"${m[0]}": ${why}`);
+}
 
 // ---------------------------------------------------------------------------
 // 10. CSS selectors whose classes nothing uses (warning only)

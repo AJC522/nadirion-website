@@ -370,20 +370,21 @@
         </div>
 
         <div class="toolkit-showcase">
-          <div class="console" aria-hidden="true">
-            <div class="console-bar">
+          <div class="console">
+            <div class="console-bar" aria-hidden="true">
               <span class="console-dot"></span><span class="console-dot"></span><span class="console-dot"></span>
               <span class="console-title">nadirion desktop &middot; command console</span>
             </div>
-            <pre class="console-body"><code><span class="c-prompt">nadirion&gt;</span> extract -f advisory.txt
-<span class="c-time">  &rsaquo;</span> indicators extracted, re-fanged ......... <span class="c-ok">41</span>
+            <!-- [html-validate-disable-next prefer-native-element: a focusable scroll container, not a page section] -->
+            <pre class="console-body" role="region" tabindex="0" aria-label="Example Command Console session"><code><span class="c-prompt">nadirion&gt;</span> extract -f advisory.txt
+<span class="c-time" aria-hidden="true">  &rsaquo;</span> indicators extracted, re-fanged <span aria-hidden="true">.........</span> <span class="c-ok">41</span>
 <span class="c-prompt">nadirion&gt;</span> phishing invoice-overdue.eml
-<span class="c-time">  &rsaquo;</span> verdict ................................. <span class="c-ok">Likely Phishing</span>
+<span class="c-time" aria-hidden="true">  &rsaquo;</span> verdict <span aria-hidden="true">.................................</span> <span class="c-ok">Likely Phishing</span>
 <span class="c-prompt">nadirion&gt;</span> malwarescan --days 14 --deep
-<span class="c-time">  &rsaquo;</span> findings correlated across sources ...... <span class="c-ok">6 to review</span>
+<span class="c-time" aria-hidden="true">  &rsaquo;</span> findings correlated across sources <span aria-hidden="true">......</span> <span class="c-ok">6 to review</span>
 <span class="c-prompt">nadirion&gt;</span> cryptoinventory ./payments-api --report plan.html
-<span class="c-time">  &rsaquo;</span> post-quantum migration plan ............. <span class="c-ok">plan.html</span>
-<span class="c-prompt">nadirion&gt;</span> <span class="c-cursor"></span></code></pre>
+<span class="c-time" aria-hidden="true">  &rsaquo;</span> post-quantum migration plan <span aria-hidden="true">.............</span> <span class="c-ok">plan.html</span>
+<span class="c-prompt">nadirion&gt;</span> <span class="c-cursor" aria-hidden="true"></span></code></pre>
           </div>
 
           <div class="toolkit-points">
