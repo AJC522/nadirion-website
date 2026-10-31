@@ -564,7 +564,8 @@
 
   /* ---------- Module marquee (home) ---------- */
   // Every module's name, from catalog.js, on a band that drifts sideways.
-  // Scrolling pushes it along, and scrolling back up pushes it backward.
+  // Scrolling pushes it along, and scrolling back up pushes it backward;
+  // the faster the scroll, the further the names lean.
   var marquee = document.querySelector("[data-marquee]");
   var catalogData = window.NADIRION_CATALOG;
   if (marquee && catalogData) {
@@ -612,6 +613,8 @@
           rateTarget = 1;
         }
         anim.playbackRate = rate;
+        // The names lean into their travel while the scroll hurries them.
+        marquee.style.setProperty("--lean", clamp((rate - 1) * 1.5, -9, 9).toFixed(2) + "deg");
         if (rate !== 1) {
           rateQueued = true;
           window.requestAnimationFrame(easeRate);
@@ -687,7 +690,177 @@
 
 
   /* ---------- Scroll choreography [fx-scroll] ---------- */
-  // fx-scroll: reserved
+  // Where an element's top edge sits on screen, worked out from watchScroll's
+  // progress and its measured height, so the hooks never read layout.
+  var topInView = function (p, item) {
+    return viewportH - p * (viewportH + item.height);
+  };
+  var smoothstep = function (t) { return t * t * (3 - 2 * t); };
+
+  // Light sections open like an aperture. Each arrives as a rounded panel
+  // inset from the screen's edges and widens to full bleed as its top nears
+  // the middle of the screen, then narrows again as it leaves at the top.
+  // The panel's edges are two dark curtains with rounded inner corners that
+  // slide out sideways, so the section itself is never clipped or repainted.
+  if (motionOK) {
+    document.querySelectorAll("section.light").forEach(function (section) {
+      var curtains = document.createElement("span");
+      curtains.className = "aperture";
+      curtains.setAttribute("aria-hidden", "true");
+      section.appendChild(curtains);
+      section.classList.add("has-aperture");
+      var item = watchScroll(section, function (p) {
+        var top = topInView(p, item);
+        var arriving = smoothstep(clamp((viewportH - top) / (viewportH * 0.6), 0, 1));
+        var leaving = smoothstep(clamp((top + item.height) / (viewportH * 0.5), 0, 1));
+        var shut = 1 - Math.min(arriving, leaving);
+        curtains.style.setProperty("--aperture", shut.toFixed(3));
+        curtains.classList.toggle("is-open", shut === 0);
+      });
+    });
+  }
+
+  // Steps: a line of light travels the grid as it moves up the screen, along
+  // the top edge when the steps sit in a row and down the side when they
+  // stack. Each numeral fills with metal as the light reaches it.
+  var offsetInGrid = function (el, ancestor, side) {
+    var total = 0;
+    while (el && el !== ancestor) {
+      total += el[side];
+      el = el.offsetParent;
+    }
+    return total;
+  };
+
+  if (motionOK) {
+    document.querySelectorAll(".steps").forEach(function (grid) {
+      var steps = grid.querySelectorAll(".step");
+      if (!steps.length) return;
+      var across = true;
+      var length = 1;
+      var marks = [];
+
+      // The line's length, and where each numeral sits along it (0 to 1).
+      var measure = function () {
+        across = true;
+        for (var i = 1; i < steps.length; i++) {
+          if (steps[i].offsetTop !== steps[0].offsetTop) across = false;
+        }
+        grid.classList.toggle("beam-down", !across);
+        length = (across ? grid.clientWidth : grid.clientHeight) || 1;
+        marks = [];
+        // The numeral is a block as wide as its cell, so its glyphs start at
+        // its left edge; half its line height in is about where they begin.
+        Array.prototype.forEach.call(steps, function (step) {
+          var num = step.querySelector(".step-num") || step;
+          var reach = num.offsetHeight * 0.5;
+          marks.push((offsetInGrid(num, grid, across ? "offsetLeft" : "offsetTop") + reach) / length);
+        });
+        queueScroll();
+      };
+
+      grid.classList.add("has-beam");
+      measure();
+      window.addEventListener("resize", measure);
+      window.addEventListener("load", measure);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+
+      var item = watchScroll(grid, function (p) {
+        var top = topInView(p, item);
+        // In a row the line crosses as the grid rises from near the bottom
+        // of the screen to above the middle; stacked, its head follows a
+        // reading line a little below the middle.
+        var beam = across
+          ? clamp((viewportH * 0.86 - top) / (viewportH * 0.5), 0, 1)
+          : clamp((viewportH * 0.68 - top) / (item.height || 1), 0, 1);
+        grid.style.setProperty("--beam", beam.toFixed(4));
+        grid.style.setProperty("--beam-at", (beam * length).toFixed(1) + "px");
+        for (var i = 0; i < steps.length; i++) {
+          steps[i].classList.toggle("is-lit", beam > 0 && beam >= marks[i]);
+        }
+      });
+    });
+  }
+
+  // Watermark numerals: a section numbered in its eyebrow (01, 02...) carries
+  // the number huge, outlined and faint in its corner, drifting slower than
+  // the page. The CSS draws the digits from data-numeral, so they are never
+  // text that screen readers, find-in-page or copying would meet.
+  document.querySelectorAll(".section-head .eyebrow .index").forEach(function (index) {
+    var digits = index.textContent.trim();
+    var section = index.closest("section");
+    if (!/^\d+$/.test(digits) || !section) return;
+
+    var frame = document.createElement("span");
+    frame.className = "watermark";
+    frame.setAttribute("aria-hidden", "true");
+    frame.setAttribute("data-numeral", digits);
+    section.appendChild(frame);
+    section.classList.add("has-watermark");
+
+    if (motionOK) {
+      watchScroll(section, function (p) {
+        frame.style.setProperty("--drift", p.toFixed(3));
+      });
+    }
+  });
+
+  // Horizons: where a dark section meets the one above it, a soft light
+  // pools beneath the dividing line, and the line flares at its centre as it
+  // crosses the middle of the screen.
+  document.querySelectorAll(
+    ".toolkit, .capabilities, .process, .specs, .related, .about, .contact, .cta-band"
+  ).forEach(function (section) {
+    if (!section.previousElementSibling) return;
+    var glow = document.createElement("span");
+    glow.className = "seam-glow";
+    glow.setAttribute("aria-hidden", "true");
+    section.appendChild(glow);
+    section.classList.add("has-seam");
+    if (!motionOK) return;
+    var item = watchScroll(section, function (p) {
+      var top = topInView(p, item);
+      var near = 1 - clamp(Math.abs(top - viewportH * 0.6) / (viewportH * 0.5), 0, 1);
+      glow.style.setProperty("--seam", smoothstep(near).toFixed(3));
+    });
+  });
+
+  // Stage lists on light sections: each item's top rule draws itself in from
+  // the left as it arrives, running on from one item to the next along a row.
+  if (motionOK) {
+    document.querySelectorAll(".service-list-grid").forEach(function (list) {
+      var items = Array.prototype.slice.call(list.querySelectorAll(".service"));
+      if (!items.length) return;
+      var rows = items.map(function () { return { col: 0, across: 1 }; });
+
+      // Which column each item sits in, and how many share its row.
+      var place = function () {
+        items.forEach(function (svc, i) {
+          var col = 0, across = 0;
+          items.forEach(function (other, j) {
+            if (other.offsetTop !== svc.offsetTop) return;
+            across++;
+            if (j < i) col++;
+          });
+          rows[i].col = col;
+          rows[i].across = across || 1;
+        });
+      };
+      place();
+      window.addEventListener("resize", place);
+      window.addEventListener("load", place);
+      list.classList.add("has-rules");
+
+      items.forEach(function (svc, i) {
+        var item = watchScroll(svc, function (p) {
+          var top = topInView(p, item);
+          var drawn = clamp((viewportH * 0.92 - top) / (viewportH * 0.32), 0, 1);
+          var rule = clamp(drawn * rows[i].across - rows[i].col, 0, 1);
+          svc.style.setProperty("--rule", rule.toFixed(3));
+        });
+      });
+    });
+  }
 
 
   /* ---------- Frame: header, footer, wayfinding [fx-frame] ---------- */
