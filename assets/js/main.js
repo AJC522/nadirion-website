@@ -79,10 +79,22 @@
   // Whole-number figures such as "33" or "08" count up from zero as they come
   // into view, keeping their leading zeros. Screen readers get the real
   // figure the whole time; the counting copy is hidden from them.
+  // As each figure lands it catches a glint (.is-counted), and the first to
+  // land sends a scanning light along its strip (.is-scanned). Figures that
+  // are words land when the numbers beside them do.
+  var landed = function (stat) {
+    stat.classList.add("is-counted");
+    var strip = stat.closest(".stat-strip");
+    if (strip) strip.classList.add("is-scanned");
+  };
+
   var countUp = function (stat, delay) {
     var el = stat.querySelector("strong");
     var text = el ? el.textContent.trim() : "";
-    if (!/^\d+$/.test(text)) return;
+    if (!/^\d+$/.test(text)) {
+      window.setTimeout(function () { landed(stat); }, delay + 1500);
+      return;
+    }
 
     var target = parseInt(text, 10);
     var pad = function (n) {
@@ -105,8 +117,12 @@
       if (start === null) start = now + delay;
       var t = clamp((now - start) / 1600, 0, 1);
       shown.textContent = pad(Math.round(target * (1 - Math.pow(1 - t, 4))));
-      if (t < 1) window.requestAnimationFrame(tick);
-      else el.textContent = text;
+      if (t < 1) {
+        window.requestAnimationFrame(tick);
+      } else {
+        el.textContent = text;
+        landed(stat);
+      }
     };
     window.requestAnimationFrame(tick);
   };
@@ -484,9 +500,15 @@
 
   /* ---------- Pointer effects ---------- */
   // Cards and hairline grids carry a light that follows the pointer (--mx and
-  // --my), and the home page's product window tilts toward it.
+  // --my), and the home page's product window tilts toward it. The larger
+  // cards also lean toward the pointer in depth (--rx, --ry), and their
+  // contents shift with it (--px, --py, from -1 to 1).
   var SPOTLIT = ".focus-card, .related-card, .mod-card, .plan, .track, .sector, .steps, .module-grid";
+  var LEANING = ".focus-card, .related-card, .plan, .track";
   var heroWindow = document.querySelector(".hero .app-window");
+  // Other pointer effects join the same frame: each hook reads what it needs
+  // from the pointer event and returns a function that does its writing.
+  var pointerHooks = [];
 
   if (finePointer) {
     var pointerEvent = null;
@@ -512,11 +534,28 @@
       var litBox = lit && lit.getBoundingClientRect();
       var tilt = heroWindow && !reduceMotion && target.closest(".hero");
       var winBox = tilt && heroWindow.getBoundingClientRect();
+      var writes = [];
+      for (var h = 0; h < pointerHooks.length; h++) {
+        var write = pointerHooks[h](event);
+        if (write) writes.push(write);
+      }
 
       if (lit) {
         lit.style.setProperty("--mx", (event.clientX - litBox.left).toFixed(1) + "px");
         lit.style.setProperty("--my", (event.clientY - litBox.top).toFixed(1) + "px");
+        if (motionOK && lit.matches(LEANING)) {
+          // Three degrees at most; tall cards lean less, so their far edge
+          // moves about as far as a small card's.
+          var px = clamp(((event.clientX - litBox.left) / litBox.width) * 2 - 1, -1, 1);
+          var py = clamp(((event.clientY - litBox.top) / litBox.height) * 2 - 1, -1, 1);
+          var lean = litBox.height > 440 ? 1.6 : 3;
+          lit.style.setProperty("--rx", (-py * lean).toFixed(2) + "deg");
+          lit.style.setProperty("--ry", (px * lean).toFixed(2) + "deg");
+          lit.style.setProperty("--px", px.toFixed(3));
+          lit.style.setProperty("--py", py.toFixed(3));
+        }
       }
+      for (var w = 0; w < writes.length; w++) writes[w]();
       if (tilt) {
         var nx = clamp((event.clientX - (winBox.left + winBox.width / 2)) / (winBox.width / 2), -1.5, 1.5);
         var ny = clamp((event.clientY - (winBox.top + winBox.height / 2)) / (winBox.height / 2), -1.5, 1.5);
@@ -1914,7 +1953,274 @@
 
 
   /* ---------- Surfaces [fx-surfaces] ---------- */
-  // fx-surfaces: reserved
+  // Loops on these surfaces run only while they are on screen: .is-live is
+  // set while any part of one is in view, and the CSS pauses it without.
+  var liveWhileVisible = function (el) {
+    new IntersectionObserver(function (entries) {
+      el.classList.toggle("is-live", entries[entries.length - 1].isIntersecting);
+    }).observe(el);
+  };
+  var addSpan = function (className, parent) {
+    var span = document.createElement("span");
+    span.className = className;
+    parent.appendChild(span);
+    return span;
+  };
+
+  // Magnetic buttons: the primary buttons and the header's quote button lean
+  // a few pixels toward a pointer that comes near, then spring back, with a
+  // little overshoot, once it moves away. A highlight inside follows the
+  // pointer across the silver (--bx, --by).
+  if (finePointer && motionOK) {
+    var magnets = [];
+    var MAGNET_REACH = 44;
+    var navFolded = mediaMatches("(max-width: 960px)");
+    window.addEventListener("resize", function () {
+      navFolded = mediaMatches("(max-width: 960px)");
+    });
+
+    document.querySelectorAll(".btn-primary, .primary-nav a.nav-cta").forEach(function (el) {
+      // Full-width form buttons and the license tray's button stay put.
+      if (el.classList.contains("btn-block") || el.closest(".license-tray")) return;
+      magnets.push({ el: el, nav: el.classList.contains("nav-cta"), seen: false, x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0 });
+    });
+
+    var magnetsSeen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        for (var i = 0; i < magnets.length; i++) {
+          if (magnets[i].el === entry.target) magnets[i].seen = entry.isIntersecting;
+        }
+      });
+    });
+    magnets.forEach(function (m) { magnetsSeen.observe(m.el); });
+
+    var springQueued = false;
+    var springAt = 0;
+    var spring = function (now) {
+      springQueued = false;
+      // Tuned per 60Hz frame and scaled to the real frame time.
+      var dt = springAt ? clamp((now - springAt) / 16.7, 0.25, 3) : 1;
+      springAt = now;
+      var busy = false;
+      for (var i = 0; i < magnets.length; i++) {
+        var m = magnets[i];
+        if (!m.x && !m.y && !m.vx && !m.vy && !m.tx && !m.ty) continue;
+        m.vx = (m.vx + (m.tx - m.x) * 0.14 * dt) * Math.pow(0.74, dt);
+        m.vy = (m.vy + (m.ty - m.y) * 0.14 * dt) * Math.pow(0.74, dt);
+        m.x += m.vx * dt;
+        m.y += m.vy * dt;
+        if (Math.abs(m.tx - m.x) + Math.abs(m.ty - m.y) + Math.abs(m.vx) + Math.abs(m.vy) < 0.05) {
+          m.x = m.tx;
+          m.y = m.ty;
+          m.vx = m.vy = 0;
+        } else {
+          busy = true;
+        }
+        if (m.x || m.y) m.el.style.setProperty("translate", m.x.toFixed(2) + "px " + m.y.toFixed(2) + "px");
+        else m.el.style.removeProperty("translate");
+      }
+      if (busy) {
+        springQueued = true;
+        window.requestAnimationFrame(spring);
+      } else {
+        springAt = 0;
+      }
+    };
+    var kickSpring = function () {
+      if (springQueued) return;
+      springQueued = true;
+      window.requestAnimationFrame(spring);
+    };
+    var releaseMagnets = function () {
+      var moved = false;
+      magnets.forEach(function (m) {
+        if (m.tx || m.ty) moved = true;
+        m.tx = m.ty = 0;
+      });
+      if (moved) kickSpring();
+    };
+
+    pointerHooks.push(function (event) {
+      var pulls = [];
+      for (var i = 0; i < magnets.length; i++) {
+        var m = magnets[i];
+        var box = m.seen && !(m.nav && navFolded) ? m.el.getBoundingClientRect() : null;
+        if (!box || !box.width) {
+          if (m.tx || m.ty) pulls.push({ m: m, x: 0, y: 0 });
+          continue;
+        }
+        // Measure from where the button rests, not where it has been pulled.
+        var halfW = box.width / 2;
+        var halfH = box.height / 2;
+        var dx = event.clientX - (box.left + halfW - m.x);
+        var dy = event.clientY - (box.top + halfH - m.y);
+        var outX = Math.max(Math.abs(dx) - halfW, 0);
+        var outY = Math.max(Math.abs(dy) - halfH, 0);
+        var near = clamp(1 - Math.sqrt(outX * outX + outY * outY) / MAGNET_REACH, 0, 1);
+        near = near * near * (3 - 2 * near);
+        var reach = m.nav ? 0.7 : 1;
+        pulls.push({
+          m: m,
+          x: clamp(dx / (halfW + MAGNET_REACH), -1, 1) * 8 * reach * near,
+          y: clamp(dy / (halfH + MAGNET_REACH), -1, 1) * 5 * reach * near,
+          bx: event.clientX - box.left,
+          by: event.clientY - box.top,
+          over: near === 1
+        });
+      }
+      if (!pulls.length) return null;
+      return function () {
+        var moved = false;
+        pulls.forEach(function (pull) {
+          var m = pull.m;
+          if (pull.x !== m.tx || pull.y !== m.ty) moved = true;
+          m.tx = pull.x;
+          m.ty = pull.y;
+          if (pull.over) {
+            m.el.style.setProperty("--bx", pull.bx.toFixed(1) + "px");
+            m.el.style.setProperty("--by", pull.by.toFixed(1) + "px");
+          }
+        });
+        if (moved) kickSpring();
+      };
+    });
+    // A pointer that stops while the page scrolls under it lets go.
+    scrollHooks.push(function (y, dy) {
+      if (dy) releaseMagnets();
+    });
+    document.documentElement.addEventListener("mouseleave", releaseMagnets);
+  }
+
+  // Consoles: rise out of a slight tilt-back as they scroll into view, flat
+  // by the time they reach the middle of the screen (--console-rise, 1 to 0).
+  if (motionOK) {
+    document.querySelectorAll(".console").forEach(function (consoleEl) {
+      watchScroll(consoleEl, function (p) {
+        consoleEl.style.setProperty("--console-rise", clamp(1 - p / 0.42, 0, 1).toFixed(3));
+      });
+      liveWhileVisible(consoleEl);
+    });
+
+    // Stat strips: a light that scans along the strip once the figures land.
+    document.querySelectorAll(".stat-strip").forEach(function (strip) {
+      addSpan("stat-scan", strip).setAttribute("aria-hidden", "true");
+    });
+
+    // The base license's border carries a point of light, on screen only.
+    document.querySelectorAll(".plan.is-base").forEach(liveWhileVisible);
+  }
+
+  // About constellation (home): the figure turns slowly as it scrolls past,
+  // its faint background stars drift at their own depth (--sky-p, -0.5 to
+  // 0.5), and each star flares as its line reaches it.
+  var constellation = document.querySelector(".constellation");
+  if (constellation && motionOK) {
+    var SVG_NS = "http://www.w3.org/2000/svg";
+    watchScroll(constellation.closest(".about-visual") || constellation, function (p) {
+      constellation.style.setProperty("--sky-p", (p - 0.5).toFixed(3));
+    });
+    Array.prototype.forEach.call(constellation.children, function (child) {
+      if (child.tagName.toLowerCase() === "g" && !child.getAttribute("class")) {
+        child.setAttribute("class", "c-far");
+      }
+    });
+
+    // The lines draw over 2.2s on the site's ease, cubic-bezier(0.22, 1,
+    // 0.36, 1), the second and third starting 0.6s and 1.1s in (see the
+    // constellation CSS). A star flares at the moment its line's drawn
+    // length reaches it. The lines are straight segments ("M x y L x y ...").
+    var LINE_STARTS = [0, 0.6, 1.1];
+    var LINE_TIME = 2.2;
+    var bezier = function (a, b, s) {
+      var r = 1 - s;
+      return 3 * r * r * s * a + 3 * r * s * s * b + s * s * s;
+    };
+    var timeFor = function (progress) {
+      var lo = 0, hi = 1;
+      for (var k = 0; k < 24; k++) {
+        var mid = (lo + hi) / 2;
+        if (bezier(1, 1, mid) < progress) lo = mid;
+        else hi = mid;
+      }
+      return bezier(0.22, 0.36, (lo + hi) / 2);
+    };
+    var flareAt = {};
+    constellation.querySelectorAll(".c-lines path").forEach(function (path, i) {
+      var nums = (path.getAttribute("d") || "").match(/-?\d*\.?\d+/g) || [];
+      var pts = [];
+      for (var n = 0; n + 1 < nums.length; n += 2) pts.push([parseFloat(nums[n]), parseFloat(nums[n + 1])]);
+      var along = [0];
+      for (var j = 1; j < pts.length; j++) {
+        var sx = pts[j][0] - pts[j - 1][0];
+        var sy = pts[j][1] - pts[j - 1][1];
+        along.push(along[j - 1] + Math.sqrt(sx * sx + sy * sy));
+      }
+      var total = along[along.length - 1] || 1;
+      pts.forEach(function (pt, j) {
+        // The line touches a star a few units before its centre; the ease's
+        // long tail would otherwise hold the last flare back by a second.
+        var at = (LINE_STARTS[i] || 0) + timeFor(Math.max(along[j] - 3, 0) / total) * LINE_TIME;
+        var key = pt[0] + "," + pt[1];
+        if (!(key in flareAt) || at < flareAt[key]) flareAt[key] = at;
+      });
+    });
+
+    var flares = document.createElementNS(SVG_NS, "g");
+    flares.setAttribute("class", "c-flares");
+    constellation.querySelectorAll(".c-stars circle").forEach(function (star) {
+      var x = parseFloat(star.getAttribute("cx"));
+      var y = parseFloat(star.getAttribute("cy"));
+      var at = flareAt[x + "," + y];
+      if (at === undefined) return;
+      // A four-pointed glint and a ring that opens around the star.
+      var reach = 6 + parseFloat(star.getAttribute("r") || "2") * 2.4;
+      var waist = reach * 0.14;
+      var group = document.createElementNS(SVG_NS, "g");
+      group.style.setProperty("--flare-at", at.toFixed(2) + "s");
+      var glint = document.createElementNS(SVG_NS, "path");
+      glint.setAttribute("class", "c-glint");
+      glint.setAttribute(
+        "d",
+        "M" + x + " " + (y - reach) + "L" + (x + waist) + " " + (y - waist) + "L" + (x + reach) + " " + y +
+          "L" + (x + waist) + " " + (y + waist) + "L" + x + " " + (y + reach) + "L" + (x - waist) + " " + (y + waist) +
+          "L" + (x - reach) + " " + y + "L" + (x - waist) + " " + (y - waist) + "Z"
+      );
+      var halo = document.createElementNS(SVG_NS, "circle");
+      halo.setAttribute("class", "c-halo");
+      halo.setAttribute("cx", String(x));
+      halo.setAttribute("cy", String(y));
+      halo.setAttribute("r", (reach * 0.8).toFixed(1));
+      group.appendChild(halo);
+      group.appendChild(glint);
+      flares.appendChild(group);
+    });
+    var starGroup = constellation.querySelector(".c-stars");
+    if (starGroup) starGroup.parentNode.insertBefore(flares, starGroup.nextSibling);
+  }
+
+  // CTA bands: the finale. The satellite now leaves a fading trail, a second
+  // orbit crosses the first at a tilt with its own slower satellite, and a
+  // faint haze sits where the orbits meet. The tilted orbit swings open as
+  // the band scrolls in (--cta-open, 1 to 0).
+  document.querySelectorAll(".cta-band").forEach(function (band) {
+    var orbit = document.createElement("span");
+    orbit.className = "cta-orbit";
+    orbit.setAttribute("aria-hidden", "true");
+    addSpan("cta-haze", orbit);
+    var near = addSpan("cta-spin", orbit);
+    addSpan("cta-trail", near);
+    addSpan("cta-dot", addSpan("cta-sat", near));
+    var far = addSpan("cta-spin", addSpan("cta-plane", orbit));
+    addSpan("cta-trail", far);
+    addSpan("cta-dot", addSpan("cta-sat", far));
+    band.insertBefore(orbit, band.firstChild);
+    band.classList.add("has-orbit");
+    if (!motionOK) return;
+    liveWhileVisible(band);
+    watchScroll(band, function (p) {
+      band.style.setProperty("--cta-open", clamp(1 - p / 0.38, 0, 1).toFixed(3));
+    });
+  });
 
 
   /* ---------- Catalog and commerce [fx-commerce] ---------- */

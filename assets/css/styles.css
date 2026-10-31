@@ -4047,7 +4047,355 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
 
 
 /* ---------- Surfaces [fx-surfaces] ---------- */
-/* fx-surfaces: reserved */
+
+/* Buttons: a crisp press. On fine pointers the primary buttons also lean
+   toward a pointer that comes near (the script springs them with
+   `translate`), and a highlight follows the pointer across the silver. */
+@media (hover: hover) and (pointer: fine) {
+  .motion .btn-primary:hover,
+  .motion .primary-nav a.nav-cta:hover {
+    background:
+      radial-gradient(120px circle at var(--bx, 50%) var(--by, 0%), #ffffff 0%, rgba(255, 255, 255, 0) 70%),
+      linear-gradient(180deg, #f4f4f7 0%, #d3d3db 100%);
+  }
+}
+.btn:active,
+.btn:hover:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.08s;
+}
+.btn-primary:active,
+.motion .btn-primary:active,
+.motion .primary-nav a.nav-cta:active {
+  background: linear-gradient(180deg, #e4e4ea 0%, #f4f4f7 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(5, 5, 6, 0.24),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.8),
+    0 6px 22px -12px rgba(255, 255, 255, 0.45);
+}
+.btn-ghost:active {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.1);
+}
+
+/* Card depth: cards lean toward the pointer, at most three degrees, under
+   their spotlight. --rx, --ry, --px and --py are set by the script. The
+   category icon lifts toward the pointer and catches the light. The
+   :not(.reveal) leaves a card's arrival transitions alone until it settles. */
+.plan:not(.reveal), .track:not(.reveal) {
+  transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), border-color 0.35s var(--ease);
+}
+.focus-card:not(.reveal), .related-card:not(.reveal) {
+  transition: transform 0.35s var(--ease), border-color 0.35s var(--ease), background 0.35s var(--ease), box-shadow 0.45s var(--ease);
+}
+.focus-icon,
+.module-icon {
+  transition: transform 0.5s var(--ease), border-color 0.35s var(--ease), box-shadow 0.35s var(--ease), background 0.35s var(--ease);
+}
+.focus-icon svg { transition: filter 0.35s var(--ease); }
+@media (hover: hover) and (pointer: fine) {
+  .motion .focus-card:hover,
+  .motion .related-card:hover {
+    transform: perspective(900px) translate3d(0, -4px, 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    box-shadow: 0 34px 60px -36px rgba(0, 0, 0, 0.95), 0 26px 70px -44px rgba(255, 255, 255, 0.28);
+  }
+  .motion .plan:hover,
+  .motion .track:hover {
+    transform: perspective(1400px) translate3d(0, -3px, 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    box-shadow: 0 40px 80px -50px rgba(0, 0, 0, 0.95), 0 30px 90px -60px rgba(255, 255, 255, 0.3);
+  }
+  .motion .plan:not(.is-base):hover,
+  .motion .track:hover { border-color: var(--line-dark-strong); }
+  .motion .module:hover .module-icon { transform: translate3d(0, -3px, 0); }
+  .motion .focus-card:hover .focus-icon {
+    transform: translate3d(calc(var(--px, 0) * 3px), calc(var(--py, 0) * 3px - 4px), 0);
+    box-shadow:
+      0 0 0 4px rgba(255, 255, 255, 0.04),
+      0 16px 34px -8px rgba(255, 255, 255, 0.45),
+      0 0 22px rgba(255, 255, 255, 0.1);
+  }
+  .motion .focus-card:hover .focus-icon svg { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7)); }
+}
+
+/* Featured border light: the base license on the pricing page carries a
+   point of light around its border, with a fading tail, since every
+   license starts there. A faint sweep inside follows it round. */
+@property --plan-orbit {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.plan.is-base {
+  border-color: transparent;
+  background:
+    radial-gradient(70% 50% at 50% 0%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 100%) padding-box,
+    linear-gradient(var(--black-2), var(--black-2)) padding-box,
+    conic-gradient(from var(--plan-orbit), rgba(255, 255, 255, 0.2) 0deg, rgba(255, 255, 255, 0.2) 270deg, rgba(255, 255, 255, 0.55) 330deg, #ffffff 356deg, rgba(255, 255, 255, 0.2) 360deg) border-box;
+  box-shadow: 0 50px 110px -70px rgba(255, 255, 255, 0.4);
+}
+.motion .plan.is-base {
+  background:
+    radial-gradient(70% 50% at 50% 0%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 100%) padding-box,
+    conic-gradient(from var(--plan-orbit), rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0) 270deg, rgba(255, 255, 255, 0.03) 330deg, rgba(255, 255, 255, 0) 360deg) padding-box,
+    linear-gradient(var(--black-2), var(--black-2)) padding-box,
+    conic-gradient(from var(--plan-orbit), rgba(255, 255, 255, 0.2) 0deg, rgba(255, 255, 255, 0.2) 270deg, rgba(255, 255, 255, 0.55) 330deg, #ffffff 356deg, rgba(255, 255, 255, 0.2) 360deg) border-box;
+  animation: plan-orbit 9s linear infinite paused;
+}
+.motion .plan.is-base.is-live { animation-play-state: running; }
+@keyframes plan-orbit { to { --plan-orbit: 360deg; } }
+
+/* Console finish: phosphor text over faint scanlines, a glow inside the
+   screen, a glass reflection across it, and a slow refresh band that runs
+   down the screen while it is on view. As it scrolls in, the console rises
+   out of a slight tilt-back (--console-rise, set by the script). */
+.console {
+  position: relative;
+  isolation: isolate;
+  box-shadow:
+    0 40px 80px -40px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 30px 90px -50px rgba(255, 255, 255, 0.18);
+}
+.console-body {
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.022) 0 1px, rgba(255, 255, 255, 0) 1px 3px),
+    radial-gradient(110% 80% at 50% 0%, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0) 70%);
+  box-shadow: inset 0 0 70px rgba(255, 255, 255, 0.025);
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.16);
+}
+.console-body .c-prompt,
+.console-body .c-ok { text-shadow: 0 0 12px rgba(255, 255, 255, 0.5); }
+.console::before,
+.console::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.console::after {
+  background: linear-gradient(116deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.02) 26%, rgba(255, 255, 255, 0) 40%);
+}
+.console::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, 0.025) 49%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0) 51%);
+  opacity: 0;
+}
+.motion .console.is-live::before { animation: console-refresh 7s linear infinite; }
+@keyframes console-refresh {
+  0% { transform: translateY(-52%); opacity: 1; }
+  55% { transform: translateY(52%); opacity: 1; }
+  55.1%, 100% { transform: translateY(52%); opacity: 0; }
+}
+.motion .console {
+  transform:
+    perspective(1400px)
+    translate3d(0, calc(var(--console-rise, 0) * 56px), 0)
+    rotateX(calc(var(--console-rise, 0) * 18deg))
+    scale(calc(1 - var(--console-rise, 0) * 0.05));
+  transform-origin: 50% 100%;
+}
+/* The reveal still fades and sharpens the console; the rise is the scroll's. */
+.motion .console.reveal {
+  transition:
+    opacity 0.9s var(--ease) var(--reveal-delay, 0ms),
+    filter 0.9s var(--ease) var(--reveal-delay, 0ms);
+}
+
+/* Stat strip: as each figure lands, a glint sweeps across the metal and the
+   figure flares for a moment; a scanning light passes along the strip and
+   its hairlines. */
+.stat strong {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0) 42%, #ffffff 50%, rgba(255, 255, 255, 0) 58%) no-repeat,
+    var(--metal);
+  background-size: 320% 100%, 100% 100%;
+  background-position: 100% 0, 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+/* Timed so each figure flares as the scanning light passes over it. */
+.motion .stat.is-counted strong { animation: stat-glint 1s cubic-bezier(0.45, 0, 0.25, 1) 0.3s both; }
+.motion .stat.is-counted:nth-child(2) strong { animation-delay: 0.34s; }
+.motion .stat.is-counted:nth-child(3) strong { animation-delay: 0.38s; }
+.motion .stat.is-counted:nth-child(4) strong { animation-delay: 0.42s; }
+@keyframes stat-glint {
+  0% { background-position: 100% 0, 0 0; filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); }
+  40% { filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.45)); }
+  100% { background-position: 0% 0, 0 0; filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); }
+}
+.stat-scan {
+  position: absolute;
+  inset: -1px 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.stat-scan::before,
+.stat-scan::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 36%;
+  transform: translateX(-100%);
+}
+.stat-scan::before {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 70%, rgba(255, 255, 255, 0) 100%);
+}
+.stat-scan::after {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0)) top / 100% 1px no-repeat,
+    linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6) 75%, rgba(255, 255, 255, 0)) bottom / 100% 1px no-repeat;
+}
+.stat-strip.is-scanned .stat-scan::before,
+.stat-strip.is-scanned .stat-scan::after { animation: stat-scan 2.4s cubic-bezier(0.45, 0, 0.25, 1) both; }
+@keyframes stat-scan {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(290%); }
+}
+
+/* Toolkit points: a light runs down each point's rail as it arrives. */
+.point { position: relative; }
+.point::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 1px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 38%, #ffffff 50%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, 0) 100%) 0 100% / 100% 300% no-repeat;
+  opacity: 0;
+}
+.motion .point.is-visible::before { animation: point-rail 1.6s var(--ease) calc(var(--reveal-delay, 0ms) + 0.25s) both; }
+@keyframes point-rail {
+  0% { background-position: 0 100%; opacity: 1; }
+  100% { background-position: 0 0; opacity: 1; }
+}
+
+/* About constellation: the figure turns a little as it scrolls past, the
+   faint stars behind it drift at their own depth, and each star flares as
+   its line reaches it (--sky-p and --flare-at, set by the script). */
+.motion .constellation {
+  rotate: calc(var(--sky-p, 0) * -16deg);
+  translate: 0 calc(var(--sky-p, 0) * -28px);
+}
+.motion .constellation .c-far { translate: calc(var(--sky-p, 0) * 16px) calc(var(--sky-p, 0) * 44px); }
+.c-flares { pointer-events: none; }
+.c-flares path,
+.c-flares circle {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.c-flares path { fill: #ffffff; }
+.c-flares circle { fill: none; stroke: #ffffff; stroke-width: 0.8; }
+.motion .about-visual.is-visible .c-flares path { animation: star-glint 1.5s var(--ease) var(--flare-at, 0s) both; }
+.motion .about-visual.is-visible .c-flares circle { animation: star-halo 1.5s var(--ease) var(--flare-at, 0s) both; }
+@keyframes star-glint {
+  0% { opacity: 0; transform: scale(0.2) rotate(-35deg); }
+  18% { opacity: 1; transform: scale(1.1) rotate(0deg); }
+  100% { opacity: 0; transform: scale(0.5) rotate(25deg); }
+}
+@keyframes star-halo {
+  0% { opacity: 0.8; transform: scale(0.2); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+/* CTA band finale: the satellite leaves a fading trail, a second orbit
+   crosses the first at a tilt with its own slower satellite, and a faint
+   haze sits at their centre. The tilted orbit swings open as the band
+   scrolls in (--cta-open, set by the script). These replace the band's
+   own satellite once the script has built them. */
+.cta-band.has-orbit::after { display: none; }
+.cta-orbit {
+  position: absolute;
+  top: 50%;
+  right: -170px;
+  width: 540px;
+  aspect-ratio: 1 / 1;
+  translate: 0 -50%;
+  pointer-events: none;
+  perspective: 1600px;
+}
+.cta-haze {
+  position: absolute;
+  inset: -10%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.02) 45%, rgba(255, 255, 255, 0) 100%);
+}
+.cta-spin {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+}
+.cta-trail {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0) 240deg, rgba(255, 255, 255, 0.65) 360deg);
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1.5px), #000 100%, transparent 100%);
+  mask: radial-gradient(closest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1.5px), #000 100%, transparent 100%);
+}
+.cta-sat {
+  position: absolute;
+  left: 50%;
+  top: 0.5px;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+.cta-dot {
+  position: absolute;
+  left: -11px;
+  top: -11px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0 1.8px, rgba(255, 255, 255, 0.5) 3px, rgba(255, 255, 255, 0) 11px);
+}
+.cta-plane {
+  position: absolute;
+  inset: -17%;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  transform:
+    rotate(calc(-26deg + var(--cta-open, 0) * 18deg))
+    rotateX(calc(70deg + var(--cta-open, 0) * 14deg));
+}
+.cta-plane .cta-trail {
+  background: conic-gradient(from 0deg, rgba(255, 255, 255, 0.4) 0deg, rgba(255, 255, 255, 0) 120deg, rgba(255, 255, 255, 0) 360deg);
+}
+/* The far satellite turns back against its orbit and the tilt, so it stays
+   a round point of light facing the viewer. */
+.cta-plane .cta-dot {
+  opacity: 0.75;
+  transform: rotateX(calc(-70deg - var(--cta-open, 0) * 14deg)) scale(0.7);
+}
+.motion .cta-orbit > .cta-spin { animation: cta-turn 30s linear infinite paused; }
+.motion .cta-plane .cta-spin { animation: cta-turn 80s linear infinite reverse paused; }
+.motion .cta-plane .cta-sat { animation: cta-unturn 80s linear infinite reverse paused; }
+.motion .cta-band.is-live .cta-spin,
+.motion .cta-band.is-live .cta-sat { animation-play-state: running; }
+@keyframes cta-turn { to { transform: rotate(360deg); } }
+@keyframes cta-unturn { to { transform: rotate(-360deg); } }
+
+/* On phones the band's copy runs under the orbits, so only the near one
+   (with its trail) stays. */
+@media (max-width: 720px) {
+  .cta-orbit { right: -300px; opacity: 0.6; }
+  .cta-plane { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:active, .btn:hover:active { transform: none; }
+  .plan.is-base, .console::before, .stat strong, .stat-scan::before, .stat-scan::after,
+  .point::before, .c-flares path, .c-flares circle, .cta-spin, .cta-sat { animation: none; }
+}
 
 
 /* ---------- Catalog and commerce [fx-commerce] ---------- */
