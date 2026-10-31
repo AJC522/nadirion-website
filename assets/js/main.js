@@ -627,6 +627,81 @@
     }
   }
 
+  /* ---------- Element scroll progress ---------- */
+  // watchScroll(el, fn) calls fn(p, el) whenever the page scrolls and p has
+  // changed. p runs from 0, when the element's top edge reaches the bottom of
+  // the viewport, to 1, when its bottom edge leaves the top. Positions are
+  // measured on load and whenever the page changes height, never during a
+  // scroll, so the hooks themselves only write.
+  var watched = [];
+  var viewportH = window.innerHeight;
+
+  var docTop = function (el) {
+    var top = 0;
+    while (el) {
+      top += el.offsetTop;
+      el = el.offsetParent;
+    }
+    return top;
+  };
+  var measureWatched = function () {
+    viewportH = window.innerHeight;
+    for (var i = 0; i < watched.length; i++) {
+      watched[i].top = docTop(watched[i].el);
+      watched[i].height = watched[i].el.offsetHeight;
+      watched[i].last = -1;
+    }
+    queueScroll();
+  };
+  var watchScroll = function (el, fn) {
+    var item = { el: el, fn: fn, top: docTop(el), height: el.offsetHeight, last: -1 };
+    watched.push(item);
+    return item;
+  };
+  scrollHooks.push(function (y) {
+    for (var i = 0; i < watched.length; i++) {
+      var w = watched[i];
+      var p = clamp((y + viewportH - w.top) / (viewportH + w.height || 1), 0, 1);
+      p = Math.round(p * 1000) / 1000;
+      if (p === w.last) continue;
+      w.last = p;
+      w.fn(p, w.el);
+    }
+  });
+  window.addEventListener("resize", measureWatched);
+  window.addEventListener("load", measureWatched);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureWatched);
+  // Filtering the catalog or opening an FAQ answer moves everything below it.
+  if ("ResizeObserver" in window) new ResizeObserver(measureWatched).observe(document.body);
+
+  /* ==========================================================
+     Round two. Each block below holds one area's effects.
+     ========================================================== */
+
+  /* ---------- Heroes [fx-heroes] ---------- */
+  // fx-heroes: reserved
+
+
+  /* ---------- Type [fx-type] ---------- */
+  // fx-type: reserved
+
+
+  /* ---------- Scroll choreography [fx-scroll] ---------- */
+  // fx-scroll: reserved
+
+
+  /* ---------- Frame: header, footer, wayfinding [fx-frame] ---------- */
+  // fx-frame: reserved
+
+
+  /* ---------- Surfaces [fx-surfaces] ---------- */
+  // fx-surfaces: reserved
+
+
+  /* ---------- Catalog and commerce [fx-commerce] ---------- */
+  // fx-commerce: reserved
+
+
   // Set the scroll-driven state for wherever the page opened.
   runScrollHooks();
 

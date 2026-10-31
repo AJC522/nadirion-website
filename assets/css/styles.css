@@ -2501,3 +2501,31 @@ section.light {
   .c-stars circle, .c-ring { animation: none; }
   .btn-primary::after, .primary-nav a.nav-cta::before { transition: none; }
 }
+
+/* =========================================================
+   Round two. Each block below holds one area's styling,
+   including its own reduced-motion rules.
+   ========================================================= */
+
+/* ---------- Heroes [fx-heroes] ---------- */
+/* fx-heroes: reserved */
+
+
+/* ---------- Type [fx-type] ---------- */
+/* fx-type: reserved */
+
+
+/* ---------- Scroll choreography [fx-scroll] ---------- */
+/* fx-scroll: reserved */
+
+
+/* ---------- Frame: header, footer, wayfinding [fx-frame] ---------- */
+/* fx-frame: reserved */
+
+
+/* ---------- Surfaces [fx-surfaces] ---------- */
+/* fx-surfaces: reserved */
+
+
+/* ---------- Catalog and commerce [fx-commerce] ---------- */
+/* fx-commerce: reserved */
