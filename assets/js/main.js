@@ -55,8 +55,11 @@
   // A glide on its way somewhere (a link to a section, an address with a
   // #fragment, the catalog's return to its top) is different: its
   // destination is the place, so a change of width aims it there again.
-  // The catalog's code further down announces its glides through this.
+  // The catalog's code further down announces its glides through this,
+  // and has its bar measured first (widthHooks), so that a destination
+  // clears the bar at its new height.
   var glidingTo = function () {};
+  var widthHooks = [];
   (function () {
     var place = null;
     var lastWidth = window.innerWidth;
@@ -125,6 +128,18 @@
       for (; el; el = el.offsetParent) top += el.offsetTop;
       return top;
     };
+    // Where the view begins: clear of the header, or of the catalog's bar
+    // where it sticks. Measured, not read from .is-stuck, which its
+    // observer sets a moment after the page moves.
+    var viewTop = function () {
+      var top = 88;
+      var bar = document.querySelector(".catalog-bar");
+      if (bar && window.getComputedStyle(bar).position === "sticky") {
+        var barBox = bar.getBoundingClientRect();
+        if (barBox.top < 80) top = Math.max(top, barBox.bottom + 16);
+      }
+      return top;
+    };
     // Walk down from the page body by layout position, not by what is
     // painted where, so entrance animations still under way can't mislead
     // it: at each level take the first block in flow that spans the reading
@@ -137,9 +152,7 @@
       place = null;
       if (window.scrollY < 1) return;
       // The line sits clear of the header and of the catalog's stuck bar.
-      var floor = 88;
-      var bar = document.querySelector(".catalog-bar.is-stuck");
-      if (bar) floor = Math.max(floor, bar.getBoundingClientRect().bottom + 16);
+      var floor = viewTop();
       var line = Math.max(window.innerHeight * LINE, floor);
       var lineY = window.scrollY + line;
       var box = document.body;
@@ -167,10 +180,11 @@
       seenY = window.scrollY;
       // Something large with nothing to go on inside it keeps the same
       // share of itself at the line, since its contents reflow; anything
-      // else keeps its own top where it was.
+      // else keeps its own top where it was. dy is how far into it the line
+      // fell, and floor where the view began below the header or bar.
       place = box.offsetHeight > window.innerHeight * 0.6
-        ? { el: box, share: (lineY - boxTop) / box.offsetHeight, at: line, y: window.scrollY }
-        : { el: box, share: 0, at: boxTop - window.scrollY, y: window.scrollY };
+        ? { el: box, share: (lineY - boxTop) / box.offsetHeight, at: line, y: window.scrollY, dy: null, floor: floor }
+        : { el: box, share: 0, at: boxTop - window.scrollY, y: window.scrollY, dy: lineY - boxTop, floor: floor };
     };
     // Noted once scrolling settles, and along the way during a long scroll
     // or glide: every quarter second, or sooner once the page has moved far
@@ -178,8 +192,9 @@
     // other writes, so its reads cost no extra layout.
     scrollHooks.push(function (y) {
       seenY = y;
-      // A glide lasts as long as the page keeps moving.
-      if (glide && document.readyState === "complete") holdGlide(200);
+      // A glide lasts as long as the page keeps moving, allowing for a
+      // frame or two held up by a busy page.
+      if (glide && document.readyState === "complete") holdGlide(500);
       if (resizing) return;
       clearTimeout(noteTimer);
       if (!place || Math.abs(y - place.y) > 80 || Date.now() - notedAt > 250) note();
@@ -191,6 +206,7 @@
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
       clearTimeout(noteTimer);
+      for (var h = 0; h < widthHooks.length; h++) widthHooks[h]();
       if (glide && glide.el.isConnected && glide.el.offsetParent) {
         glide.aim();
         place = null;
@@ -208,12 +224,36 @@
         var root = document.documentElement;
         root.style.setProperty("scroll-behavior", "auto");
         window.scrollTo(0, Math.round(target));
+        // The catalog bar may stick at the new size where it didn't at the
+        // old one (a phone turned upright from its side), or stand taller or
+        // shorter. Where the view begins below it moves, so the line moves
+        // with it, keeping what was just above the line in view; and never
+        // under the header or bar. Settling can stick or free the bar, so
+        // it is checked again.
+        if (at >= 0 && at <= wasHeight) {
+          var y0 = window.scrollY;
+          var read = pageTop(place.el) - y0 + (place.dy === null
+            ? place.share * place.el.offsetHeight
+            : Math.min(place.dy, place.el.offsetHeight));
+          for (var pass = 0; pass < 3; pass++) {
+            var floor = viewTop();
+            var want = read;
+            if (Math.abs(floor - place.floor) > 0.5) {
+              want = Math.min(read + floor - place.floor, Math.max(floor, window.innerHeight * 0.6));
+            }
+            var y = Math.round(y0 - (Math.max(want, floor) - read));
+            if (Math.abs(y - window.scrollY) < 1) break;
+            window.scrollTo(0, y);
+          }
+        }
         root.style.removeProperty("scroll-behavior");
         place.y = seenY = window.scrollY;
       }
       clearTimeout(resizing);
       resizing = setTimeout(function () {
         resizing = 0;
+        // A glide is aimed once more at the settled layout.
+        if (glide && glide.el.isConnected && glide.el.offsetParent) glide.aim();
         // The same place stays the anchor until the reader moves on, so a
         // snap and back, a phone turned and turned back, or a slow drag of
         // the window's edge comes home to what was being read. A fresh note
@@ -2564,6 +2604,7 @@
     // whenever the bar's height changes.
     measureBar();
     new ResizeObserver(measureBar).observe(catalogBar);
+    widthHooks.push(measureBar);
   }
 
 
