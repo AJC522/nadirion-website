@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Contact, Quotes &amp; Demos | Nadirion</title>
-  <meta name="description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, ask about the reseller program, or contact a Nadirion service team." />
+  <meta name="description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, get support, ask about the reseller program, or verify a certified reseller." />
   <link rel="canonical" href="https://nadirion.us/contact.html" />
   <meta name="theme-color" content="#050506" />
   <meta name="color-scheme" content="dark" />
@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="Nadirion" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="Contact, Quotes &amp; Demos | Nadirion" />
-  <meta property="og:description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, ask about the reseller program, or contact a Nadirion service team." />
+  <meta property="og:description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, get support, ask about the reseller program, or verify a certified reseller." />
   <meta property="og:url" content="https://nadirion.us/contact.html" />
   <meta property="og:image" content="https://nadirion.us/assets/img/og-image.png" />
   <meta property="og:image:width" content="1200" />
@@ -106,8 +106,8 @@
           <h1 id="pageTitle">Quotes, demos, and <span class="metal">everything else.</span></h1>
           <p class="page-lede">
             Request a quote for Nadirion Desktop and the modules you've chosen, book a demo,
-            ask about the reseller program, or ask about what's in development. Your message
-            goes to the people who handle that topic.
+            ask about the reseller program, or learn about what's in development. Choose a topic
+            below so your message reaches the right people.
           </p>
         </div>
       </div>
@@ -124,7 +124,7 @@
             </div>
             <div>
               <dt>Quotes</dt>
-              <dd>Pick modules in the <a href="modules.html">catalog</a> first and your selection comes with the request.</dd>
+              <dd>Choose modules in the <a href="modules.html">catalog</a> first, and your selection will be included with your request.</dd>
             </div>
             <div>
               <dt>Resellers</dt>
@@ -132,7 +132,11 @@
             </div>
             <div>
               <dt>Urgent matters</dt>
-              <dd>For a live incident or a preservation deadline, say so in the first line and we will prioritize it.</dd>
+              <dd>For a live incident or a preservation deadline, state this in the first line of your message and we will prioritize it.</dd>
+            </div>
+            <div id="security">
+              <dt>Security reports</dt>
+              <dd>To report a suspected vulnerability in Nadirion Desktop or this website, email <a href="mailto:contact@nadirion.us">contact@nadirion.us</a> with &ldquo;Security&rdquo; in the subject line. Please do not disclose it publicly until a fix has been released.</dd>
             </div>
           </dl>
 
@@ -174,7 +178,7 @@
             </ul>
             <p class="quote-empty" id="quoteEmpty">
               No add-on modules chosen yet. <a href="modules.html">Browse the catalog</a>, or
-              describe your work below and we'll suggest a set.
+              describe your work below and we'll recommend a set.
             </p>
             <p class="quote-total" id="quoteTotal" hidden></p>
             <input type="hidden" name="license" id="quoteModules" data-label="License" value="Nadirion Desktop" />
@@ -198,7 +202,7 @@
           <div class="form-split" data-show-when="interest:quote">
             <div class="form-row">
               <label for="seats">Seats <span class="optional">(optional)</span></label>
-              <input type="number" id="seats" name="seats" min="1" step="1" inputmode="numeric" placeholder="People using it" />
+              <input type="number" id="seats" name="seats" min="1" step="1" inputmode="numeric" placeholder="Number of users" />
             </div>
             <div class="form-row">
               <label for="resellerId">Reseller ID <span class="optional">(optional)</span></label>

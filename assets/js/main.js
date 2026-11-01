@@ -3021,7 +3021,7 @@
   };
 
   var subjectFor = function (formEl) {
-    var subject = formEl.getAttribute("data-subject") || "Website enquiry";
+    var subject = formEl.getAttribute("data-subject") || "Website inquiry";
     var topicName = formEl.getAttribute("data-subject-field");
     if (!topicName) return subject;
     var topic = formEl.querySelector(
