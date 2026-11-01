@@ -1561,9 +1561,10 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   .primary-nav a.nav-cta { margin-top: 12px; text-align: center; border-bottom: none; }
   .nav-toggle { display: flex; }
   /* In a short window the open menu scrolls. Its links come fully into
-     view within it as they take focus, and the page behind stays put
-     (the tray's bottom padding stands down while focus is in the menu). */
-  .primary-nav { scroll-padding-top: 16px; }
+     view within it as they take focus, focus ring included (8px clear of
+     its top edge), and the page behind stays put (the tray's bottom
+     padding stands down while focus is in the menu). */
+  .primary-nav { scroll-padding-top: 24px; }
   .site-header .primary-nav a { scroll-margin-top: -16px; }
   html:has(.primary-nav.is-open:focus-within) { scroll-padding-bottom: 0; }
 }

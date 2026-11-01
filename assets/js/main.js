@@ -60,6 +60,9 @@
   // clears the bar at its new height.
   var glidingTo = function () {};
   var widthHooks = [];
+  // Whether the latest navigation within the page was a step back or
+  // forward through history, where the browser can say (Navigation API).
+  var historyStep = false;
   (function () {
     var place = null;
     var lastWidth = window.innerWidth;
@@ -75,9 +78,19 @@
       clearTimeout(glideTimer);
       glide = null;
     };
+    // The hold runs out once the page has stopped moving; if it has moved
+    // since the last frame the script saw (frames held up by a busy page),
+    // it waits a while longer.
+    var expireGlide = function () {
+      if (glide && Math.abs(window.scrollY - seenY) > 1 && (glide.waits = (glide.waits || 0) + 1) < 6) {
+        glideTimer = setTimeout(expireGlide, 500);
+        return;
+      }
+      endGlide();
+    };
     var holdGlide = function (ms) {
       clearTimeout(glideTimer);
-      glideTimer = setTimeout(endGlide, ms);
+      glideTimer = setTimeout(expireGlide, ms);
     };
     // aim() starts the page toward the destination again, or puts it there
     // at once with reduced motion; by default the way the browser goes to a
@@ -99,9 +112,10 @@
     var arrival = window.performance && performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
     var landing = (!arrival || arrival.type === "navigate") ? named(window.location.hash) : null;
     if (landing) {
-      // Held until the page has loaded, however long that takes.
+      // Held until the page has loaded, however long that takes, and for a
+      // while after: the browser may start its glide some time after load.
       glide = { el: landing, aim: aimAt(landing) };
-      var landed = function () { if (glide && glide.el === landing) holdGlide(400); };
+      var landed = function () { if (glide && glide.el === landing) holdGlide(800); };
       if (document.readyState === "complete") landed();
       else window.addEventListener("load", landed);
     }
@@ -115,13 +129,50 @@
       var el = named(link.hash);
       if (el) glidingTo(el);
     });
+    // A step back or forward between this page's #fragments returns to
+    // where the reader left that entry, not to the fragment itself. Where
+    // the browser says which step is which, that place is noted on leaving
+    // each entry and is where a change of width aims.
+    var leftAt = {};
+    var stepTo = null;
+    if (window.navigation && window.navigation.addEventListener) {
+      window.navigation.addEventListener("navigate", function (e) {
+        var from = window.navigation.currentEntry;
+        if (from && place) leftAt[from.key] = { el: place.el, share: place.share, at: place.at - (seenY - place.y) };
+        historyStep = e.navigationType === "traverse";
+        stepTo = historyStep && e.destination ? e.destination.key : null;
+      });
+    }
     window.addEventListener("hashchange", function () {
+      if (historyStep) {
+        var back = stepTo && leftAt[stepTo];
+        stepTo = null;
+        if (back && back.el.isConnected) {
+          glidingTo(back.el, function () {
+            window.scrollTo({
+              top: Math.round(pageTop(back.el) + back.share * back.el.offsetHeight - back.at),
+              behavior: reduceMotion ? "auto" : "smooth"
+            });
+          });
+        }
+        return;
+      }
       var el = named(window.location.hash);
       if (el) glidingTo(el);
     });
-    // The reader taking over ends it.
+    // The reader taking over ends it: not a modifier key pressed alone, or
+    // a shortcut that scrolls nothing (zoom, snapping the window), which
+    // come just before the change of width a glide should survive.
+    var takeOver = function (e) {
+      if (e.type === "keydown") {
+        if (/^(Meta|OS|Super|Hyper|Control|Alt|AltGraph|Shift|CapsLock|Fn)$/.test(e.key)) return;
+        if ((e.ctrlKey || e.metaKey || e.altKey) && !/^(ArrowUp|ArrowDown|PageUp|PageDown|Home|End| |Spacebar)$/.test(e.key)) return;
+      }
+      if (e.type === "wheel" && e.ctrlKey) return;
+      endGlide();
+    };
     ["wheel", "touchstart", "keydown", "pointerdown"].forEach(function (type) {
-      window.addEventListener(type, endGlide, { capture: true, passive: true });
+      window.addEventListener(type, takeOver, { capture: true, passive: true });
     });
     var pageTop = function (el) {
       var top = 0;
@@ -191,10 +242,12 @@
     // from the last note. This hook comes first in the frame, before any
     // other writes, so its reads cost no extra layout.
     scrollHooks.push(function (y) {
+      var moved = Math.abs(y - seenY) > 0.5;
       seenY = y;
       // A glide lasts as long as the page keeps moving, allowing for a
-      // frame or two held up by a busy page.
-      if (glide && document.readyState === "complete") holdGlide(500);
+      // frame or two held up by a busy page. A run of the hooks that moved
+      // nothing doesn't count.
+      if (glide && moved && document.readyState === "complete") holdGlide(500);
       if (resizing) return;
       clearTimeout(noteTimer);
       if (!place || Math.abs(y - place.y) > 80 || Date.now() - notedAt > 250) note();
@@ -531,6 +584,8 @@
     // lowered for its entrance, which then rises under the catalog bar. So
     // the item drops into place and the page aims for it again.
     window.addEventListener("hashchange", function () {
+      // A step back or forward returns to where the reader was instead.
+      if (historyStep) return;
       var target = null;
       try { target = document.getElementById(decodeURIComponent(window.location.hash.slice(1))); } catch (e) { return; }
       if (!target) return;
@@ -2578,13 +2633,23 @@
       catalogBar.classList.toggle("is-stuck",
         !barEntry.isIntersecting && barEntry.boundingClientRect.top < 80 && !(shortWindow && shortWindow.matches));
     };
-    new IntersectionObserver(
+    var barObserver = new IntersectionObserver(
       function (entries) {
         barEntry = entries[entries.length - 1];
         markStuck();
       },
       { rootMargin: "-73px 0px 0px 0px" }
-    ).observe(catalogBarMarker);
+    );
+    barObserver.observe(catalogBarMarker);
+    // A jump past the marker (a #fragment opened with reduced motion)
+    // carries it from below the window to above it between two of the
+    // observer's looks, so it sees no change; after a long jump it looks
+    // afresh.
+    scrollHooks.push(function (y, dy) {
+      if (Math.abs(dy) < window.innerHeight - 80) return;
+      barObserver.unobserve(catalogBarMarker);
+      barObserver.observe(catalogBarMarker);
+    });
     if (shortWindow) {
       if (shortWindow.addEventListener) shortWindow.addEventListener("change", markStuck);
       else if (shortWindow.addListener) shortWindow.addListener(markStuck);
