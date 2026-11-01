@@ -16,14 +16,42 @@ development are described on the "In Development" page until they go on sale.
 - **Typography:** Space Grotesk for display, Inter for body copy, JetBrains Mono for
   labels and the console mockups.
 - **Motion:** scroll-driven and kept in `main.js` and the "Motion and finish" section at
-  the end of `styles.css`. A comet-style reading-progress line runs along the header. Every
-  hero has a starfield with depth and parallax, and the home hero adds a planet's rim, an
-  entrance, a product window that tilts toward the pointer and searches by itself, and
-  parallax as it scrolls away. Content rises out of a soft blur as it enters, stat figures
-  count up, consoles type themselves, the constellation draws in, and a module-name ticker
-  speeds up (or reverses) with the scroll. Cards and hairline grids carry a light that
-  follows the pointer. Everything that moves stops for visitors who prefer reduced
-  motion, and the pages read fully without the script.
+  the end of `styles.css`, where each area (inner pages, heroes, type, scroll
+  choreography, frame, surfaces, catalog and commerce) has its own block. A comet-style
+  reading-progress line runs along the header.
+  - **Heroes:** every hero has a starfield with depth and parallax, and its stars stretch
+    into streaks when the page is scrolled fast. The home hero adds:
+    - a headline that rises line by line, after which a glint lights its metal line
+    - a sunrise drifting along the planet's rim
+    - a product window that tilts toward the pointer, searches by itself, and catches one
+      sweep of light, with a floating license panel over its corner
+
+    Inner-page glyphs draw themselves stroke by stroke and turn away as the hero scrolls
+    off.
+  - **Section content:** headings rise word by word, ledes are uncovered line by line,
+    and mono labels decrypt into place. Light sections open out from a rounded inset
+    panel. Numbered sections carry a faint outlined numeral, and dark sections a soft
+    horizon of light at their top edge.
+  - **Page features:**
+    - Stat figures count up, then catch a glint.
+    - Consoles type themselves behind a glass finish.
+    - The constellation draws in and turns.
+    - The module ticker speeds up, reverses, and leans with the scroll.
+    - On pricing, the license plans glide together.
+    - On In Development, the stages fill in order.
+    - On Resellers, the reseller requirements tick on and the verify band draws a seal.
+    - The contact hero transmits under a radar sweep.
+  - **Catalog:** a sliding category pill, filtering that animates cards into place, a
+    floating filter bar, and an add button that twists into a check as the license tray
+    springs up.
+  - **Frame:** the header highlight glides between links. Wide screens get a section
+    gauge in the margin. The mobile menu draws down like a blind, pages cross-fade where
+    the browser supports view transitions, and the footer ends on a giant wordmark
+    standing on a horizon.
+
+  Cards lean toward the pointer, and primary buttons pull toward it. Everything that
+  moves stops for visitors who prefer reduced motion, and the pages read fully without
+  the script.
 
 ## Structure
 
