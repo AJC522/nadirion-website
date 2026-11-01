@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Module Catalog: 33 Add-ons for Nadirion Desktop</title>
-  <meta name="description" content="All 33 Nadirion Desktop add-on modules, with what each one does, its main limitation, and its founding-customer price." />
+  <meta name="description" content="All 33 Nadirion Desktop modules, with what each one does, its main limitation, and its price: 12 included with the Desktop, 21 add-ons at $50 or $100 per user per year." />
   <link rel="canonical" href="https://nadirion.us/modules.html" />
   <meta name="theme-color" content="#050506" />
   <meta name="color-scheme" content="dark" />
@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="Nadirion" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="Module Catalog: 33 Add-ons for Nadirion Desktop" />
-  <meta property="og:description" content="All 33 Nadirion Desktop add-on modules, with what each one does, its main limitation, and its founding-customer price." />
+  <meta property="og:description" content="All 33 Nadirion Desktop modules, with what each one does, its main limitation, and its price: 12 included with the Desktop, 21 add-ons at $50 or $100 per user per year." />
   <meta property="og:url" content="https://nadirion.us/modules.html" />
   <meta property="og:image" content="https://nadirion.us/assets/img/og-image.png" />
   <meta property="og:image:width" content="1200" />
@@ -43,7 +43,11 @@
           "name": "Nadirion",
           "url": "https://nadirion.us/",
           "logo": "https://nadirion.us/assets/img/icon-512.png",
-          "email": "contact@nadirion.us"
+          "email": "contact@nadirion.us",
+          "founder": {
+            "@type": "Person",
+            "name": "Andrew Cole"
+          }
         },
         {
           "@type": "BreadcrumbList",
@@ -103,13 +107,15 @@
             </ol>
           </nav>
           <p class="eyebrow"><span class="index">&rarr;</span> Module Catalog</p>
-          <h1 id="pageTitle">33 add-on modules. <span class="metal">Buy the ones you need.</span></h1>
+          <h1 id="pageTitle">33 modules. <span class="metal">Add the ones you need.</span></h1>
           <p class="page-lede">
             Every module below runs inside <a href="desktop.html">Nadirion Desktop</a>, which is
-            included with any paid module. Each card says what the module does, its main
-            limitation, and its founding-customer price per seat per year. Add modules to a
-            license to see a running total, then send it to us. Free tools cover some of the
-            same ground, and the <a href="#free-tools">comparison below</a> names them.
+            $150 per user per year and includes the four Triage modules and the eight Host
+            Utilities. The other 21 are add-ons at $50 per user per year, or $100 for Premium
+            modules. Each card says what the module does, its main limitation, and its price.
+            Add modules to a license to see a running total, then send it to us. Free tools
+            cover some of the same ground, and the <a href="#free-tools">comparison below</a>
+            names them.
           </p>
           <p class="page-lede">
             Modules marked Preview are newer or have had less real-world testing.
@@ -509,9 +515,9 @@
             </div>
             <div>
               <h2>Triage</h2>
-              <p>Work on a suspect host: sweep it for indicators of compromise, cut it off from the network, collect from it with a USB kit, or write boot media for it.</p>
+              <p>Work on a suspect host: sweep it for indicators of compromise, cut it off from the network, collect from it with a USB kit, or write boot media for it. All four are included with Nadirion Desktop.</p>
             </div>
-            <span class="cat-count">4 modules</span>
+            <span class="cat-count">4 modules &middot; included</span>
           </div>
           <div class="mod-grid">
             <article class="mod-card" id="malware-scan" data-category="triage" data-aliases="infection compromise hunt remediation antivirus">
@@ -532,10 +538,7 @@
                 <li>Windows-first</li>
                 <li>Not antivirus</li>
               </ul>
-              <button type="button" class="mod-add" data-module="malware_scan" aria-pressed="false" aria-label="Add Malware Scan to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="secure-host" data-category="triage" data-aliases="isolate quarantine containment network block lockdown">
               <div class="mod-top">
@@ -555,10 +558,7 @@
                 <li>Reversible</li>
                 <li>Requires admin rights</li>
               </ul>
-              <button type="button" class="mod-add" data-module="secure_host" aria-pressed="false" aria-label="Add Secure Host to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="triage-kit-usb" data-category="triage" data-aliases="jump kit responder offline usb">
               <div class="mod-top">
@@ -577,10 +577,7 @@
                 <li>GUI + console</li>
                 <li>SHA-256 manifest</li>
               </ul>
-              <button type="button" class="mod-add" data-module="triage_kit_usb" aria-pressed="false" aria-label="Add Triage Kit USB to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="usb-iso-burner" data-category="triage" data-aliases="dd rufus etcher flash bootable live usb img windows installer write image">
               <div class="mod-top">
@@ -599,10 +596,7 @@
                 <li>GUI + console</li>
                 <li>Requires admin rights</li>
               </ul>
-              <button type="button" class="mod-add" data-module="usb_iso_burner" aria-pressed="false" aria-label="Add USB ISO Burner to license">
-                <span class="when-off">+ Add to license</span>
-                <span class="when-on">&#10003; Added to license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
           </div>
         </div>
@@ -651,7 +645,7 @@
             </div>
             <div>
               <h2>Quantum</h2>
-              <p>Inventory the RSA and elliptic-curve cryptography that a large quantum computer is expected to break, and plan a move to post-quantum algorithms. Licensed per organization.</p>
+              <p>Inventory the RSA and elliptic-curve cryptography that a large quantum computer is expected to break, and plan a move to post-quantum algorithms.</p>
             </div>
             <span class="cat-count">1 module</span>
           </div>
@@ -672,7 +666,6 @@
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
                 <li>CI-ready</li>
-                <li>Per organization</li>
               </ul>
               <button type="button" class="mod-add" data-module="crypto_inventory" aria-pressed="false" aria-label="Add Cryptographic Inventory to license">
                 <span class="when-off">+ Add to license</span>
@@ -825,9 +818,9 @@
             </div>
             <div>
               <h2>Host Utilities</h2>
-              <p>Inventory and maintenance for the machine you are working on. Anything that changes the host asks for confirmation first. Sold as one bundle of all eight.</p>
+              <p>Inventory and maintenance for the machine you are working on. Anything that changes the host asks for confirmation first. All eight are included with Nadirion Desktop.</p>
             </div>
-            <span class="cat-count">8 modules &middot; one bundle</span>
+            <span class="cat-count">8 modules &middot; included</span>
           </div>
           <div class="mod-grid">
             <article class="mod-card" id="driver-manager" data-category="host-utilities" data-aliases="drivers firmware updates">
@@ -847,10 +840,7 @@
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="driver_manager" aria-pressed="false" aria-label="Add the Host Utilities bundle (all 8 modules, including Driver Update Manager) to license">
-                <span class="when-off">+ Add bundle (all 8)</span>
-                <span class="when-on">&#10003; Bundle in license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="file-organizer" data-category="host-utilities" data-aliases="sort tidy folders rename">
               <div class="mod-top">
@@ -869,10 +859,7 @@
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="file_organizer" aria-pressed="false" aria-label="Add the Host Utilities bundle (all 8 modules, including File Organizer) to license">
-                <span class="when-off">+ Add bundle (all 8)</span>
-                <span class="when-on">&#10003; Bundle in license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="startup-manager" data-category="host-utilities" data-aliases="autoruns boot run keys msconfig">
               <div class="mod-top">
@@ -891,10 +878,7 @@
                 <li>GUI + console</li>
                 <li>Reversible</li>
               </ul>
-              <button type="button" class="mod-add" data-module="startup_manager" aria-pressed="false" aria-label="Add the Host Utilities bundle (all 8 modules, including Startup Manager) to license">
-                <span class="when-off">+ Add bundle (all 8)</span>
-                <span class="when-on">&#10003; Bundle in license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="system-health" data-category="host-utilities" data-aliases="cpu memory ram disk battery">
               <div class="mod-top">
@@ -913,10 +897,7 @@
                 <li>GUI + console</li>
                 <li>Read-only</li>
               </ul>
-              <button type="button" class="mod-add" data-module="system_health" aria-pressed="false" aria-label="Add the Host Utilities bundle (all 8 modules, including System Health Snapshot) to license">
-                <span class="when-off">+ Add bundle (all 8)</span>
-                <span class="when-on">&#10003; Bundle in license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="disk-space-analyzer" data-category="host-utilities" data-aliases="storage cleanup large files temp">
               <div class="mod-top">
@@ -935,10 +916,7 @@
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="disk_space_analyzer" aria-pressed="false" aria-label="Add the Host Utilities bundle (all 8 modules, including Disk Space Analyzer) to license">
-                <span class="when-off">+ Add bundle (all 8)</span>
-                <span class="when-on">&#10003; Bundle in license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="duplicate-finder" data-category="host-utilities" data-aliases="dedupe copies identical">
               <div class="mod-top">
@@ -957,10 +935,7 @@
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="duplicate_finder" aria-pressed="false" aria-label="Add the Host Utilities bundle (all 8 modules, including Duplicate File Finder) to license">
-                <span class="when-off">+ Add bundle (all 8)</span>
-                <span class="when-on">&#10003; Bundle in license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="software-inventory" data-category="host-utilities" data-aliases="installed programs patching winget versions">
               <div class="mod-top">
@@ -979,10 +954,7 @@
                 <li>GUI + console</li>
                 <li>Confirms changes</li>
               </ul>
-              <button type="button" class="mod-add" data-module="software_inventory" aria-pressed="false" aria-label="Add the Host Utilities bundle (all 8 modules, including Software Inventory &amp; Patch Checker) to license">
-                <span class="when-off">+ Add bundle (all 8)</span>
-                <span class="when-on">&#10003; Bundle in license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
             <article class="mod-card" id="file-converter" data-category="host-utilities" data-aliases="convert pdf docx xlsx png mp4">
               <div class="mod-top">
@@ -1000,10 +972,7 @@
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
               </ul>
-              <button type="button" class="mod-add" data-module="file_converter" aria-pressed="false" aria-label="Add the Host Utilities bundle (all 8 modules, including File Conversion Kit) to license">
-                <span class="when-off">+ Add bundle (all 8)</span>
-                <span class="when-on">&#10003; Bundle in license</span>
-              </button>
+              <span class="mod-add is-included">&#10003; Included with Nadirion Desktop</span>
             </article>
           </div>
         </div>
@@ -1020,7 +989,7 @@
             </div>
             <div>
               <h2>In Development</h2>
-              <p>Modules still being built. They are not sold, and they are not the same as Preview modules, which are on sale. Ask, and we'll let you know when they ship, or see <a href="in-development.html">everything in development</a>.</p>
+              <p>Modules still being built. They are not sold yet, and they are not the same as Preview modules, which are on sale. Both will be Premium modules ($100 per user per year) when released. Ask, and we'll let you know when they ship, or see <a href="in-development.html">everything in development</a>.</p>
             </div>
             <span class="cat-count">2 modules</span>
           </div>
@@ -1034,6 +1003,7 @@
               <ul class="mod-tags" aria-label="Details">
                 <li>In development</li>
                 <li>Not yet sold</li>
+                <li>Premium when released</li>
               </ul>
               <a class="focus-link" href="contact.html?interest=research">Ask to hear when it ships <span aria-hidden="true">&rarr;</span></a>
             </article>
@@ -1046,6 +1016,7 @@
               <ul class="mod-tags" aria-label="Details">
                 <li>In development</li>
                 <li>Not yet sold</li>
+                <li>Premium when released</li>
               </ul>
               <a class="focus-link" href="contact.html?interest=research">Ask to hear when it ships <span aria-hidden="true">&rarr;</span></a>
             </article>
@@ -1092,7 +1063,7 @@
               <tr><td><strong>AI Analysis</strong></td><td>c2patool and the Content Credentials Verify site, for provenance</td><td>Artifact and heuristic tiers on top of provenance. Those extra tiers are less reliable than provenance, and the score says which tier it rests on.</td></tr>
               <tr><td><strong>Persona Manager; Identity Lookup</strong></td><td>A password manager or spreadsheet; search engines used directly; Sherlock or WhatsMyName for usernames</td><td>Persona records and query building in one place. Sherlock and WhatsMyName check a username directly against hundreds of sites.</td></tr>
               <tr><td><strong>Uptime Monitor, Route Mapper, Network Mapper</strong></td><td>Uptime Kuma, mtr or WinMTR, Nmap, arp-scan</td><td>Segment-aware flags in a shared console. Nmap and Uptime Kuma do much more.</td></tr>
-              <tr><td><strong>Host Utilities bundle</strong></td><td>WinDirStat or ncdu, dupeGuru, winget, apt, or Homebrew used directly, ffmpeg, and the operating system's own driver updates</td><td>Confirm-before-change in the same app. Otherwise these overlap heavily with free tools.</td></tr>
+              <tr><td><strong>Host Utilities</strong></td><td>WinDirStat or ncdu, dupeGuru, winget, apt, or Homebrew used directly, ffmpeg, and the operating system's own driver updates</td><td>Confirm-before-change in the same app. Otherwise these overlap heavily with free tools.</td></tr>
             </tbody>
           </table>
         </div>

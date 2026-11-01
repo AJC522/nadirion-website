@@ -1,10 +1,11 @@
 # Nadirion Company Website
 
 Static marketing site for Nadirion, built around selling **Nadirion Desktop** (formerly the
-Threat Operations Toolset) and its add-on modules. Every license starts with Nadirion
-Desktop, which is included with any paid module; the 33 modules are priced in tiers and
-bundles at published founding-customer prices. Buyers purchase directly, and companies and
-individuals can apply to the reseller program. Nadirion Desktop is the only thing the site
+Threat Operations Toolset) and its modules. Every license starts with Nadirion Desktop
+($150 per user per year), which includes the 4 Triage modules and the 8 Host Utilities;
+the other 21 modules are add-ons at $50, or $100 for Premium modules. Buyers purchase
+directly or through a certified reseller, and companies and individuals can apply to
+become one. Nadirion Desktop is the only thing the site
 sells; new products and services still in research or development are described on the
 "In Development" page until they go on sale.
 
@@ -77,7 +78,7 @@ index.html                  home: product hero, how licensing works, module cate
 desktop.html                Nadirion Desktop: what every license includes, console, install
 modules.html                module catalog: search, category filter, "add to license",
                             prices, limitations, free-tool comparison
-pricing.html                licensing model, founding-customer price list, ways to buy,
+pricing.html                licensing model, price list, ways to buy,
                             buying steps, FAQ
 resellers.html              reseller program: status, tracks, application form, verify
 in-development.html         new products and services in research and development
@@ -123,28 +124,23 @@ home, desktop, and pricing pages. The ticker of module names on the home page is
 
 ### Prices
 
-Prices live only in `assets/js/catalog.js`, as annual subscriptions in US dollars:
+Prices live in `assets/js/catalog.js`, as annual subscriptions per user in US dollars:
 
-- `tiers`: the Core, Standard, and Light price per module, per seat. Each module names its
-  `tier`.
-- `bundles`: the Host Utilities bundle (`only: true`, so its eight modules are never sold
-  one by one and are added or removed together), the DFIR Suite (the Forensics and Triage
-  categories), and All-Access (every per-seat module; `includeOrg` decides whether it also
-  covers Cryptographic Inventory).
-- Cryptographic Inventory has `unit: "org"` and its own `price`, per organization.
-- `desktop.price` applies only when Nadirion Desktop is bought on its own; it is included
-  with any paid module.
+- `desktop.price`: Nadirion Desktop, the base license every add-on runs in.
+- `tiers`: `included` (comes with the Desktop, price 0), `standard` (add-on), and
+  `premium`. Each module names its `tier`. Included modules show a static "Included with
+  Nadirion Desktop" label on their card instead of an add button, and never enter a
+  license selection.
 - `preview`: how modules marked `preview: true` are priced (`mode: "free"`, or
   `mode: "discount"` with a fraction such as `0.5`). Marking a module Preview also adds a
   "Preview" tag to its card.
 
-Every price ships as `null`, which renders as `pendingLabel` (a visible `[VERIFY: $__]`).
-Set a number and it shows on the module cards, in the price list on `pricing.html`
-(elements with `data-list-price`), in the license tray, and in the quote form. The tray and
-quote form keep a running total, apply a bundle automatically when it costs less than the
-modules picked, and show the placeholder until every price the total needs is set. The quote
-form multiplies by the seat count the buyer enters. Without JavaScript the price list reads
-"On request" and the cards show no price.
+The module cards, the price list on `pricing.html` (elements with `data-list-price`), the
+license tray, and the quote form all read these numbers. The tray and quote form keep a
+running total (Desktop plus each add-on), and the quote form multiplies it by the number of
+users entered. A price left as `null` renders as `pendingLabel`, a visible
+`[VERIFY: $__]`. Prices are also written into the page copy (hero ledes, the pricing
+page's plan cards and example, the FAQ), so search for the old figure when a price changes.
 
 ### The license being built
 

@@ -43,7 +43,11 @@
           "name": "Nadirion",
           "url": "https://nadirion.us/",
           "logo": "https://nadirion.us/assets/img/icon-512.png",
-          "email": "contact@nadirion.us"
+          "email": "contact@nadirion.us",
+          "founder": {
+            "@type": "Person",
+            "name": "Andrew Cole"
+          }
         },
         {
           "@type": "BreadcrumbList",
@@ -124,7 +128,7 @@
             </div>
             <div>
               <dt>Quotes</dt>
-              <dd>Choose modules in the <a href="modules.html">catalog</a> first, and your selection and its founding-price total are included with your request. Published prices are on the <a href="pricing.html#prices">pricing page</a>; multi-seat, government, and reseller purchases receive a formal quote.</dd>
+              <dd>Choose modules in the <a href="modules.html">catalog</a> first, and your selection and its list-price total are included with your request. Prices are on the <a href="pricing.html#prices">pricing page</a>; purchases for several users, and through resellers, receive a formal quote.</dd>
             </div>
             <div>
               <dt>Resellers</dt>
@@ -132,7 +136,7 @@
             </div>
             <div>
               <dt>Urgent matters</dt>
-              <dd>If you are using Nadirion Desktop during a live incident or against a preservation deadline, say so in the first line and we will answer it first. Nadirion is a small company: [VERIFY: support hours and response target].</dd>
+              <dd>If you are using Nadirion Desktop during a live incident or against a preservation deadline, say so in the first line and we will answer it first. Support is available 24/7.</dd>
             </div>
             <div id="security">
               <dt>Security reports</dt>
@@ -163,7 +167,7 @@
                 <option value="support">Support for an existing installation</option>
               </optgroup>
               <optgroup label="Resellers">
-                <option value="reseller">The reseller program</option>
+                <option value="reseller">The certified reseller program</option>
                 <option value="verify">Confirming a reseller ID</option>
               </optgroup>
               <option value="research">New products &amp; services in development</option>
@@ -201,7 +205,7 @@
 
           <div class="form-split" data-show-when="interest:quote">
             <div class="form-row">
-              <label for="seats">Seats <span class="optional">(optional)</span></label>
+              <label for="seats">Users <span class="optional">(optional)</span></label>
               <input type="number" id="seats" name="seats" min="1" step="1" inputmode="numeric" placeholder="Number of users" />
             </div>
             <div class="form-row">

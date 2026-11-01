@@ -35,6 +35,7 @@ ORG = {
     "url": ORIGIN,
     "logo": ORIGIN + "assets/img/icon-512.png",
     "email": "contact@nadirion.us",
+    "founder": {"@type": "Person", "name": "Andrew Cole"},
 }
 
 
