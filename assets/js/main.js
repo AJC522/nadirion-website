@@ -48,45 +48,104 @@
   // When the window changes width (a phone turning, a window snapped to half
   // the screen) the page reflows, and the browser's own scroll anchoring
   // gives up as soon as a breakpoint changes the spacing around what is
-  // being read, which can throw the reader thousands of pixels. So once
-  // scrolling settles, note what sits a third of the way down the screen,
-  // and after a change of width put it back where it was. Layout offsets
-  // are used, not boxes, so entrance transforms don't skew the measure.
+  // being read, which can throw the reader thousands of pixels. So as the
+  // page scrolls, note what sits a third of the way down the screen, and
+  // after a change of width put it back where it was. Layout offsets are
+  // used, not boxes, so entrance transforms don't skew the measure.
   (function () {
     var place = null;
     var lastWidth = window.innerWidth;
+    var lastHeight = window.innerHeight;
     var noteTimer = 0;
+    var notedAt = 0;
     var resizing = 0;
+    var seenY = window.scrollY;
+    var LINE = 0.35;
     var pageTop = function (el) {
       var top = 0;
       for (; el; el = el.offsetParent) top += el.offsetTop;
       return top;
     };
+    // Walk down from the page body by layout position, not by what is
+    // painted where, so entrance animations still under way can't mislead
+    // it: at each level take the first block in flow that spans the reading
+    // line, down to the paragraph, heading or card holding it. Where the
+    // line falls in a gap, the next block after it stands in.
     var note = function () {
       noteTimer = 0;
+      if (resizing) return;
+      notedAt = Date.now();
       place = null;
-      if (resizing || window.scrollY < 1) return;
-      var hit = document.elementFromPoint(window.innerWidth / 2, window.innerHeight * 0.35);
-      while (hit && !(hit instanceof HTMLElement)) hit = hit.parentElement;
-      if (!hit || hit === document.body || hit === document.documentElement) return;
-      // Whatever floats over the page stays put while it scrolls.
-      if (hit.closest(".site-header, .catalog-bar, .license-tray, .altimeter")) return;
-      place = { el: hit, offset: pageTop(hit) - window.scrollY };
+      if (window.scrollY < 1) return;
+      // The line sits clear of the header and of the catalog's stuck bar.
+      var floor = 88;
+      var bar = document.querySelector(".catalog-bar.is-stuck");
+      if (bar) floor = Math.max(floor, bar.getBoundingClientRect().bottom + 16);
+      var line = Math.max(window.innerHeight * LINE, floor);
+      var lineY = window.scrollY + line;
+      var box = document.body;
+      for (var depth = 0; depth < 32; depth++) {
+        var across = null;
+        var after = null;
+        var afterTop = 0;
+        for (var c = box.firstElementChild; c && !across; c = c.nextElementSibling) {
+          if (!c.offsetParent) continue;
+          var style = window.getComputedStyle(c);
+          // Decoration laid over the page, whatever floats over it, and
+          // pieces of a line of text don't count.
+          if (style.position === "absolute" || style.position === "fixed" || style.position === "sticky") continue;
+          if (style.display.indexOf("inline") === 0) continue;
+          var top = pageTop(c);
+          if (top <= lineY && top + c.offsetHeight > lineY) across = c;
+          else if (top > lineY && (!after || top < afterTop)) { after = c; afterTop = top; }
+        }
+        if (across) box = across;
+        else if (after && box.offsetHeight > window.innerHeight * 0.6) box = after;
+        else break;
+      }
+      if (box === document.body) return;
+      var boxTop = pageTop(box);
+      seenY = window.scrollY;
+      // Something large with nothing to go on inside it keeps the same
+      // share of itself at the line, since its contents reflow; anything
+      // else keeps its own top where it was.
+      place = box.offsetHeight > window.innerHeight * 0.6
+        ? { el: box, share: (lineY - boxTop) / box.offsetHeight, at: line, y: window.scrollY }
+        : { el: box, share: 0, at: boxTop - window.scrollY, y: window.scrollY };
     };
-    scrollHooks.push(function () {
+    // Noted once scrolling settles, and along the way during a long scroll
+    // or glide: every quarter second, or sooner once the page has moved far
+    // from the last note. This hook comes first in the frame, before any
+    // other writes, so its reads cost no extra layout.
+    scrollHooks.push(function (y) {
+      seenY = y;
       if (resizing) return;
       clearTimeout(noteTimer);
-      noteTimer = setTimeout(note, 160);
+      if (!place || Math.abs(y - place.y) > 80 || Date.now() - notedAt > 250) note();
+      else noteTimer = setTimeout(note, 160);
     });
     window.addEventListener("resize", function () {
+      var wasHeight = lastHeight;
+      lastHeight = window.innerHeight;
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
+      clearTimeout(noteTimer);
       if (place && place.el.isConnected && place.el.offsetParent) {
+        // Where the place sat just before this change: if the page scrolled
+        // since the note (a glide still under way, say), it moved with it.
+        place.at -= seenY - place.y;
+        place.y = seenY;
+        // The same distance from the top of the window as before. If it was
+        // on screen, it stays well inside a window that got shorter.
+        var at = place.at;
+        if (at >= 0 && at <= wasHeight) at = Math.min(at, window.innerHeight * 0.6);
+        var target = pageTop(place.el) + place.share * place.el.offsetHeight - at;
         // At once, not with the page's smooth scrolling.
         var root = document.documentElement;
         root.style.setProperty("scroll-behavior", "auto");
-        window.scrollTo(0, pageTop(place.el) - place.offset);
+        window.scrollTo(0, Math.round(target));
         root.style.removeProperty("scroll-behavior");
+        place.y = seenY = window.scrollY;
       }
       clearTimeout(resizing);
       resizing = setTimeout(function () {
@@ -128,20 +187,25 @@
 
     // Escape closes the menu, and hands focus back to its button when focus
     // was in the menu; someone typing in a field below keeps their place.
-    // Moving focus out of the menu and its button closes it too, so focus
-    // never lands on what the open menu covers.
+    // Focus or a press anywhere outside the menu and its button closes it
+    // too, so focus never lands on what the open menu covers.
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Escape" && e.key !== "Esc") return;
       var from = document.activeElement;
       var inMenu = !from || from === document.body || from === navToggle || primaryNav.contains(from);
       if (closeNav() && inMenu) navToggle.focus({ preventScroll: true });
     });
-    var leaveNav = function (e) {
-      var next = e.relatedTarget;
-      if (next && !primaryNav.contains(next) && next !== navToggle) closeNav();
+    var outside = function (node) {
+      return node && !primaryNav.contains(node) && !navToggle.contains(node);
     };
-    primaryNav.addEventListener("focusout", leaveNav);
-    navToggle.addEventListener("focusout", leaveNav);
+    document.addEventListener("focusin", function (e) {
+      if (outside(e.target)) closeNav();
+    });
+    // A press anywhere else closes it as well, even on something that
+    // takes no focus.
+    document.addEventListener("pointerdown", function (e) {
+      if (outside(e.target)) closeNav();
+    });
     // Widening past the mobile layout leaves no menu to close.
     var wideNav = window.matchMedia ? window.matchMedia("(min-width: 961px)") : null;
     if (wideNav) {
@@ -290,7 +354,18 @@
   var revealHooks = [];
 
   if (motionOK) {
-    revealTargets.forEach(function (el) { el.classList.add("reveal"); });
+    // The browser goes to a #fragment as the page opens, measuring the item
+    // where it stands; one still lowered for its entrance would then end up
+    // under the header or the catalog bar. So whatever the address names
+    // starts in place.
+    var fragmentTarget = null;
+    try {
+      if (window.location.hash.length > 1) fragmentTarget = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    } catch (e) { /* a malformed fragment names nothing */ }
+    revealTargets.forEach(function (el) {
+      if (fragmentTarget && el.contains(fragmentTarget)) return;
+      el.classList.add("reveal");
+    });
 
     // Once an item has settled it drops .reveal, so the item's own hover
     // transitions take over again. .is-visible stays as a marker that CSS
@@ -2381,10 +2456,14 @@
   // the script.
   if (catalogBar && "ResizeObserver" in window) {
     var catalogEl = catalogBar.parentElement;
-    new ResizeObserver(function () {
+    var measureBar = function () {
       catalogEl.style.setProperty("--bar-h", catalogBar.offsetHeight + "px");
       catalogEl.classList.add("has-bar-h");
-    }).observe(catalogBar);
+    };
+    // Now, before the browser goes to a #fragment in the catalog, and again
+    // whenever the bar's height changes.
+    measureBar();
+    new ResizeObserver(measureBar).observe(catalogBar);
   }
 
 
@@ -2530,6 +2609,11 @@
     // bring the address up to date with the license as it is now.
     window.addEventListener("pageshow", function (event) {
       if (event.persisted) writeSelection(readSelection());
+    });
+    // Back or Forward within the page (past the skip link, say) shows an
+    // entry whose address was written earlier; bring that up to date too.
+    window.addEventListener("popstate", function () {
+      writeSelection(readSelection());
     });
   }
 
@@ -3004,6 +3088,15 @@
 
   if (modCards.length) {
     chips.forEach(function (chip) {
+      // On a narrow screen the chips scroll sideways; one that takes focus
+      // while partly out of view, or under the fade at the row's end, comes
+      // into view.
+      if (chipGlider) {
+        chip.addEventListener("focus", function () {
+          var left = chip.offsetLeft - chipRow.scrollLeft;
+          if (left < 6 || left + chip.offsetWidth > chipRow.clientWidth - 36) centerChip(chip);
+        });
+      }
       chip.addEventListener("click", function () {
         activeFilter = chip.getAttribute("data-filter");
         chips.forEach(function (other) {

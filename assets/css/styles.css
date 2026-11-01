@@ -1561,10 +1561,11 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   .primary-nav a.nav-cta { margin-top: 12px; text-align: center; border-bottom: none; }
   .nav-toggle { display: flex; }
   /* In a short window the open menu scrolls. Its links come fully into
-     view within it as they take focus, and the page behind stays put. */
+     view within it as they take focus, and the page behind stays put
+     (the tray's bottom padding stands down while focus is in the menu). */
   .primary-nav { scroll-padding-top: 16px; }
   .site-header .primary-nav a { scroll-margin-top: -16px; }
-  html:has(.primary-nav.is-open) { scroll-padding-bottom: 0; }
+  html:has(.primary-nav.is-open:focus-within) { scroll-padding-bottom: 0; }
 }
 
 @media (max-width: 720px) {
@@ -2347,8 +2348,11 @@ section.light {
   transform: translate3d(0, calc(var(--hero-p, 0) * 80px), 0);
   opacity: calc(1 - var(--hero-p, 0) * var(--hero-p, 0) * 1.7);
 }
-/* Whatever has keyboard focus stays in full view. */
+/* Whatever has keyboard focus stays in full view, with room below it for
+   the copy's sink as the page scrolls to it. */
 .hero-copy:has(:focus-visible) { opacity: 1; }
+.hero-copy :is(a, button),
+.page-hero-copy :is(a, button) { scroll-margin-bottom: 16px; }
 .hero-visual {
   transform:
     perspective(1600px)
