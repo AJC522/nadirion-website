@@ -365,6 +365,9 @@ img { max-width: 100%; display: block; }
 }
 .nav-toggle[aria-expanded="true"] span:first-child { transform: translateY(3.75px) rotate(45deg); }
 .nav-toggle[aria-expanded="true"] span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+/* The header sticks, so its controls are always on screen; taking focus
+   never scrolls the page to them. */
+.site-header :is(a, button) { scroll-margin-top: -88px; }
 
 /* ---------- Hero ---------- */
 .hero {
@@ -798,6 +801,7 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
   position: absolute;
   top: -1px;
   left: 0;
+  z-index: 1;
   width: 0;
   height: 1px;
   background: var(--silver-500);
@@ -1687,10 +1691,6 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
 
 /* ---------- Module catalog ---------- */
 .catalog { background: var(--black); border-top: 1px solid var(--line-dark); padding-top: 0; }
-/* Filtering hides whole groups above the reader. Without this the browser
-   keeps the nearest card in place by jumping the page, sometimes back up
-   into the hero, before the catalog can glide to its own top. */
-.catalog { overflow-anchor: none; }
 /* Below the catalog's filter bar, which sticks under the header, cards,
    groups and their controls stop clear of it. The bar's own controls never
    move the page: they are always on screen while it sticks. */
@@ -1698,6 +1698,12 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
 .mod-card,
 .cat-group :is(a, button) { scroll-margin-top: 82px; }
 .catalog-bar :is(a, button, input) { scroll-margin-top: -88px; }
+/* Here the chips wrap, so the bar is two rows tall. */
+@media (min-width: 1001px) and (max-width: 1142px) {
+  .cat-group,
+  .mod-card,
+  .cat-group :is(a, button) { scroll-margin-top: 112px; }
+}
 .catalog-bar {
   position: sticky;
   top: 72px;
@@ -1931,6 +1937,8 @@ html:not(.js) .catalog { padding-top: 72px; }
 .tray-clear:hover { color: var(--white); }
 .license-tray .btn { padding: 11px 20px; font-size: 0.88rem; white-space: nowrap; }
 body.has-tray .site-footer { padding-bottom: 120px; }
+/* Controls that take focus stop clear of the tray, not behind it. */
+html:has(body.has-tray) { scroll-padding-bottom: 110px; }
 
 /* ---------- Licensing (pricing page) ---------- */
 .license-anatomy {
@@ -2242,6 +2250,23 @@ section.light .fine-print { color: var(--silver-700); }
   .license-tray .btn { flex: 1; }
 }
 
+/* Forced colours paint over backgrounds, which would erase the menu
+   button's lines and the FAQ's plus and minus. Draw them in system
+   colours instead. */
+@media (forced-colors: active) {
+  .nav-toggle span { background: ButtonText; }
+  .faq summary::before,
+  .faq summary::after { forced-color-adjust: none; }
+  .faq summary::before,
+  .faq summary:hover::before,
+  .faq details[open] summary::before {
+    border-color: CanvasText;
+    background: linear-gradient(CanvasText, CanvasText) center / 11px 1.5px no-repeat;
+  }
+  .faq summary::after,
+  .faq details[open] summary::after { background: CanvasText; }
+}
+
 /* =========================================================
    Motion and finish
    Everything here layers onto the components above. The script adds
@@ -2305,6 +2330,8 @@ section.light {
   transform: translate3d(0, calc(var(--hero-p, 0) * 80px), 0);
   opacity: calc(1 - var(--hero-p, 0) * var(--hero-p, 0) * 1.7);
 }
+/* Whatever has keyboard focus stays in full view. */
+.hero-copy:focus-within { opacity: 1; }
 .hero-visual {
   transform:
     perspective(1600px)
@@ -2558,7 +2585,7 @@ section.light {
   .btn-primary::after, .primary-nav a.nav-cta::before { transition: none; }
 }
 
-/* ---------- Inner pages [fx-inner] ---------- */
+/* ---------- Inner pages ---------- */
 /* Movement for components that live only on the inner pages. The script
    builds every decorative element here and, when motion is allowed, drives
    the scroll-linked parts through custom properties. Each property falls
@@ -3149,11 +3176,11 @@ section.light {
 }
 
 /* =========================================================
-   Round two. Each block below holds one area's styling,
+   Effects by area. Each block below holds one area's styling,
    including its own reduced-motion rules.
    ========================================================= */
 
-/* ---------- Heroes [fx-heroes] ---------- */
+/* ---------- Heroes ---------- */
 
 /* Home headline. The script splits a copy of the heading into words, each in
    a mask of its own: the words rise into place out of a soft blur, line by
@@ -3282,6 +3309,7 @@ section.light {
 
 /* The scroll cue bows out as soon as the visitor starts scrolling. */
 .motion .scroll-cue { opacity: calc(1 - var(--hero-p, 0) * 4); }
+.motion .scroll-cue:focus-visible { opacity: 1; }
 
 /* Inner pages. The glyph arrives without the blur so its strokes can be
    traced in (the script sets each stroke's length and turn), and as the
@@ -3304,6 +3332,7 @@ section.light {
   transform: translate3d(0, calc(var(--hero-p, 0) * 90px), 0);
   opacity: calc(1 - var(--hero-p, 0) * var(--hero-p, 0) * 1.7);
 }
+.motion .page-hero-copy:focus-within { opacity: 1; }
 .motion .page-hero-glyph {
   transform:
     translate3d(0, calc(var(--hero-p, 0) * 150px), 0)
@@ -3330,7 +3359,7 @@ section.light {
 }
 
 
-/* ---------- Type [fx-type] ---------- */
+/* ---------- Type ---------- */
 /* Headings and ledes avoid ending on a lone word, where the browser can. */
 .section-head h2, .about h2, .cta-band h2, .contact-copy h2,
 .section-lede, .about-copy > p, .cta-band p { text-wrap: pretty; }
@@ -3447,7 +3476,7 @@ section.light {
 }
 
 
-/* ---------- Scroll choreography [fx-scroll] ---------- */
+/* ---------- Scroll choreography ---------- */
 /* Light sections open like an aperture: a rounded panel inset from the
    screen's edges widens to full bleed. The script adds .aperture, a frame
    holding two curtains the colour of the page behind, each with a rounded
@@ -3664,7 +3693,7 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
 }
 
 
-/* ---------- Frame: header, footer, wayfinding [fx-frame] ---------- */
+/* ---------- Frame: header, footer, wayfinding ---------- */
 
 /* Header links share one soft highlight that glides between them (built by
    the script for mouse and trackpad users), so the links themselves no longer
@@ -4085,6 +4114,7 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
   .footer-finale { margin-top: 32px; }
   /* The license tray wraps to two rows here; keep the footer clear of it. */
   body.has-tray .site-footer { padding-bottom: 168px; }
+  html:has(body.has-tray) { scroll-padding-bottom: 150px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4097,7 +4127,7 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
 }
 
 
-/* ---------- Surfaces [fx-surfaces] ---------- */
+/* ---------- Surfaces ---------- */
 
 /* Buttons: a crisp press. On fine pointers the primary buttons also lean
    toward a pointer that comes near (the script springs them with
@@ -4449,7 +4479,7 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
 }
 
 
-/* ---------- Catalog and commerce [fx-commerce] ---------- */
+/* ---------- Catalog and commerce ---------- */
 /* Catalog bar: once it sticks under the header (the script sets .is-stuck),
    it turns to frosted glass with a soft shadow and a lit lower edge, so it
    reads as floating over the cards. */

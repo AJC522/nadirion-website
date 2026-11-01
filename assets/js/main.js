@@ -74,15 +74,22 @@
       link.addEventListener("click", closeNav);
     });
 
-    // Escape closes the menu and hands focus back to its button. Tabbing out
-    // of it closes it too, so focus never lands on what the open menu covers.
+    // Escape closes the menu, and hands focus back to its button when focus
+    // was in the menu; someone typing in a field below keeps their place.
+    // Moving focus out of the menu and its button closes it too, so focus
+    // never lands on what the open menu covers.
     document.addEventListener("keydown", function (e) {
-      if ((e.key === "Escape" || e.key === "Esc") && closeNav()) navToggle.focus();
+      if (e.key !== "Escape" && e.key !== "Esc") return;
+      var from = document.activeElement;
+      var inMenu = !from || from === document.body || from === navToggle || primaryNav.contains(from);
+      if (closeNav() && inMenu) navToggle.focus({ preventScroll: true });
     });
-    primaryNav.addEventListener("focusout", function (e) {
+    var leaveNav = function (e) {
       var next = e.relatedTarget;
       if (next && !primaryNav.contains(next) && next !== navToggle) closeNav();
-    });
+    };
+    primaryNav.addEventListener("focusout", leaveNav);
+    navToggle.addEventListener("focusout", leaveNav);
     // Widening past the mobile layout leaves no menu to close.
     var wideNav = window.matchMedia ? window.matchMedia("(min-width: 961px)") : null;
     if (wideNav) {
@@ -800,7 +807,7 @@
   // Filtering the catalog or opening an FAQ answer moves everything below it.
   if ("ResizeObserver" in window) new ResizeObserver(measureWatched).observe(document.body);
 
-  /* ---------- Inner pages [fx-inner] ---------- */
+  /* ---------- Inner pages ---------- */
   // Movement for the parts that live only on the inner pages: the license
   // assembling itself on Pricing, the lab on In Development, the install
   // table and icons on the Desktop page, the catalog's category icons, a
@@ -1156,10 +1163,10 @@
   })();
 
   /* ==========================================================
-     Round two. Each block below holds one area's effects.
+     Effects by area. Each block below holds one area's effects.
      ========================================================== */
 
-  /* ---------- Heroes [fx-heroes] ---------- */
+  /* ---------- Heroes ---------- */
   // Home headline: each line rises out of its own mask, sharpening as it
   // comes, and once it has landed a single glint runs along the metal line.
   // The rising words are a copy hidden from screen readers; the real heading
@@ -1283,7 +1290,7 @@
   }
 
 
-  /* ---------- Type [fx-type] ---------- */
+  /* ---------- Type ---------- */
   // Section headings rise word by word, each out of its own mask, and the
   // mono labels above them decrypt: random glyphs settle into the real words
   // from left to right. The block a heading sits in no longer rises as one
@@ -1569,9 +1576,13 @@
         if (part === block.heading && !splitKeepsLines(part)) {
           // It would wrap differently once whole, so it rises whole instead,
           // like the parts after it.
+          // The hidden state applies at once, with no transition, so the
+          // rise starts from it rather than from the heading in plain view.
           joinHeading(part);
+          part.style.setProperty("transition", "none");
           part.classList.add("reveal", "type-part");
           void part.offsetWidth;
+          part.style.removeProperty("transition");
           part.style.setProperty("--reveal-delay", t + "ms");
           part.classList.add("is-visible");
           settle(part, t);
@@ -1643,7 +1654,7 @@
   }
 
 
-  /* ---------- Scroll choreography [fx-scroll] ---------- */
+  /* ---------- Scroll choreography ---------- */
   // Where an element's top edge sits on screen, worked out from watchScroll's
   // progress and its measured height, so the hooks never read layout.
   var topInView = function (p, item) {
@@ -1780,7 +1791,7 @@
   });
 
 
-  /* ---------- Frame: header, footer, wayfinding [fx-frame] ---------- */
+  /* ---------- Frame: header, footer, wayfinding ---------- */
   // Header links share one soft highlight that glides to whichever link is
   // under the pointer or has keyboard focus. The Request a Quote button keeps
   // its own sheen.
@@ -2020,7 +2031,7 @@
   }
 
 
-  /* ---------- Surfaces [fx-surfaces] ---------- */
+  /* ---------- Surfaces ---------- */
   // Loops on these surfaces run only while they are on screen: .is-live is
   // set while any part of one is in view, and the CSS pauses it without.
   var liveWhileVisible = function (el) {
@@ -2291,7 +2302,7 @@
   });
 
 
-  /* ---------- Catalog and commerce [fx-commerce] ---------- */
+  /* ---------- Catalog and commerce ---------- */
   // The rest of this area lives with the catalog, tray, and form code at the end of the file.
 
   // The catalog's filter bar sticks under the header. Once it does, it turns
@@ -2402,11 +2413,29 @@
   };
 
   // A quote link from the catalog carries the selection in the URL too, in
-  // case storage was unavailable there. From then on the address follows the
-  // selection, so reloading after removing a module doesn't bring it back.
+  // case storage was unavailable there. The address sets the license only on
+  // first arrival: coming back to the same entry later (Back, Forward, a
+  // reload), storage is newer, since the catalog may have changed it in the
+  // meantime. From then on the address follows the selection, so reloading
+  // after removing a module doesn't bring it back.
   if (catalog && params.has("modules")) {
+    var LICENSE_STATE = "nadirionLicense";
+    var stateOf = function () {
+      var state = {};
+      var old = window.history ? history.state : null;
+      if (old && typeof old === "object") {
+        for (var key in old) {
+          if (Object.prototype.hasOwnProperty.call(old, key)) state[key] = old[key];
+        }
+      }
+      return state;
+    };
+    var storedSince = false;
+    if (stateOf()[LICENSE_STATE]) {
+      try { storedSince = window.localStorage.getItem(LICENSE_KEY) !== null; } catch (e) { /* only the address */ }
+    }
     writeSelection(
-      params.get("modules").split(",").filter(function (id, index, all) {
+      storedSince ? readSelection() : params.get("modules").split(",").filter(function (id, index, all) {
         return isKnownModule(id) && all.indexOf(id) === index;
       })
     );
@@ -2417,11 +2446,14 @@
       else params.delete("modules");
       if (window.history && history.replaceState) {
         var query = params.toString();
+        var state = stateOf();
+        state[LICENSE_STATE] = true;
         try {
-          history.replaceState(history.state, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
+          history.replaceState(state, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
         } catch (e) { /* the address just stays as it was */ }
       }
     };
+    writeSelection(readSelection());
   }
 
   /* ---------- Module catalog: add to license ---------- */
@@ -2673,7 +2705,26 @@
     if (anim) anim.onfinish = function () { el.fxFlip = null; };
   };
 
+  // While the result set changes, the page holds still. Left to itself the
+  // browser keeps some node on screen in place, a card or the section after
+  // the catalog, by jumping the page past whole groups, sometimes up into
+  // the hero or down past the end of the list. The catalog's own glide does
+  // the moving instead. Anchoring comes back two frames later, so resizing
+  // the window still keeps the reader's place.
+  var anchorHold = 0;
+  var holdAnchor = function () {
+    var root = document.documentElement;
+    var mine = ++anchorHold;
+    root.style.setProperty("overflow-anchor", "none");
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        if (mine === anchorHold) root.style.removeProperty("overflow-anchor");
+      });
+    });
+  };
+
   var refilter = function (fromChip) {
+    holdAnchor();
     if (!commerceMotion || !catalogSection) {
       applyFilter();
       if (fromChip) returnToCatalogTop();
@@ -3054,9 +3105,11 @@
   renderQuote();
   syncConditionalRows();
   // Back from the catalog, the browser may restore this page as it was;
-  // list the license as it is now.
+  // list the license as it is now, and bring the address up to date with it.
   window.addEventListener("pageshow", function (event) {
-    if (event.persisted) renderQuote();
+    if (!event.persisted) return;
+    writeSelection(readSelection());
+    renderQuote();
   });
 
   /* ---------- Sending forms ---------- */
