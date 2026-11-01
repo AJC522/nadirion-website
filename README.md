@@ -53,6 +53,12 @@ development are described on the "In Development" page until they go on sale.
   moves stops for visitors who prefer reduced motion, and the pages read fully without
   the script.
 
+  When the window changes width (a phone turns, a window snaps to half the screen), the
+  page keeps the reader on what they were reading, and a glide that was under way to a
+  link's destination still arrives there. In a short window, such as a phone on its side,
+  the catalog's filter bar stays in the page instead of sticking, and the license tray
+  keeps to one row where it fits.
+
 ## Structure
 
 ```

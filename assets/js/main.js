@@ -52,6 +52,11 @@
   // page scrolls, note what sits a third of the way down the screen, and
   // after a change of width put it back where it was. Layout offsets are
   // used, not boxes, so entrance transforms don't skew the measure.
+  // A glide on its way somewhere (a link to a section, an address with a
+  // #fragment, the catalog's return to its top) is different: its
+  // destination is the place, so a change of width aims it there again.
+  // The catalog's code further down announces its glides through this.
+  var glidingTo = function () {};
   (function () {
     var place = null;
     var lastWidth = window.innerWidth;
@@ -61,6 +66,60 @@
     var resizing = 0;
     var seenY = window.scrollY;
     var LINE = 0.35;
+    var glide = null;
+    var glideTimer = 0;
+    var endGlide = function () {
+      clearTimeout(glideTimer);
+      glide = null;
+    };
+    var holdGlide = function (ms) {
+      clearTimeout(glideTimer);
+      glideTimer = setTimeout(endGlide, ms);
+    };
+    // aim() starts the page toward the destination again, or puts it there
+    // at once with reduced motion; by default the way the browser goes to a
+    // #fragment, clearing the header and the catalog bar.
+    var aimAt = function (el) {
+      return function () { el.scrollIntoView({ block: "start" }); };
+    };
+    glidingTo = function (el, aim) {
+      glide = { el: el, aim: aim || aimAt(el) };
+      holdGlide(400);
+    };
+    var named = function (hash) {
+      if (!hash || hash.length < 2) return null;
+      try { return document.getElementById(decodeURIComponent(hash.slice(1))); } catch (e) { return null; }
+    };
+    // Opening an address with a #fragment glides to it as the page loads;
+    // a reload or a step back in history returns to where the reader was
+    // instead, so that isn't a glide.
+    var arrival = window.performance && performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
+    var landing = (!arrival || arrival.type === "navigate") ? named(window.location.hash) : null;
+    if (landing) {
+      // Held until the page has loaded, however long that takes.
+      glide = { el: landing, aim: aimAt(landing) };
+      var landed = function () { if (glide && glide.el === landing) holdGlide(400); };
+      if (document.readyState === "complete") landed();
+      else window.addEventListener("load", landed);
+    }
+    // A link to somewhere on this page, or a #fragment typed into the
+    // address.
+    document.addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var link = e.target.closest ? e.target.closest("a[href*='#']") : null;
+      if (!link || link.target || link.origin !== window.location.origin ||
+          link.pathname !== window.location.pathname || link.search !== window.location.search) return;
+      var el = named(link.hash);
+      if (el) glidingTo(el);
+    });
+    window.addEventListener("hashchange", function () {
+      var el = named(window.location.hash);
+      if (el) glidingTo(el);
+    });
+    // The reader taking over ends it.
+    ["wheel", "touchstart", "keydown", "pointerdown"].forEach(function (type) {
+      window.addEventListener(type, endGlide, { capture: true, passive: true });
+    });
     var pageTop = function (el) {
       var top = 0;
       for (; el; el = el.offsetParent) top += el.offsetTop;
@@ -119,6 +178,8 @@
     // other writes, so its reads cost no extra layout.
     scrollHooks.push(function (y) {
       seenY = y;
+      // A glide lasts as long as the page keeps moving.
+      if (glide && document.readyState === "complete") holdGlide(200);
       if (resizing) return;
       clearTimeout(noteTimer);
       if (!place || Math.abs(y - place.y) > 80 || Date.now() - notedAt > 250) note();
@@ -130,7 +191,10 @@
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
       clearTimeout(noteTimer);
-      if (place && place.el.isConnected && place.el.offsetParent) {
+      if (glide && glide.el.isConnected && glide.el.offsetParent) {
+        glide.aim();
+        place = null;
+      } else if (place && place.el.isConnected && place.el.offsetParent) {
         // Where the place sat just before this change: if the page scrolled
         // since the note (a glide still under way, say), it moved with it.
         place.at -= seenY - place.y;
@@ -150,6 +214,11 @@
       clearTimeout(resizing);
       resizing = setTimeout(function () {
         resizing = 0;
+        // The same place stays the anchor until the reader moves on, so a
+        // snap and back, a phone turned and turned back, or a slow drag of
+        // the window's edge comes home to what was being read. A fresh note
+        // at the width in between could pick its neighbour instead.
+        if (place && place.el.isConnected && place.el.offsetParent && Math.abs(seenY - place.y) < 2) return;
         noteTimer = setTimeout(note, 160);
       }, 300);
     });
@@ -415,6 +484,24 @@
       for (var n = e.target; n && n !== document.body; n = n.parentElement) {
         if (waiting.indexOf(n) !== -1 && !n.classList.contains("is-visible")) revealNow(n, 0);
       }
+    });
+
+    // A #fragment that changes while the page is open (a link on the page,
+    // an edited address) is gone to the same way, measuring an item still
+    // lowered for its entrance, which then rises under the catalog bar. So
+    // the item drops into place and the page aims for it again.
+    window.addEventListener("hashchange", function () {
+      var target = null;
+      try { target = document.getElementById(decodeURIComponent(window.location.hash.slice(1))); } catch (e) { return; }
+      if (!target) return;
+      var moved = false;
+      revealTargets.forEach(function (el) {
+        if (!el.classList.contains("reveal") || !el.contains(target)) return;
+        if (!el.classList.contains("is-visible")) revealNow(el, 0);
+        el.classList.remove("reveal");
+        moved = true;
+      });
+      if (moved) target.scrollIntoView({ block: "start" });
     });
   }
 
@@ -2442,13 +2529,26 @@
     catalogBarMarker.className = "catalog-bar-marker";
     catalogBarMarker.setAttribute("aria-hidden", "true");
     catalogBar.parentElement.insertBefore(catalogBarMarker, catalogBar);
+    // In a short window (a phone on its side) the bar stays in the page
+    // rather than sticking, so it never takes the floating look there.
+    var shortWindow = window.matchMedia ? window.matchMedia("(max-height: 480px)") : null;
+    var barEntry = null;
+    var markStuck = function () {
+      if (!barEntry) return;
+      catalogBar.classList.toggle("is-stuck",
+        !barEntry.isIntersecting && barEntry.boundingClientRect.top < 80 && !(shortWindow && shortWindow.matches));
+    };
     new IntersectionObserver(
       function (entries) {
-        var entry = entries[entries.length - 1];
-        catalogBar.classList.toggle("is-stuck", !entry.isIntersecting && entry.boundingClientRect.top < 80);
+        barEntry = entries[entries.length - 1];
+        markStuck();
       },
       { rootMargin: "-73px 0px 0px 0px" }
     ).observe(catalogBarMarker);
+    if (shortWindow) {
+      if (shortWindow.addEventListener) shortWindow.addEventListener("change", markStuck);
+      else if (shortWindow.addListener) shortWindow.addListener(markStuck);
+    }
   }
   // Cards and groups stop clear of the stuck bar however tall it is: its
   // chips wrap to a second row with the window's width, a scrollbar, or a
@@ -2801,7 +2901,11 @@
   var returnToCatalogTop = function () {
     var top = catalogTop();
     if (top !== null && window.scrollY > top) {
-      window.scrollTo({ top: top, behavior: reduceMotion ? "auto" : "smooth" });
+      var go = function () {
+        window.scrollTo({ top: catalogTop(), behavior: reduceMotion ? "auto" : "smooth" });
+      };
+      glidingTo(document.querySelector(".catalog-bar").parentElement, go);
+      go();
     }
   };
 
@@ -3089,10 +3193,15 @@
   if (modCards.length) {
     chips.forEach(function (chip) {
       // On a narrow screen the chips scroll sideways; one that takes focus
-      // while partly out of view, or under the fade at the row's end, comes
-      // into view.
+      // from the keyboard while partly out of view, or under the fade at the
+      // row's end, comes into view. Not on a press: that focuses the chip on
+      // the way down, and sliding the row would carry it out from under the
+      // release, so the click would never arrive. The click centres it.
       if (chipGlider) {
         chip.addEventListener("focus", function () {
+          var keyboard = false;
+          try { keyboard = chip.matches(":focus-visible"); } catch (e) { /* not supported */ }
+          if (!keyboard) return;
           var left = chip.offsetLeft - chipRow.scrollLeft;
           if (left < 6 || left + chip.offsetWidth > chipRow.clientWidth - 36) centerChip(chip);
         });

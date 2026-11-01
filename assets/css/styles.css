@@ -3763,6 +3763,10 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
 }
 
 /* The mobile menu draws down like a blind and its links arrive one by one.
+   The blind is a mask rather than a clip-path: Chromium won't take a tap on
+   a clip-path still drawing, even on links already shown, so a quick tap
+   would land on the page beneath and close the menu. A mask leaves the
+   menu tappable throughout.
    Closed, it is out of the tab order as well as out of sight. Without the
    script the menu button can't open anything, so it stays hidden and the
    footer carries the same links. */
@@ -3785,12 +3789,14 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
   .motion .primary-nav {
     opacity: 1;
     transform: none;
-    clip-path: inset(0 0 100% 0);
-    transition: clip-path 0.4s var(--ease), visibility 0s linear 0.4s;
+    -webkit-mask: linear-gradient(#000 0 0) top / 100% 0% no-repeat;
+    mask: linear-gradient(#000 0 0) top / 100% 0% no-repeat;
+    transition: -webkit-mask-size 0.4s var(--ease), mask-size 0.4s var(--ease), visibility 0s linear 0.4s;
   }
   .motion .primary-nav.is-open {
-    clip-path: inset(0 0 -1px 0);
-    transition: clip-path 0.6s var(--ease), visibility 0s;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    transition: -webkit-mask-size 0.6s var(--ease), mask-size 0.6s var(--ease), visibility 0s;
   }
   .motion .primary-nav a,
   .motion .primary-nav a.nav-cta {
@@ -4787,3 +4793,31 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
   .license-tray, .license-tray.is-visible { transition: none; }
   .faq details::details-content { transition: none; }
 }
+
+/* A short window (a phone on its side) can't spare room for the catalog bar
+   to stick under the header as well as for the license tray, and the cards
+   would show through a sliver between them. There the bar stays in the
+   page, and cards and controls clear only the header. */
+@media (max-height: 480px) {
+  .catalog-bar { position: relative; top: auto; }
+  .cat-group,
+  .mod-card,
+  .cat-group :is(a, button),
+  .catalog.has-bar-h .cat-group,
+  .catalog.has-bar-h .mod-card,
+  .catalog.has-bar-h .cat-group :is(a, button),
+  .catalog-bar :is(a, button, input) { scroll-margin-top: 0; }
+}
+/* The license tray keeps to one row there too, rather than stacking into
+   two, where the window is wide enough for that. */
+@media (min-width: 420px) and (max-width: 720px) and (max-height: 480px) {
+  .license-tray { flex-wrap: nowrap; gap: 10px; padding: 7px 7px 7px 18px; border-radius: 999px; }
+  .tray-summary { flex-basis: auto; font-size: 0.82rem; line-height: 1.3; }
+  .license-tray .btn { flex: none; padding: 10px 16px; font-size: 0.84rem; }
+  body.has-tray .site-footer { padding-bottom: 120px; }
+  html:has(body.has-tray) { scroll-padding-bottom: 110px; }
+}
+
+/* A control the browser scrolls into view from below stops with room for
+   its focus ring (2px at a 3px offset) inside the window. */
+:is(a, button, input, select, textarea, summary) { scroll-margin-bottom: 8px; }
