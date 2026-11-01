@@ -55,9 +55,10 @@ development are described on the "In Development" page until they go on sale.
 
   When the window changes width (a phone turns, a window snaps to half the screen), the
   page keeps the reader on what they were reading, and a glide that was under way to a
-  link's destination still arrives there. In a short window, such as a phone on its side,
-  the catalog's filter bar stays in the page instead of sticking, and the license tray
-  keeps to one row where it fits.
+  link's destination still arrives there. A reload, or a step back to a page, returns
+  straight to where the reader was instead of gliding down from the top. In a short window,
+  such as a phone on its side, the catalog's filter bar stays in the page instead of
+  sticking, and the license tray keeps to one row where it fits.
 
 ## Structure
 
@@ -133,3 +134,4 @@ The contact and reseller forms (`form.js-send`) send in one of two ways:
 
 Rows marked `data-show-when="field:value|value"` appear only while that field has one of
 those values; while hidden they are disabled, so their required fields don't block sending.
+A message box reached with the keyboard scrolls fully into view, focus mark included.

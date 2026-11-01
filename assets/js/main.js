@@ -93,10 +93,19 @@
       glideTimer = setTimeout(expireGlide, ms);
     };
     // aim() starts the page toward the destination again, or puts it there
-    // at once with reduced motion; by default the way the browser goes to a
-    // #fragment, clearing the header and the catalog bar.
+    // at once with reduced motion; by default where the browser puts a
+    // #fragment, clearing the header and the catalog bar (scroll padding
+    // and margin). Measured by layout, like the place: a card still waiting
+    // to rise into view is drawn lower than it will stand.
     var aimAt = function (el) {
-      return function () { el.scrollIntoView({ block: "start" }); };
+      return function () {
+        var margin = parseFloat(window.getComputedStyle(el).scrollMarginTop) || 0;
+        var padding = parseFloat(window.getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+        window.scrollTo({
+          top: Math.max(0, Math.round(pageTop(el) - margin - padding)),
+          behavior: reduceMotion ? "auto" : "smooth"
+        });
+      };
     };
     glidingTo = function (el, aim) {
       glide = { el: el, aim: aim || aimAt(el) };
@@ -118,6 +127,20 @@
       var landed = function () { if (glide && glide.el === landing) holdGlide(800); };
       if (document.readyState === "complete") landed();
       else window.addEventListener("load", landed);
+    }
+    // A reload, or a step back or forward to a page the browser didn't keep
+    // whole, returns to where the reader was as the page loads. With the
+    // page's smooth scrolling that would be a glide all the way down from
+    // the top, so until then it is a jump (html.is-restoring). Once there,
+    // the place is noted as usual, and a change of width keeps it.
+    if (arrival && (arrival.type === "reload" || arrival.type === "back_forward")) {
+      var restoring = document.documentElement.classList;
+      restoring.add("is-restoring");
+      var restored = function () {
+        setTimeout(function () { restoring.remove("is-restoring"); }, 150);
+      };
+      if (document.readyState === "complete") restored();
+      else window.addEventListener("load", restored);
     }
     // A link to somewhere on this page, or a #fragment typed into the
     // address.
@@ -154,8 +177,11 @@
               behavior: reduceMotion ? "auto" : "smooth"
             });
           });
+          return;
         }
-        return;
+        // Nothing noted for that entry (it was left from the top of the
+        // page, or before a reload): the browser goes to its #fragment, so a
+        // change of width aims there too.
       }
       var el = named(window.location.hash);
       if (el) glidingTo(el);
@@ -218,6 +244,9 @@
           // pieces of a line of text don't count.
           if (style.position === "absolute" || style.position === "fixed" || style.position === "sticky") continue;
           if (style.display.indexOf("inline") === 0) continue;
+          // Nor does decoration kept from screen readers (the icon beside a
+          // heading), which can sit anywhere beside the text.
+          if (c.getAttribute("aria-hidden") === "true") continue;
           var top = pageTop(c);
           if (top <= lineY && top + c.offsetHeight > lineY) across = c;
           else if (top > lineY && (!after || top < afterTop)) { after = c; afterTop = top; }
@@ -278,11 +307,13 @@
         root.style.setProperty("scroll-behavior", "auto");
         window.scrollTo(0, Math.round(target));
         // The catalog bar may stick at the new size where it didn't at the
-        // old one (a phone turned upright from its side), or stand taller or
-        // shorter. Where the view begins below it moves, so the line moves
-        // with it, keeping what was just above the line in view; and never
+        // old one (a phone turned upright from its side), or stand taller.
+        // Where the view begins below it moves down, so the line moves with
+        // it, keeping what was just above the line in view; and it is never
         // under the header or bar. Settling can stick or free the bar, so
-        // it is checked again.
+        // it is checked again, moving the page only further the same way,
+        // so that it can't swing back to where the bar sticks. Where the
+        // view begins higher up, there is room enough already.
         if (at >= 0 && at <= wasHeight) {
           var y0 = window.scrollY;
           var read = pageTop(place.el) - y0 + (place.dy === null
@@ -291,10 +322,11 @@
           for (var pass = 0; pass < 3; pass++) {
             var floor = viewTop();
             var want = read;
-            if (Math.abs(floor - place.floor) > 0.5) {
+            if (floor - place.floor > 0.5) {
               want = Math.min(read + floor - place.floor, Math.max(floor, window.innerHeight * 0.6));
             }
             var y = Math.round(y0 - (Math.max(want, floor) - read));
+            if (pass > 0) y = Math.min(y, window.scrollY);
             if (Math.abs(y - window.scrollY) < 1) break;
             window.scrollTo(0, y);
           }
@@ -3336,6 +3368,25 @@
       });
     }
   }
+
+  /* ---------- Text boxes come into view whole ---------- */
+  // Tabbing to a text box, the browser scrolls only as far as its caret,
+  // which can leave most of a tall box, and the line of light along its
+  // lower edge that marks focus, below the window. So a box reached from
+  // the keyboard comes fully into view, 8px clear of the window's edge or
+  // the license tray (scroll-margin-bottom, scroll-padding-bottom). A tap
+  // or click leaves the page where it is; on a phone the browser makes
+  // room for the keyboard itself.
+  var focusFromPointer = false;
+  document.addEventListener("pointerdown", function () { focusFromPointer = true; }, true);
+  document.addEventListener("keydown", function () { focusFromPointer = false; }, true);
+  document.addEventListener("focusin", function (event) {
+    var box = event.target;
+    if (focusFromPointer || !box || box.tagName !== "TEXTAREA") return;
+    window.requestAnimationFrame(function () {
+      if (document.activeElement === box) box.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+  });
 
   /* ---------- Conditional form rows ---------- */
   // A row marked data-show-when="field:value|value" appears only while that

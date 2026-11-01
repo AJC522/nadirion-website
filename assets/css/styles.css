@@ -112,6 +112,10 @@ html {
      72px header with a little room. Scroll margins below are on top of this. */
   scroll-padding-top: 88px;
 }
+/* A reload, or a step back to a page the browser didn't keep whole, puts
+   the reader back where they were at once, instead of gliding down from the
+   top of the page; main.js sets this until the page has loaded. */
+html.is-restoring { scroll-behavior: auto; }
 
 body {
   margin: 0;
