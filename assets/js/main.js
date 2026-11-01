@@ -2256,11 +2256,11 @@
   var isKnownModule = function (id) {
     return !!(catalog && Object.prototype.hasOwnProperty.call(catalog.modules, id));
   };
-
-  var priceOf = function (id) {
-    if (!catalog) return null;
-    var item = id === "desktop" ? catalog.desktop : catalog.modules[id];
-    return item && typeof item.price === "number" ? item.price : null;
+  var moduleOf = function (id) {
+    return isKnownModule(id) ? catalog.modules[id] : null;
+  };
+  var isAmount = function (value) {
+    return typeof value === "number" && isFinite(value);
   };
 
   var formatPrice = function (amount) {
@@ -2274,24 +2274,220 @@
       return "$" + amount;
     }
   };
+  // Any price still null in catalog.js shows as this visible placeholder.
+  var pendingLabel = function () {
+    return (catalog && catalog.pendingLabel) || "[VERIFY: price]";
+  };
+  var seatUnit = function () { return (catalog && catalog.priceUnit) || "/seat/yr"; };
+  var orgUnit = function () { return (catalog && catalog.orgUnit) || "/org/yr"; };
+  var priceText = function (amount, unit) {
+    return (isAmount(amount) ? formatPrice(amount) : pendingLabel()) + unit;
+  };
 
-  // Only priced items get a price on the page; quoted items keep the HTML's own text.
-  document.querySelectorAll("[data-price-for]").forEach(function (el) {
-    var price = priceOf(el.getAttribute("data-price-for"));
-    if (price === null) return;
-    el.textContent = formatPrice(price);
-    el.hidden = false;
-  });
-  document.querySelectorAll("[data-unit-for]").forEach(function (el) {
-    if (priceOf(el.getAttribute("data-unit-for")) === null) return;
-    el.textContent = catalog.priceUnit || "";
-  });
+  var bundleOf = function (key) {
+    return catalog && catalog.bundles ? catalog.bundles[key] || null : null;
+  };
+  // Every module a bundle covers: whole categories, or everything per seat.
+  var bundleMembers = function (key) {
+    var bundle = bundleOf(key);
+    if (!bundle) return [];
+    return Object.keys(catalog.modules).filter(function (id) {
+      var mod = catalog.modules[id];
+      if (bundle.everything) return bundle.includeOrg || mod.unit !== "org";
+      return (bundle.categories || []).indexOf(mod.category) !== -1;
+    });
+  };
+  // The bundle a module is sold only as part of (Host Utilities), if any.
+  var soleBundleOf = function (id) {
+    var mod = moduleOf(id);
+    var bundle = mod && mod.bundle ? bundleOf(mod.bundle) : null;
+    return bundle && bundle.only ? mod.bundle : null;
+  };
+  var isOrgItem = function (id) {
+    var mod = moduleOf(id);
+    return !!(mod && mod.unit === "org");
+  };
+  var isPreview = function (id) {
+    var mod = moduleOf(id);
+    return !!(mod && mod.preview);
+  };
+  var displayName = function (id) {
+    return catalog.modules[id].name + (isPreview(id) ? " (Preview)" : "");
+  };
+
+  // One module's own annual price, per seat (or per organization), before
+  // any bundle. Null while a price it depends on is still unset.
+  var modulePrice = function (id) {
+    var mod = moduleOf(id);
+    if (!mod) return null;
+    var base = null;
+    if (mod.unit === "org" || "price" in mod) {
+      base = isAmount(mod.price) ? mod.price : null;
+    } else if (mod.tier && catalog.tiers && catalog.tiers[mod.tier]) {
+      base = isAmount(catalog.tiers[mod.tier].price) ? catalog.tiers[mod.tier].price : null;
+    } else {
+      return null;
+    }
+    if (!mod.preview) return base;
+    var preview = catalog.preview || {};
+    if (preview.mode === "free") return 0;
+    if (preview.mode === "discount" && isAmount(preview.discount) && base !== null) {
+      return Math.round(base * (1 - preview.discount) * 100) / 100;
+    }
+    return null;
+  };
+
+  // Prices a selection the cheapest way it can be covered: modules one by
+  // one, or with a bundle where the bundle costs less. Nadirion Desktop is
+  // included with any paid module. Returns null for any figure that still
+  // depends on an unset price, so nothing is ever totalled from a guess.
+  var priceLicense = function (list, seats) {
+    seats = seats > 0 ? seats : 1;
+    var seatIds = list.filter(function (id) { return !isOrgItem(id); });
+    var orgIds = list.filter(isOrgItem);
+
+    // Modules priced one by one; bundle-only modules cost their bundle once.
+    var oneByOne = function (ids) {
+      var total = 0;
+      var counted = {};
+      for (var i = 0; i < ids.length; i++) {
+        var sole = soleBundleOf(ids[i]);
+        if (sole) {
+          if (counted[sole]) continue;
+          counted[sole] = true;
+          if (!isAmount(bundleOf(sole).price)) return null;
+          total += bundleOf(sole).price;
+        } else {
+          var price = modulePrice(ids[i]);
+          if (price === null) return null;
+          total += price;
+        }
+      }
+      return total;
+    };
+    var orgTotal = 0;
+    for (var o = 0; o < orgIds.length; o++) {
+      var orgPrice = modulePrice(orgIds[o]);
+      if (orgPrice === null) { orgTotal = null; break; }
+      orgTotal += orgPrice;
+    }
+
+    var seat = oneByOne(seatIds);
+    var result = { seat: seat, org: orgTotal, bundle: null, desktopOnly: false };
+    if (seat === null || orgTotal === null) return result;
+
+    Object.keys(catalog.bundles || {}).forEach(function (key) {
+      var bundle = catalog.bundles[key];
+      if (bundle.only || !isAmount(bundle.price)) return;
+      var members = bundleMembers(key);
+      var covered = list.filter(function (id) { return members.indexOf(id) !== -1; });
+      if (!covered.length) return;
+      var rest = oneByOne(seatIds.filter(function (id) { return members.indexOf(id) === -1; }));
+      if (rest === null) return;
+      var withOrg = bundle.includeOrg ? 0 : orgTotal;
+      var cost = (bundle.price + rest) * seats + withOrg;
+      if (cost < result.seat * seats + result.org) {
+        result = { seat: bundle.price + rest, org: withOrg, bundle: key, desktopOnly: false };
+      }
+    });
+
+    // Nothing paid in the license: Nadirion Desktop is bought on its own.
+    if (result.seat === 0 && result.org === 0) {
+      var desktop = catalog.desktop && isAmount(catalog.desktop.price) ? catalog.desktop.price : null;
+      result.seat = desktop;
+      result.desktopOnly = true;
+    }
+    return result;
+  };
+
+  // The running total in words, e.g. "$1,200/seat/yr + $500/org/yr".
+  var totalText = function (priced) {
+    var text = priceText(priced.seat, seatUnit());
+    if (priced.org === null) text += " + " + pendingLabel() + orgUnit();
+    else if (priced.org > 0) text += " + " + formatPrice(priced.org) + orgUnit();
+    return text;
+  };
+
+  // Price labels: module cards ("Core · $0/seat/yr") and the price list.
+  var cardPriceText = function (id) {
+    var mod = moduleOf(id);
+    if (!mod) return "";
+    var sole = soleBundleOf(id);
+    if (sole) {
+      return "Bundle of " + bundleMembers(sole).length + " · " + priceText(bundleOf(sole).price, seatUnit());
+    }
+    var label = mod.unit === "org" ? "Per org" :
+      (mod.tier && catalog.tiers[mod.tier] ? catalog.tiers[mod.tier].name : "");
+    var unit = mod.unit === "org" ? orgUnit() : seatUnit();
+    if (mod.preview) {
+      var preview = catalog.preview || {};
+      label = "Preview";
+      if (preview.mode === "free") return label + " · Included free";
+    }
+    return label + " · " + priceText(modulePrice(id), unit);
+  };
+
+  var listPriceText = function (key) {
+    if (key === "desktop") return priceText(catalog.desktop && catalog.desktop.price, seatUnit());
+    var parts = key.split(":");
+    if (parts[0] === "tier" && catalog.tiers[parts[1]]) return priceText(catalog.tiers[parts[1]].price, seatUnit());
+    if (parts[0] === "bundle" && bundleOf(parts[1])) return priceText(bundleOf(parts[1]).price, seatUnit());
+    if (parts[0] === "module" && isKnownModule(parts[1])) {
+      return priceText(modulePrice(parts[1]), isOrgItem(parts[1]) ? orgUnit() : seatUnit());
+    }
+    if (parts[0] === "preview") {
+      var preview = catalog.preview || {};
+      if (preview.mode === "free") return "Included free";
+      if (preview.mode === "discount" && isAmount(preview.discount)) {
+        return Math.round(preview.discount * 100) + "% off the module's tier price";
+      }
+      return "[VERIFY: discounted or included free]";
+    }
+    return null;
+  };
+
+  if (catalog) {
+    // Module cards: [data-price-for="<module id>"].
+    document.querySelectorAll(".mod-price[data-price-for]").forEach(function (el) {
+      var text = cardPriceText(el.getAttribute("data-price-for"));
+      if (!text) return;
+      el.textContent = text;
+      el.hidden = false;
+    });
+    // Price list and other labels: [data-list-price="tier:core"] and friends.
+    document.querySelectorAll("[data-list-price]").forEach(function (el) {
+      var text = listPriceText(el.getAttribute("data-list-price"));
+      if (text !== null) el.textContent = text;
+    });
+    // Preview modules carry a "Preview" tag on their catalog card.
+    document.querySelectorAll(".mod-add[data-module]").forEach(function (button) {
+      var id = button.getAttribute("data-module");
+      var tags = button.closest(".mod-card") && button.closest(".mod-card").querySelector(".mod-tags");
+      if (!isPreview(id) || !tags) return;
+      var tag = document.createElement("li");
+      tag.textContent = "Preview";
+      tags.insertBefore(tag, tags.firstChild);
+    });
+  }
 
   // The selection lives in localStorage so it survives the walk from the
   // catalog to the quote form. Storage can be missing or throw (private
   // windows, blocked site data), so an in-memory copy backs it up.
   var LICENSE_KEY = "nadirion.license.modules";
   var memorySelection = [];
+
+  // A module sold only in a bundle brings the rest of its bundle with it.
+  var withWholeBundles = function (list) {
+    var out = list.slice();
+    list.forEach(function (id) {
+      var sole = soleBundleOf(id);
+      if (!sole) return;
+      bundleMembers(sole).forEach(function (member) {
+        if (out.indexOf(member) === -1) out.push(member);
+      });
+    });
+    return out;
+  };
 
   var readSelection = function () {
     var list = memorySelection;
@@ -2300,9 +2496,9 @@
       if (raw) list = JSON.parse(raw);
     } catch (e) { /* fall back to memory */ }
     if (!Array.isArray(list)) return [];
-    return list.filter(function (id, index) {
+    return withWholeBundles(list.filter(function (id, index) {
       return isKnownModule(id) && list.indexOf(id) === index;
-    });
+    }));
   };
 
   var writeSelection = function (list) {
@@ -2310,17 +2506,6 @@
     try {
       window.localStorage.setItem(LICENSE_KEY, JSON.stringify(list));
     } catch (e) { /* memory copy is enough for this page */ }
-  };
-
-  var licenseTotal = function (list) {
-    var total = priceOf("desktop");
-    if (total === null) return null;
-    for (var i = 0; i < list.length; i++) {
-      var price = priceOf(list[i]);
-      if (price === null) return null;
-      total += price;
-    }
-    return total;
   };
 
   var quoteHref = function (list) {
@@ -2336,11 +2521,11 @@
   // A quote link from the catalog carries the selection in the URL too, in
   // case storage was unavailable there.
   if (catalog && params.has("modules")) {
-    writeSelection(
+    writeSelection(withWholeBundles(
       params.get("modules").split(",").filter(function (id, index, all) {
         return isKnownModule(id) && all.indexOf(id) === index;
       })
-    );
+    ));
   }
 
   /* ---------- Module catalog: add to license ---------- */
@@ -2443,11 +2628,15 @@
       }
     }
     trayLastCount = selected.length;
+    // The running total at founding prices, with any bundle that brings it down.
+    var priced = priceLicense(selected, 1);
+    if (summary && priced.bundle) {
+      summary.appendChild(document.createTextNode(" \u00b7 priced as " + bundleOf(priced.bundle).name));
+    }
     var totalEl = document.getElementById("trayTotal");
     if (totalEl) {
-      var total = licenseTotal(selected);
-      totalEl.hidden = total === null;
-      if (total !== null) totalEl.textContent = formatPrice(total) + " " + (catalog.priceUnit || "");
+      totalEl.hidden = false;
+      totalEl.textContent = totalText(priced);
     }
     var cta = document.getElementById("trayCta");
     if (cta) cta.setAttribute("href", quoteHref(selected));
@@ -2460,8 +2649,15 @@
         var id = button.getAttribute("data-module");
         var selected = readSelection();
         var at = selected.indexOf(id);
-        if (at === -1) selected.push(id);
-        else selected.splice(at, 1);
+        // Host Utilities come as one bundle: all eight go in or out together.
+        var group = soleBundleOf(id) ? bundleMembers(soleBundleOf(id)) : [id];
+        if (at === -1) {
+          group.forEach(function (member) {
+            if (selected.indexOf(member) === -1) selected.push(member);
+          });
+        } else {
+          selected = selected.filter(function (member) { return group.indexOf(member) === -1; });
+        }
         writeSelection(selected);
         renderSelection();
         if (at === -1) celebrateAdd(button);
@@ -2908,9 +3104,57 @@
     ], { duration: 360, easing: COMMERCE_EASE, fill: "forwards" });
   };
 
+  // The license as quote entries: one per module, except that a bundle sold
+  // only as a whole (Host Utilities) is a single entry.
+  var quoteEntries = function (selected) {
+    var entries = [];
+    var seen = {};
+    selected.forEach(function (id) {
+      var sole = soleBundleOf(id);
+      var key = sole ? "bundle:" + sole : id;
+      if (seen[key]) return;
+      seen[key] = true;
+      if (sole) {
+        var members = bundleMembers(sole);
+        entries.push({ key: key, ids: members, name: bundleOf(sole).name + " (" + members.length + " modules)" });
+      } else {
+        entries.push({ key: key, ids: [id], name: displayName(id) });
+      }
+    });
+    return entries;
+  };
+
+  var seatsField = document.getElementById("seats");
+  var seatCount = function () {
+    var n = seatsField ? parseInt(seatsField.value, 10) : NaN;
+    return n > 0 ? n : 1;
+  };
+
+  // The founding-price total for the license being quoted, in words.
+  var quoteTotalText = function (selected) {
+    var seats = seatCount();
+    var priced = priceLicense(selected, seats);
+    var text = "Founding price: " + priceText(priced.seat, seatUnit());
+    if (seats > 1) text += " × " + seats + " seats";
+    if (priced.org === null) text += " + " + pendingLabel() + orgUnit();
+    else if (priced.org > 0) text += " + " + formatPrice(priced.org) + orgUnit();
+    if (isAmount(priced.seat) && priced.org !== null && (seats > 1 || priced.org > 0)) {
+      text += " = " + formatPrice(priced.seat * seats + priced.org) + "/yr";
+    }
+    text += ".";
+    if (priced.bundle) {
+      text += " Priced as the " + bundleOf(priced.bundle).name + " (" + bundleMembers(priced.bundle).length +
+        " modules), which costs less than the modules you chose one by one.";
+    }
+    if (priced.desktopOnly) text += " That is Nadirion Desktop on its own; it is included with any paid module.";
+    text += " Multi-seat, government, and reseller purchases receive a formal quote.";
+    return text;
+  };
+
   var renderQuote = function (focusAt) {
     if (!quoteItems || !catalog) return;
     var selected = readSelection();
+    var entries = quoteEntries(selected);
     var first = quoteShown === null;
 
     quoteItems.textContent = "";
@@ -2920,16 +3164,16 @@
     if (first) arriveInQuote(base, 0);
     quoteItems.appendChild(base);
 
-    selected.forEach(function (id, n) {
+    entries.forEach(function (entry, n) {
       var item = document.createElement("li");
-      item.appendChild(document.createTextNode(catalog.modules[id].name));
+      item.appendChild(document.createTextNode(entry.name));
       var remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "×";
-      remove.setAttribute("aria-label", "Remove " + catalog.modules[id].name);
+      remove.setAttribute("aria-label", "Remove " + entry.name);
       remove.addEventListener("click", function () {
         if (item.classList.contains("is-leaving")) return;
-        writeSelection(readSelection().filter(function (other) { return other !== id; }));
+        writeSelection(readSelection().filter(function (other) { return entry.ids.indexOf(other) === -1; }));
         // Keyboard focus moves on to the next remove button rather than
         // dropping back to the page.
         var refocus = document.activeElement === remove ? n : -1;
@@ -2938,10 +3182,10 @@
         else renderQuote(refocus);
       });
       item.appendChild(remove);
-      if (first || quoteShown.indexOf(id) === -1) arriveInQuote(item, n + 1);
+      if (first || quoteShown.indexOf(entry.key) === -1) arriveInQuote(item, n + 1);
       quoteItems.appendChild(item);
     });
-    quoteShown = selected.slice();
+    quoteShown = entries.map(function (entry) { return entry.key; });
 
     if (typeof focusAt === "number" && focusAt >= 0) {
       var removers = quoteItems.querySelectorAll("button");
@@ -2955,20 +3199,25 @@
 
     var totalEl = document.getElementById("quoteTotal");
     if (totalEl) {
-      var total = licenseTotal(selected);
-      totalEl.hidden = total === null;
-      if (total !== null) {
-        totalEl.textContent = "List price: " + formatPrice(total) + " " + (catalog.priceUnit || "");
-      }
+      totalEl.hidden = false;
+      totalEl.textContent = quoteTotalText(selected);
     }
 
     var field = document.getElementById("quoteModules");
     if (field) {
       field.value = [catalog.desktop.name].concat(
-        selected.map(function (id) { return catalog.modules[id].name; })
+        entries.map(function (entry) { return entry.name; })
       ).join(", ");
     }
   };
+
+  // The total follows the seat count as it is typed.
+  if (seatsField && quoteItems) {
+    seatsField.addEventListener("input", function () {
+      var totalEl = document.getElementById("quoteTotal");
+      if (totalEl && catalog) totalEl.textContent = quoteTotalText(readSelection());
+    });
+  }
 
   renderQuote();
   syncConditionalRows();

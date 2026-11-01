@@ -4065,8 +4065,9 @@ section.light .watermark::before { -webkit-text-stroke-color: rgba(5, 5, 6, 0.08
 
 @media (max-width: 720px) {
   .footer-finale { margin-top: 32px; }
-  /* The license tray wraps to two rows here; keep the footer clear of it. */
-  body.has-tray .site-footer { padding-bottom: 168px; }
+  /* The license tray wraps to two or three rows here (three once it shows a
+     running total); keep the footer clear of it. */
+  body.has-tray .site-footer { padding-bottom: 216px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

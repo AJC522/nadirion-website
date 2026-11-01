@@ -2,10 +2,26 @@
 
 Static marketing site for Nadirion, built around selling **Nadirion Desktop** (formerly the
 Threat Operations Toolset) and its add-on modules. Every license starts with Nadirion
-Desktop; each of the 33 modules is a separate add-on. Buyers can purchase direct or through
-a certified reseller, and companies and individuals can apply to become one. Nadirion
-Desktop is the only thing the site sells; new products and services still in research or
-development are described on the "In Development" page until they go on sale.
+Desktop, which is included with any paid module; the 33 modules are priced in tiers and
+bundles at published founding-customer prices. Buyers purchase directly, and companies and
+individuals can apply to the reseller program. Nadirion Desktop is the only thing the site
+sells; new products and services still in research or development are described on the
+"In Development" page until they go on sale.
+
+## Copy rules
+
+The site describes what the software does and where it falls short, and nothing more:
+
+- Company facts (founder, team, customers, experience, reseller and government status,
+  code signing, testing) appear only as stated by the owner. Anything not yet confirmed is a
+  visible `[VERIFY: ...]` placeholder; search the repo for `[VERIFY` before publishing.
+- Every module card ends with its main limitation (`Limit:`), and modules flag, score, or
+  suggest rather than "detect" or "prove". AI Analysis scores are advisory; Malware Scan is
+  a heuristic sweep, not antivirus.
+- Words such as "verified", "encrypted", or "forensic" name a mechanism (a SHA-256 manifest,
+  AES-256-GCM at rest) or are not used.
+- `modules.html#free-tools` names the free tools that cover similar ground; keep it current
+  when a module changes.
 
 ## Design
 
@@ -59,13 +75,16 @@ development are described on the "In Development" page until they go on sale.
 index.html                  home: product hero, how licensing works, module categories,
                             console, principles, resellers teaser, about
 desktop.html                Nadirion Desktop: what every license includes, console, install
-modules.html                module catalog: search, category filter, "add to license"
-pricing.html                licensing model, ways to buy, buying steps, FAQ
-resellers.html              certified reseller program, tracks, application form, verify
+modules.html                module catalog: search, category filter, "add to license",
+                            prices, limitations, free-tool comparison
+pricing.html                licensing model, founding-customer price list, ways to buy,
+                            buying steps, FAQ
+resellers.html              reseller program: status, tracks, application form, verify
 in-development.html         new products and services in research and development
 contact.html                quotes (with the license being built), demos, everything else
 assets/css/styles.css       design tokens and all styling
-assets/js/catalog.js        module ids, names, categories, and prices (the commercial record)
+assets/js/catalog.js        module ids, names, categories, tiers, bundles, and prices
+                            (the commercial record)
 assets/js/main.js           nav, menus, scroll effects, reveal, starfields, pointer
                             effects, catalog, license tray, forms
 assets/img/                 logo mark, favicon, and the film-grain tile (SVG)
@@ -104,11 +123,28 @@ home, desktop, and pricing pages. The ticker of module names on the home page is
 
 ### Prices
 
-Prices live only in `assets/js/catalog.js`. Every price starts as `null`, which sells that
-item on quote: nothing price-shaped appears for it. Set a number and it shows on the module
-card, in the license tray, on the pricing page (for Nadirion Desktop), and in the quote
-form. The tray and quote form show a total only when every item in the license is priced.
-`currency` and `priceUnit` ("per seat") apply to every price.
+Prices live only in `assets/js/catalog.js`, as annual subscriptions in US dollars:
+
+- `tiers`: the Core, Standard, and Light price per module, per seat. Each module names its
+  `tier`.
+- `bundles`: the Host Utilities bundle (`only: true`, so its eight modules are never sold
+  one by one and are added or removed together), the DFIR Suite (the Forensics and Triage
+  categories), and All-Access (every per-seat module; `includeOrg` decides whether it also
+  covers Cryptographic Inventory).
+- Cryptographic Inventory has `unit: "org"` and its own `price`, per organization.
+- `desktop.price` applies only when Nadirion Desktop is bought on its own; it is included
+  with any paid module.
+- `preview`: how modules marked `preview: true` are priced (`mode: "free"`, or
+  `mode: "discount"` with a fraction such as `0.5`). Marking a module Preview also adds a
+  "Preview" tag to its card.
+
+Every price ships as `null`, which renders as `pendingLabel` (a visible `[VERIFY: $__]`).
+Set a number and it shows on the module cards, in the price list on `pricing.html`
+(elements with `data-list-price`), in the license tray, and in the quote form. The tray and
+quote form keep a running total, apply a bundle automatically when it costs less than the
+modules picked, and show the placeholder until every price the total needs is set. The quote
+form multiplies by the seat count the buyer enters. Without JavaScript the price list reads
+"On request" and the cards show no price.
 
 ### The license being built
 
