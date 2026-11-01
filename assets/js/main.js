@@ -594,7 +594,7 @@
       ["autoruns", "Registry & Persistence"],
       ["phishing", "Email Analysis"],
       ["evtx", "Event Log & Logon"],
-      ["misp", "IOC Vault"],
+      ["campaigns", "IOC Vault"],
       ["quarantine", "Secure Host"],
       ["cve", "Intelligence Feed"],
       ["remediation", "Malware Scan"]
@@ -3021,7 +3021,7 @@
   };
 
   var subjectFor = function (formEl) {
-    var subject = formEl.getAttribute("data-subject") || "Website enquiry";
+    var subject = formEl.getAttribute("data-subject") || "Website inquiry";
     var topicName = formEl.getAttribute("data-subject-field");
     if (!topicName) return subject;
     var topic = formEl.querySelector(

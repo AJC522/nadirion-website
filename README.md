@@ -92,8 +92,10 @@ and the same six destinations, and one row with the copyright and contact email.
 The module set mirrors `launcher/modules.py` in the Threat-Operations-Toolset repo: the 33
 modules in shipping sections are sold as add-ons, and the two in its Development Preview
 section (Intelligence Map, Investigation Queue) are shown as "in development" without an
-add button. Each card's `data-aliases` holds the launcher's search aliases, so the site's
-search finds the same modules the app's does ("autoruns", "evtx", "netstat").
+add button. Each card's `data-aliases` holds the launcher's search aliases (plus a few
+extra terms for the site's search), so the site finds the same modules the app does
+("autoruns", "evtx", "netstat"). Keep any term the app does not support out of the home
+hero's demo searches in `main.js`.
 
 When a module is added, removed, or renamed, update three places together: its card in
 `modules.html`, its entry in `assets/js/catalog.js` (same id), and the counts quoted on the
