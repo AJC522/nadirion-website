@@ -129,19 +129,9 @@
       else window.addEventListener("load", landed);
     }
     // A reload, or a step back or forward to a page the browser didn't keep
-    // whole, returns to where the reader was as the page loads. With the
-    // page's smooth scrolling that would be a glide all the way down from
-    // the top, so until then it is a jump (html.is-restoring). Once there,
-    // the place is noted as usual, and a change of width keeps it.
-    if (arrival && (arrival.type === "reload" || arrival.type === "back_forward")) {
-      var restoring = document.documentElement.classList;
-      restoring.add("is-restoring");
-      var restored = function () {
-        setTimeout(function () { restoring.remove("is-restoring"); }, 150);
-      };
-      if (document.readyState === "complete") restored();
-      else window.addEventListener("load", restored);
-    }
+    // whole, returns to where the reader was as the page loads, as a jump
+    // (boot.js). Once there, the place is noted as usual, and a change of
+    // width keeps it.
     // A link to somewhere on this page, or a #fragment typed into the
     // address.
     document.addEventListener("click", function (e) {
@@ -152,10 +142,15 @@
       var el = named(link.hash);
       if (el) glidingTo(el);
     });
-    // A step back or forward between this page's #fragments returns to
-    // where the reader left that entry, not to the fragment itself. Where
-    // the browser says which step is which, that place is noted on leaving
-    // each entry and is where a change of width aims.
+    // A step back or forward between this page's entries: where the browser
+    // goes depends on how the page was loaded. After an ordinary load it
+    // goes to the entry's #fragment, however far on the reader had read.
+    // After a reload, or a step back to a page it didn't keep whole (and for
+    // an entry without a #fragment), it returns to where the reader left
+    // that entry. Where the browser says which step is which, that place is
+    // noted on leaving each entry, and a change of width aims wherever the
+    // browser is going.
+    var stepsRestore = !!arrival && (arrival.type === "reload" || arrival.type === "back_forward");
     var leftAt = {};
     var stepTo = null;
     if (window.navigation && window.navigation.addEventListener) {
@@ -170,18 +165,20 @@
       if (historyStep) {
         var back = stepTo && leftAt[stepTo];
         stepTo = null;
-        if (back && back.el.isConnected) {
-          glidingTo(back.el, function () {
-            window.scrollTo({
-              top: Math.round(pageTop(back.el) + back.share * back.el.offsetHeight - back.at),
-              behavior: reduceMotion ? "auto" : "smooth"
+        if (stepsRestore || !named(window.location.hash)) {
+          if (back && back.el.isConnected) {
+            glidingTo(back.el, function () {
+              window.scrollTo({
+                top: Math.round(pageTop(back.el) + back.share * back.el.offsetHeight - back.at),
+                behavior: reduceMotion ? "auto" : "smooth"
+              });
             });
-          });
+          }
+          // Nothing noted for that entry (it was left at the very top, or
+          // before the reload): the place is noted as the browser returns
+          // to it, as usual.
           return;
         }
-        // Nothing noted for that entry (it was left from the top of the
-        // page, or before a reload): the browser goes to its #fragment, so a
-        // change of width aims there too.
       }
       var el = named(window.location.hash);
       if (el) glidingTo(el);
@@ -235,6 +232,7 @@
       var box = document.body;
       for (var depth = 0; depth < 32; depth++) {
         var across = null;
+        var hidden = null;
         var after = null;
         var afterTop = 0;
         for (var c = box.firstElementChild; c && !across; c = c.nextElementSibling) {
@@ -244,13 +242,18 @@
           // pieces of a line of text don't count.
           if (style.position === "absolute" || style.position === "fixed" || style.position === "sticky") continue;
           if (style.display.indexOf("inline") === 0) continue;
-          // Nor does decoration kept from screen readers (the icon beside a
-          // heading), which can sit anywhere beside the text.
-          if (c.getAttribute("aria-hidden") === "true") continue;
           var top = pageTop(c);
-          if (top <= lineY && top + c.offsetHeight > lineY) across = c;
+          if (top <= lineY && top + c.offsetHeight > lineY) {
+            // Decoration kept from screen readers (the icon beside a
+            // heading, which can sit anywhere beside the text) gives way to
+            // the text across the line with it. Alone across the line (a
+            // terminal picture, a strip of names) it is what is being read.
+            if (c.getAttribute("aria-hidden") === "true") { if (!hidden) hidden = c; }
+            else across = c;
+          }
           else if (top > lineY && (!after || top < afterTop)) { after = c; afterTop = top; }
         }
+        if (!across) across = hidden;
         if (across) box = across;
         else if (after && box.offsetHeight > window.innerHeight * 0.6) box = after;
         else break;
@@ -3126,11 +3129,31 @@
     });
   };
 
+  // Whether the first thing a change leaves listed starts above the view,
+  // under the header or the catalog bar: a search typed deep in the list
+  // leaves its results up there once the page gets shorter. Measured by
+  // layout, as a card still waiting to rise in is drawn lower.
+  var firstListedHidden = function () {
+    for (var i = 0; i < flipItems.length; i++) {
+      if (!isListed(flipItems[i])) continue;
+      var top = 0;
+      for (var n = flipItems[i]; n; n = n.offsetParent) top += n.offsetTop;
+      var bar = document.querySelector(".catalog-bar");
+      var floor = Math.max(72, bar ? bar.getBoundingClientRect().bottom : 0);
+      return top - window.scrollY < floor;
+    }
+    return false;
+  };
+  // A search's glide starts a frame later: typing, the browser then brings
+  // the caret into view, which would stop a glide begun straight away.
+  var searchToTop = function () { window.requestAnimationFrame(returnToCatalogTop); };
+
   var refilter = function (fromChip) {
     holdAnchor();
     if (!commerceMotion || !catalogSection) {
       applyFilter();
       if (fromChip) returnToCatalogTop();
+      else if (firstListedHidden()) searchToTop();
       return;
     }
     var viewH = window.innerHeight;
@@ -3155,10 +3178,12 @@
 
     applyFilter();
 
-    // Then: where everything lands. A chip pressed deep in the list takes
-    // the page back to the top of the catalog, so judge what will be on
-    // screen from there.
-    var top = fromChip ? catalogTop() : null;
+    // Then: where everything lands. A chip pressed deep in the list, or a
+    // search that leaves its first result above the view, takes the page
+    // back to the top of the catalog, so judge what will be on screen from
+    // there.
+    var toTop = fromChip || firstListedHidden();
+    var top = toTop ? catalogTop() : null;
     var shift = top !== null && window.scrollY > top ? window.scrollY - top : 0;
     // The page itself moves when a chip takes it back up, or when the list
     // gets shorter than the point the reader had reached. Then nothing
@@ -3225,6 +3250,7 @@
     });
 
     if (fromChip) returnToCatalogTop();
+    else if (toTop) searchToTop();
   };
 
   // The pressed chip is one white pill that slides from chip to chip,
@@ -3380,11 +3406,22 @@
   var focusFromPointer = false;
   document.addEventListener("pointerdown", function () { focusFromPointer = true; }, true);
   document.addEventListener("keydown", function () { focusFromPointer = false; }, true);
+  // Coming back to the window or tab, the browser hands focus back to the
+  // box without moving the page; that is no step from the keyboard either.
+  window.addEventListener("blur", function () { focusFromPointer = true; });
   document.addEventListener("focusin", function (event) {
     var box = event.target;
     if (focusFromPointer || !box || box.tagName !== "TEXTAREA") return;
     window.requestAnimationFrame(function () {
-      if (document.activeElement === box) box.scrollIntoView({ block: "nearest", inline: "nearest" });
+      if (document.activeElement !== box) return;
+      // Only a box whose lower edge is below the window (reached going
+      // down the form). Going back up, the browser brings the box, and the
+      // label above it, into view on its own; stepping in part way would
+      // stop the page with the label under the header.
+      var below = parseFloat(window.getComputedStyle(box).scrollMarginBottom) || 0;
+      var pad = parseFloat(window.getComputedStyle(document.documentElement).scrollPaddingBottom) || 0;
+      if (box.getBoundingClientRect().bottom + below <= window.innerHeight - pad) return;
+      box.scrollIntoView({ block: "nearest", inline: "nearest" });
     });
   });
 
