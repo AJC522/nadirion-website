@@ -594,7 +594,7 @@
       ["autoruns", "Registry & Persistence"],
       ["phishing", "Email Analysis"],
       ["evtx", "Event Log & Logon"],
-      ["misp", "IOC Vault"],
+      ["campaigns", "IOC Vault"],
       ["quarantine", "Secure Host"],
       ["cve", "Intelligence Feed"],
       ["remediation", "Malware Scan"]

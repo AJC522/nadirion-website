@@ -253,7 +253,7 @@
             </div>
             <div class="point">
               <h3>Goes where the host is</h3>
-              <p>With Triage Kit USB, the console and command-line modules run from a USB drive on a machine with nothing installed.</p>
+              <p>With Triage Kit USB, standalone collectors run from a USB drive on a machine with nothing installed, and a portable console of the command-line modules runs anywhere Python 3 is available.</p>
             </div>
           </div>
         </div>
@@ -279,7 +279,7 @@
           </div>
           <div class="sector">
             <h3>Modules that hand off</h3>
-            <p>Indicators from Intelligence Processor, File Analysis, Process Analysis, and Email Analysis can be sent directly to IOC Vault.</p>
+            <p>Indicators from Intelligence Processor and Email Analysis can be sent directly to IOC Vault, and other forensic modules export JSON or CSV for handoff.</p>
           </div>
           <div class="sector">
             <h3>Add any time</h3>
@@ -309,7 +309,7 @@
             </thead>
             <tbody>
               <tr><td><strong>WINDOWS</strong></td><td>Setup wizard (.exe), x86_64</td><td>Per-user installation with no administrator rights required; Desktop and Start menu shortcuts</td><td>In place, SHA-256 verified</td></tr>
-              <tr><td><strong>MACOS</strong></td><td>Disk image (.dmg), x86_64</td><td>Drag to Applications</td><td>In place, SHA-256 verified</td></tr>
+              <tr><td><strong>MACOS</strong></td><td>Disk image (.dmg), x86_64</td><td>Drag to Applications</td><td>In place for the standalone binary, SHA-256 verified; the app bundle updates by downloading the new .dmg</td></tr>
               <tr><td><strong>LINUX</strong></td><td>Archive (.tar.gz), x86_64</td><td>Install script places it in ~/.local/bin with an application-menu launcher</td><td>In place, SHA-256 verified</td></tr>
             </tbody>
           </table>
@@ -321,11 +321,11 @@
           </div>
           <div class="spec-note">
             <h4>Admin only when needed</h4>
-            <p>Day-to-day use runs under a standard user account. Modules that write entire drives, such as USB ISO Burner, request administrator rights.</p>
+            <p>Day-to-day use runs under a standard user account. Modules that write entire drives or change the firewall, such as USB ISO Burner and Secure Host, require Nadirion Desktop to be run as an administrator (or with sudo).</p>
           </div>
           <div class="spec-note">
-            <h4>Your data stays local</h4>
-            <p>Settings, cases, and caches are stored in a per-user folder on the workstation. API keys are stored in the operating system's keyring.</p>
+            <h4>Your data stays under your control</h4>
+            <p>Settings and caches are stored in a per-user folder on the workstation, and IOC Vault keeps its encrypted database wherever you choose, such as a team share. API keys are stored in the operating system's keyring.</p>
           </div>
           <div class="spec-note">
             <h4>Platform notes</h4>

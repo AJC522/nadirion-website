@@ -254,12 +254,13 @@
               <p>Static triage of a suspicious file before anyone opens it.</p>
               <ul class="focus-points">
                 <li>Hashes, entropy, and MIME-type and file-extension mismatch checks</li>
-                <li>Filename anomalies and embedded string signals</li>
+                <li>Filename anomalies, embedded string signals, and VirusTotal and Hybrid Analysis lookups by hash (the file itself is never uploaded)</li>
                 <li>Separates likely benign files from those that need escalation</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
                 <li>Read-only</li>
+                <li>Uses your API keys</li>
               </ul>
               <button type="button" class="mod-add" data-module="file_review" aria-pressed="false" aria-label="Add File Analysis to license">
                 <span class="when-off">+ Add to license</span>
@@ -272,7 +273,7 @@
                 <span class="mod-price" data-price-for="email_review" hidden></span>
               </div>
               <h3>Email Analysis</h3>
-              <p>Phishing analysis of .eml and .msg messages without rendering, fetching, or opening any of their content.</p>
+              <p>Phishing analysis of .eml and .msg messages that never renders HTML, follows links, or opens attachments.</p>
               <ul class="focus-points">
                 <li>SPF, DKIM, and DMARC alignment; Received-chain analysis; and lookalike-domain and BEC Reply-To checks</li>
                 <li>Explainable rules, with a severity rating and MITRE ATT&amp;CK technique for every finding</li>
@@ -316,7 +317,7 @@
               <h3>Browser Analysis</h3>
               <p>History, downloads, and search-term triage across Chromium- and Firefox-based browsers.</p>
               <ul class="focus-points">
-                <li>Edge, Chrome, Brave, Vivaldi, Opera, Firefox, Waterfox, and LibreWolf</li>
+                <li>Edge, Chrome, Brave, Vivaldi, and Firefox on every platform; Opera, Opera GX, Waterfox, and LibreWolf on Windows</li>
                 <li>Flags URL shorteners, paste sites, tunneling and remote-access services, and risky downloads</li>
                 <li>Full Scan covers every profile on the host, including Volume Shadow Copy history</li>
               </ul>
@@ -338,8 +339,8 @@
               <p>Inventory installed services and flag those that don&#x27;t belong.</p>
               <ul class="focus-points">
                 <li>Status, start type, and binary path for every service</li>
-                <li>Flags unsigned binaries, user-writable or unusual paths, and missing descriptions</li>
-                <li>Windows services, Linux systemd units, and macOS launchd jobs</li>
+                <li>Flags unsigned binaries (Windows), user-writable or unusual paths, and missing descriptions</li>
+                <li>Windows services and Linux systemd units in full; macOS launchd jobs with status only</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -392,7 +393,7 @@
                 <span class="when-on">&#10003; Added to license</span>
               </button>
             </article>
-            <article class="mod-card" id="execution-evidence" data-category="forensics" data-aliases="prefetch amcache shimcache bam timeline">
+            <article class="mod-card" id="execution-evidence" data-category="forensics" data-aliases="prefetch amcache bam timeline">
               <div class="mod-top">
                 <span class="mod-code">FOR-08</span>
                 <span class="mod-price" data-price-for="execution_evidence" hidden></span>
@@ -434,7 +435,7 @@
                 <span class="when-on">&#10003; Added to license</span>
               </button>
             </article>
-            <article class="mod-card" id="ai-analysis" data-category="forensics" data-aliases="deepfake synthetic media generated genai llm c2pa content credentials provenance">
+            <article class="mod-card" id="ai-analysis" data-category="forensics" data-aliases="deepfake synthetic media generated genai llm c2pa content credentials provenance chatgpt midjourney stable diffusion">
               <div class="mod-top">
                 <span class="mod-code">FOR-10</span>
                 <span class="mod-price" data-price-for="ai_analysis" hidden></span>
@@ -501,11 +502,11 @@
               <ul class="focus-points">
                 <li>Quick Scan in-app, or a Full Scan through the bundled PowerShell collector</li>
                 <li>Blocklist escalation and opt-in VirusTotal verdicts</li>
-                <li>Reversible remediation that asks for confirmation first and verifies the result</li>
+                <li>Remediation that asks for confirmation, quarantines or disables rather than deleting, and verifies the result</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
-                <li>Full Scan: Windows</li>
+                <li>Windows-first</li>
               </ul>
               <button type="button" class="mod-add" data-module="malware_scan" aria-pressed="false" aria-label="Add Malware Scan to license">
                 <span class="when-off">+ Add to license</span>
@@ -520,9 +521,9 @@
               <h3>Secure Host</h3>
               <p>Isolate a compromised host from the network, with full rollback.</p>
               <ul class="focus-points">
-                <li>Blocks all traffic except loopback and an optional allowed address, such as your jump host</li>
+                <li>Sets the host firewall to block inbound and outbound traffic by default, allowing loopback and an optional address such as your jump host</li>
                 <li>Snapshots the firewall configuration first, so Restore is exact</li>
-                <li>Exact restoration on Windows and Linux; best-effort on macOS</li>
+                <li>Exact restoration on Windows and Linux (IPv4); best-effort on macOS</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -541,7 +542,7 @@
               <h3>Triage Kit USB</h3>
               <p>Build a read-only, no-install incident-response kit on a USB drive.</p>
               <ul class="focus-points">
-                <li>Standalone Windows and Linux/macOS collectors, plus a portable console with the command-line modules</li>
+                <li>Standalone Windows and Linux/macOS collectors that need nothing installed, plus a portable console of the command-line modules for hosts with Python 3</li>
                 <li>Nothing on the host is modified; results are written to the kit</li>
                 <li>A SHA-256 manifest and a Verify Kit check to support chain of custody</li>
               </ul>
@@ -554,7 +555,7 @@
                 <span class="when-on">&#10003; Added to license</span>
               </button>
             </article>
-            <article class="mod-card" id="usb-iso-burner" data-category="triage" data-aliases="dd rufus etcher flash bootable live usb img windows installer">
+            <article class="mod-card" id="usb-iso-burner" data-category="triage" data-aliases="dd rufus etcher flash bootable live usb img windows installer write image">
               <div class="mod-top">
                 <span class="mod-code">TRI-04</span>
                 <span class="mod-price" data-price-for="usb_iso_burner" hidden></span>
@@ -563,7 +564,7 @@
               <p>Turn a forensic live-boot ISO or an OS installer into verified bootable USB media.</p>
               <ul class="focus-points">
                 <li>Raw (DD) mode for hybrid ISOs; file-copy mode for Windows installers, with Secure Boot support</li>
-                <li>Verifies the image against its expected checksum before writing and reads the drive back afterward</li>
+                <li>Verifies the image against a checksum you supply before writing, and reads the drive back afterward</li>
                 <li>Offers only removable drives, re-identified at write time</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
@@ -626,7 +627,7 @@
             <span class="cat-count">1 module</span>
           </div>
           <div class="mod-grid">
-            <article class="mod-card" id="crypto-inventory" data-category="quantum" data-aliases="pqc post-quantum cbom rsa ecc ecdsa ml-kem kyber dilithium hndl certificates tls ssh cnsa">
+            <article class="mod-card" id="crypto-inventory" data-category="quantum" data-aliases="pqc post-quantum cbom rsa ecc ecdsa ecdh x25519 ml-kem ml-dsa kyber dilithium hndl certificates tls ssh cnsa crypto agility">
               <div class="mod-top">
                 <span class="mod-code">QNT-01</span>
                 <span class="mod-price" data-price-for="crypto_inventory" hidden></span>
@@ -668,11 +669,11 @@
                 <span class="mod-price" data-price-for="persona_manager" hidden></span>
               </div>
               <h3>Persona Manager</h3>
-              <p>Reusable research persona profiles for repeat investigative work.</p>
+              <p>Keep the research personas you use for investigative work in one place.</p>
               <ul class="focus-points">
-                <li>Standardizes the details you would otherwise retype for every lookup</li>
-                <li>Profiles stay local to the workstation</li>
-                <li>Pairs with Identity Lookup to drive person-focused queries</li>
+                <li>Alias, email address, username, VPN IP, and social-platform handles for each persona</li>
+                <li>Notes kept alongside each profile</li>
+                <li>Profiles are stored locally on the workstation</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -688,11 +689,11 @@
                 <span class="mod-price" data-price-for="identity_lookup" hidden></span>
               </div>
               <h3>Identity Lookup</h3>
-              <p>Person-focused OSINT queries built from your personas.</p>
+              <p>Person-focused OSINT queries built from the details you know.</p>
               <ul class="focus-points">
-                <li>Builds targeted web queries for open-source identity correlation</li>
+                <li>Builds targeted web queries from a name, username, age, location, school, or employer</li>
                 <li>Search powered by SerpAPI</li>
-                <li>Works from Persona Manager profiles or a name you type</li>
+                <li>Correlates open-source results for a single person of interest</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -726,7 +727,7 @@
               <h3>Uptime Monitor</h3>
               <p>Recurring reachability and latency checks with history.</p>
               <ul class="focus-points">
-                <li>Real-time status checks for hosts and services</li>
+                <li>Ongoing reachability checks for the hosts you list</li>
                 <li>Latency tracking with status history</li>
                 <li>Lightweight availability checks from the analyst&#x27;s own workstation</li>
               </ul>
@@ -747,7 +748,7 @@
               <p>Traceroute, visualized hop by hop.</p>
               <ul class="focus-points">
                 <li>Color-coded hops along the path</li>
-                <li>Surfaces path changes, high-latency segments, and chokepoints</li>
+                <li>Per-hop latency, with crossings between internal, DMZ, and external networks highlighted</li>
                 <li>Useful for scoping an incident&#x27;s network footprint</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
@@ -802,7 +803,7 @@
               <p>Inventory drivers and apply updates through the host&#x27;s own update mechanism.</p>
               <ul class="focus-points">
                 <li>Windows drivers, Linux kernel modules, and macOS kernel extensions</li>
-                <li>Version and signature status for each</li>
+                <li>Version for each, plus signature status on Windows and Linux</li>
                 <li>No bundled vendor database; updates come from the operating system</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
@@ -866,7 +867,7 @@
               <ul class="focus-points">
                 <li>Capture host state before and after triage</li>
                 <li>Records the state without flagging or scoring anything</li>
-                <li>Diff a later run against the first</li>
+                <li>Run it again afterward to compare the two</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -949,7 +950,7 @@
               <p>Convert files across image, spreadsheet, document, audio, and video formats.</p>
               <ul class="focus-points">
                 <li>A built-in file browser and a queue you review before anything runs</li>
-                <li>Images, CSV/XLSX/JSON, TXT/DOCX/PDF, and audio/video through ffmpeg</li>
+                <li>Images, CSV/XLSX/JSON, TXT/DOCX/PDF (text only; layout is not preserved), and audio/video through ffmpeg</li>
                 <li>Offers only the output formats that every queued file can be converted to</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
