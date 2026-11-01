@@ -63,12 +63,33 @@
       navToggle.setAttribute("aria-expanded", String(isOpen));
     });
 
+    var closeNav = function () {
+      if (!primaryNav.classList.contains("is-open")) return false;
+      primaryNav.classList.remove("is-open");
+      navToggle.setAttribute("aria-expanded", "false");
+      return true;
+    };
+
     primaryNav.querySelectorAll("a").forEach(function (link) {
-      link.addEventListener("click", function () {
-        primaryNav.classList.remove("is-open");
-        navToggle.setAttribute("aria-expanded", "false");
-      });
+      link.addEventListener("click", closeNav);
     });
+
+    // Escape closes the menu and hands focus back to its button. Tabbing out
+    // of it closes it too, so focus never lands on what the open menu covers.
+    document.addEventListener("keydown", function (e) {
+      if ((e.key === "Escape" || e.key === "Esc") && closeNav()) navToggle.focus();
+    });
+    primaryNav.addEventListener("focusout", function (e) {
+      var next = e.relatedTarget;
+      if (next && !primaryNav.contains(next) && next !== navToggle) closeNav();
+    });
+    // Widening past the mobile layout leaves no menu to close.
+    var wideNav = window.matchMedia ? window.matchMedia("(min-width: 961px)") : null;
+    if (wideNav) {
+      var onWide = function () { if (wideNav.matches) closeNav(); };
+      if (wideNav.addEventListener) wideNav.addEventListener("change", onWide);
+      else if (wideNav.addListener) wideNav.addListener(onWide);
+    }
   }
 
   /* ---------- Footer year ---------- */
@@ -229,27 +250,38 @@
       window.setTimeout(done, delay + 1400);
     };
 
+    var revealNow = function (el, delay) {
+      revealObserver.unobserve(el);
+      if (delay) el.style.setProperty("--reveal-delay", delay + "ms");
+      el.classList.add("is-visible");
+      settle(el, delay);
+      if (el.classList.contains("stat")) countUp(el, delay);
+      if (el.classList.contains("console")) typeConsole(el, delay);
+      for (var h = 0; h < revealHooks.length; h++) revealHooks[h](el, delay);
+    };
+
     var revealObserver = new IntersectionObserver(
       function (entries) {
         var batch = 0;
         entries.forEach(function (entry) {
           if (!entry.isIntersecting) return;
-          var el = entry.target;
-          revealObserver.unobserve(el);
           // Items that come into view together, such as a row of cards,
           // arrive one after another.
-          var delay = Math.min(batch++, 6) * 90;
-          if (delay) el.style.setProperty("--reveal-delay", delay + "ms");
-          el.classList.add("is-visible");
-          settle(el, delay);
-          if (el.classList.contains("stat")) countUp(el, delay);
-          if (el.classList.contains("console")) typeConsole(el, delay);
-          for (var h = 0; h < revealHooks.length; h++) revealHooks[h](el, delay);
+          revealNow(entry.target, Math.min(batch++, 6) * 90);
         });
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }
     );
     revealTargets.forEach(function (el) { revealObserver.observe(el); });
+
+    // Keyboard focus can bring an item only just into view, inside the strip
+    // at the bottom the observer leaves out, so focus reveals it as well.
+    var waiting = Array.prototype.slice.call(revealTargets);
+    document.addEventListener("focusin", function (e) {
+      for (var n = e.target; n && n !== document.body; n = n.parentElement) {
+        if (waiting.indexOf(n) !== -1 && !n.classList.contains("is-visible")) revealNow(n, 0);
+      }
+    });
   }
 
   /* ---------- Hero parallax ---------- */
@@ -1343,6 +1375,65 @@
       if (!heading.className) heading.removeAttribute("class");
     };
 
+    // Words in their own masks lose the kerning across each space, so a split
+    // line can come out a fraction wider than the plain one. Where that moves
+    // a word to another line, joining the heading after the rise would make
+    // it jump. Read where each word sits now, and where it sits in a plain
+    // copy laid out at the same width, once, as the heading's block arrives.
+    var lineOf = function (tops) {
+      var line = 0;
+      return tops.map(function (top, i) {
+        if (i && top - tops[i - 1] > 4) line++;
+        return line;
+      });
+    };
+    var splitKeepsLines = function (heading) {
+      var masks = heading.querySelectorAll(".tw");
+      if (masks.length < 2) return true;
+      var probe = heading.cloneNode(true);
+      probe.removeAttribute("id");
+      probe.setAttribute("aria-hidden", "true");
+      probe.querySelectorAll(".tw").forEach(function (mask) {
+        mask.parentNode.replaceChild(document.createTextNode(mask.textContent), mask);
+      });
+      probe.normalize();
+      probe.classList.remove("is-split", "is-rising");
+      probe.style.setProperty("position", "absolute");
+      probe.style.setProperty("visibility", "hidden");
+      probe.style.setProperty("pointer-events", "none");
+      // The used width, before any transform an ancestor may be running.
+      probe.style.setProperty("width", window.getComputedStyle(heading).width);
+      heading.parentNode.insertBefore(probe, heading.nextSibling);
+
+      var plain = [];
+      var whole = true;
+      var walker = document.createTreeWalker(probe, NodeFilter.SHOW_TEXT, null, false);
+      var range = document.createRange();
+      for (var node = walker.nextNode(); node; node = walker.nextNode()) {
+        var at = 0;
+        node.nodeValue.split(/([ \t\n\r\f]+)/).forEach(function (part) {
+          if (part && !WORD_SPACES.test(part)) {
+            range.setStart(node, at);
+            range.setEnd(node, at + part.length);
+            var rects = range.getClientRects();
+            if (rects.length) {
+              plain.push(rects[0].top);
+              // A hyphenated word the plain text breaks inside can't break
+              // inside its mask.
+              if (rects[rects.length - 1].top - rects[0].top > 4) whole = false;
+            }
+          }
+          at += part.length;
+        });
+      }
+      var split = Array.prototype.map.call(masks, function (mask) {
+        return mask.getBoundingClientRect().top;
+      });
+      heading.parentNode.removeChild(probe);
+      return whole && plain.length === split.length &&
+        lineOf(plain).join() === lineOf(split).join();
+    };
+
     // The rest of a block, in reading order, walking down only through the
     // branch that holds the heading.
     var blockParts = function (host, heading) {
@@ -1475,6 +1566,18 @@
     var playTypeBlock = function (block, delay) {
       var t = delay;
       block.parts.forEach(function (part) {
+        if (part === block.heading && !splitKeepsLines(part)) {
+          // It would wrap differently once whole, so it rises whole instead,
+          // like the parts after it.
+          joinHeading(part);
+          part.classList.add("reveal", "type-part");
+          void part.offsetWidth;
+          part.style.setProperty("--reveal-delay", t + "ms");
+          part.classList.add("is-visible");
+          settle(part, t);
+          t += 110;
+          return;
+        }
         if (part === block.heading) {
           block.words.forEach(function (word, i) {
             word.style.setProperty("--tw-d", t + Math.min(i, 12) * WORD_STAGGER + "ms");
@@ -1676,43 +1779,6 @@
     });
   });
 
-  // Stage lists on light sections: each item's top rule draws itself in from
-  // the left as it arrives, running on from one item to the next along a row.
-  if (motionOK) {
-    document.querySelectorAll(".service-list-grid").forEach(function (list) {
-      var items = Array.prototype.slice.call(list.querySelectorAll(".service"));
-      if (!items.length) return;
-      var rows = items.map(function () { return { col: 0, across: 1 }; });
-
-      // Which column each item sits in, and how many share its row.
-      var place = function () {
-        items.forEach(function (svc, i) {
-          var col = 0, across = 0;
-          items.forEach(function (other, j) {
-            if (other.offsetTop !== svc.offsetTop) return;
-            across++;
-            if (j < i) col++;
-          });
-          rows[i].col = col;
-          rows[i].across = across || 1;
-        });
-      };
-      place();
-      window.addEventListener("resize", place);
-      window.addEventListener("load", place);
-      list.classList.add("has-rules");
-
-      items.forEach(function (svc, i) {
-        var item = watchScroll(svc, function (p) {
-          var top = topInView(p, item);
-          var drawn = clamp((viewportH * 0.92 - top) / (viewportH * 0.32), 0, 1);
-          var rule = clamp(drawn * rows[i].across - rows[i].col, 0, 1);
-          svc.style.setProperty("--rule", rule.toFixed(3));
-        });
-      });
-    });
-  }
-
 
   /* ---------- Frame: header, footer, wayfinding [fx-frame] ---------- */
   // Header links share one soft highlight that glides to whichever link is
@@ -1771,7 +1837,6 @@
     var finaleWord = finale.querySelector(".finale-word");
     var finaleLetters = finale.querySelectorAll(".finale-word span");
     var riseFrom = 0;
-    var riseTo = 1;
 
     // The rise starts once a third of the wordmark is on screen and ends
     // just before the bottom of the page, in pixels the footer has come up
@@ -1780,7 +1845,6 @@
       var foot = footerEl.getBoundingClientRect();
       var box = finale.getBoundingClientRect();
       riseFrom = box.top - foot.top + box.height / 3;
-      riseTo = Math.max(foot.height - 6, riseFrom + 1);
       // Each letter paints its share of one glint that spans the whole word.
       finale.style.setProperty("--finale-w", finaleWord.offsetWidth + "px");
       finaleLetters.forEach(function (letter) {
@@ -1792,6 +1856,10 @@
 
     var footerWatch = watchScroll(footerEl, function (p) {
       var risen = p * (viewportH + footerWatch.height);
+      // The rise ends just short of the page's end. The footer's height comes
+      // from the shared measurement, which follows the page when the license
+      // tray adds or drops its padding.
+      var riseTo = Math.max(footerWatch.height - 6, riseFrom + 1);
       var rise = clamp((risen - riseFrom) / (riseTo - riseFrom), 0, 1);
       finale.style.setProperty("--finale-rise", rise.toFixed(3));
     });
@@ -2334,13 +2402,26 @@
   };
 
   // A quote link from the catalog carries the selection in the URL too, in
-  // case storage was unavailable there.
+  // case storage was unavailable there. From then on the address follows the
+  // selection, so reloading after removing a module doesn't bring it back.
   if (catalog && params.has("modules")) {
     writeSelection(
       params.get("modules").split(",").filter(function (id, index, all) {
         return isKnownModule(id) && all.indexOf(id) === index;
       })
     );
+    var keepSelection = writeSelection;
+    writeSelection = function (list) {
+      keepSelection(list);
+      if (list.length) params.set("modules", list.join(","));
+      else params.delete("modules");
+      if (window.history && history.replaceState) {
+        var query = params.toString();
+        try {
+          history.replaceState(history.state, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
+        } catch (e) { /* the address just stays as it was */ }
+      }
+    };
   }
 
   /* ---------- Module catalog: add to license ---------- */
