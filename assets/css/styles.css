@@ -1556,10 +1556,15 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
     transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
   }
   .primary-nav.is-open { transform: none; opacity: 1; pointer-events: auto; }
-  .primary-nav a { width: 100%; padding: 14px 0; border-bottom: 1px solid var(--line-dark); }
+  .primary-nav a { flex-shrink: 0; width: 100%; padding: 14px 0; border-bottom: 1px solid var(--line-dark); }
   .primary-nav a::after { display: none; }
   .primary-nav a.nav-cta { margin-top: 12px; text-align: center; border-bottom: none; }
   .nav-toggle { display: flex; }
+  /* In a short window the open menu scrolls. Its links come fully into
+     view within it as they take focus, and the page behind stays put. */
+  .primary-nav { scroll-padding-top: 16px; }
+  .site-header .primary-nav a { scroll-margin-top: -16px; }
+  html:has(.primary-nav.is-open) { scroll-padding-bottom: 0; }
 }
 
 @media (max-width: 720px) {
@@ -1698,12 +1703,18 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
 .mod-card,
 .cat-group :is(a, button) { scroll-margin-top: 82px; }
 .catalog-bar :is(a, button, input) { scroll-margin-top: -88px; }
-/* Here the chips wrap, so the bar is two rows tall. */
-@media (min-width: 1001px) and (max-width: 1142px) {
+/* Here the chips wrap, so the bar is two rows tall (the range runs past
+   1142px to allow for a scrollbar). */
+@media (min-width: 1001px) and (max-width: 1160px) {
   .cat-group,
   .mod-card,
   .cat-group :is(a, button) { scroll-margin-top: 112px; }
 }
+/* With the script, the clearance follows the bar's measured height
+   (--bar-h), however its chips wrap. */
+.catalog.has-bar-h .cat-group,
+.catalog.has-bar-h .mod-card,
+.catalog.has-bar-h .cat-group :is(a, button) { scroll-margin-top: calc(var(--bar-h) + 4px); }
 .catalog-bar {
   position: sticky;
   top: 72px;
@@ -2266,6 +2277,12 @@ section.light .fine-print { color: var(--silver-700); }
   .faq summary::after,
   .faq details[open] summary::after { background: CanvasText; }
 }
+/* The mark is drawn dark and inverted to white; on a light forced-colours
+   canvas it stays dark. */
+@media (forced-colors: active) and (prefers-color-scheme: light) {
+  .brand-mark,
+  .brand:hover .brand-mark { filter: none; }
+}
 
 /* =========================================================
    Motion and finish
@@ -2331,7 +2348,7 @@ section.light {
   opacity: calc(1 - var(--hero-p, 0) * var(--hero-p, 0) * 1.7);
 }
 /* Whatever has keyboard focus stays in full view. */
-.hero-copy:focus-within { opacity: 1; }
+.hero-copy:has(:focus-visible) { opacity: 1; }
 .hero-visual {
   transform:
     perspective(1600px)
@@ -2844,6 +2861,7 @@ section.light {
   scale: var(--stage-fill, 1) 1;
 }
 .stage-head {
+  z-index: 2; /* above the hover sweep (.service::before) */
   opacity: 0;
   translate: calc((var(--stage-fill, 1) - 1) * 100%) 0;
   transition: opacity 0.3s var(--ease);
@@ -3332,7 +3350,7 @@ section.light {
   transform: translate3d(0, calc(var(--hero-p, 0) * 90px), 0);
   opacity: calc(1 - var(--hero-p, 0) * var(--hero-p, 0) * 1.7);
 }
-.motion .page-hero-copy:focus-within { opacity: 1; }
+.motion .page-hero-copy:has(:focus-visible) { opacity: 1; }
 .motion .page-hero-glyph {
   transform:
     translate3d(0, calc(var(--hero-p, 0) * 150px), 0)

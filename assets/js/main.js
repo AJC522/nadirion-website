@@ -44,6 +44,58 @@
   window.addEventListener("scroll", queueScroll, { passive: true });
   window.addEventListener("resize", queueScroll);
 
+  /* ---------- Keeping the reader's place ---------- */
+  // When the window changes width (a phone turning, a window snapped to half
+  // the screen) the page reflows, and the browser's own scroll anchoring
+  // gives up as soon as a breakpoint changes the spacing around what is
+  // being read, which can throw the reader thousands of pixels. So once
+  // scrolling settles, note what sits a third of the way down the screen,
+  // and after a change of width put it back where it was. Layout offsets
+  // are used, not boxes, so entrance transforms don't skew the measure.
+  (function () {
+    var place = null;
+    var lastWidth = window.innerWidth;
+    var noteTimer = 0;
+    var resizing = 0;
+    var pageTop = function (el) {
+      var top = 0;
+      for (; el; el = el.offsetParent) top += el.offsetTop;
+      return top;
+    };
+    var note = function () {
+      noteTimer = 0;
+      place = null;
+      if (resizing || window.scrollY < 1) return;
+      var hit = document.elementFromPoint(window.innerWidth / 2, window.innerHeight * 0.35);
+      while (hit && !(hit instanceof HTMLElement)) hit = hit.parentElement;
+      if (!hit || hit === document.body || hit === document.documentElement) return;
+      // Whatever floats over the page stays put while it scrolls.
+      if (hit.closest(".site-header, .catalog-bar, .license-tray, .altimeter")) return;
+      place = { el: hit, offset: pageTop(hit) - window.scrollY };
+    };
+    scrollHooks.push(function () {
+      if (resizing) return;
+      clearTimeout(noteTimer);
+      noteTimer = setTimeout(note, 160);
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+      if (place && place.el.isConnected && place.el.offsetParent) {
+        // At once, not with the page's smooth scrolling.
+        var root = document.documentElement;
+        root.style.setProperty("scroll-behavior", "auto");
+        window.scrollTo(0, pageTop(place.el) - place.offset);
+        root.style.removeProperty("scroll-behavior");
+      }
+      clearTimeout(resizing);
+      resizing = setTimeout(function () {
+        resizing = 0;
+        noteTimer = setTimeout(note, 160);
+      }, 300);
+    });
+  })();
+
   /* ---------- Header state and reading progress ---------- */
   var header = document.querySelector(".site-header");
   if (header) {
@@ -2323,6 +2375,17 @@
       { rootMargin: "-73px 0px 0px 0px" }
     ).observe(catalogBarMarker);
   }
+  // Cards and groups stop clear of the stuck bar however tall it is: its
+  // chips wrap to a second row with the window's width, a scrollbar, or a
+  // larger text size. The stylesheet's fixed clearances stand in without
+  // the script.
+  if (catalogBar && "ResizeObserver" in window) {
+    var catalogEl = catalogBar.parentElement;
+    new ResizeObserver(function () {
+      catalogEl.style.setProperty("--bar-h", catalogBar.offsetHeight + "px");
+      catalogEl.classList.add("has-bar-h");
+    }).observe(catalogBar);
+  }
 
 
   // Set the scroll-driven state for wherever the page opened.
@@ -2414,10 +2477,10 @@
 
   // A quote link from the catalog carries the selection in the URL too, in
   // case storage was unavailable there. The address sets the license only on
-  // first arrival: coming back to the same entry later (Back, Forward, a
-  // reload), storage is newer, since the catalog may have changed it in the
-  // meantime. From then on the address follows the selection, so reloading
-  // after removing a module doesn't bring it back.
+  // first arrival: coming back to the page later (Back, Forward, a reload),
+  // storage is newer, since the catalog may have changed it in the meantime.
+  // From then on the address follows the selection, so reloading after
+  // removing a module doesn't bring it back.
   if (catalog && params.has("modules")) {
     var LICENSE_STATE = "nadirionLicense";
     var stateOf = function () {
@@ -2430,8 +2493,17 @@
       }
       return state;
     };
+    // A return shows in how the page was reached, or in the mark this entry
+    // already carries. Both are needed: an entry made by a link within the
+    // page, such as the skip link, starts without the mark.
+    var returning = !!stateOf()[LICENSE_STATE];
+    try {
+      var arrival = window.performance && performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
+      if (arrival) returning = returning || arrival.type === "back_forward" || arrival.type === "reload";
+      else if (window.performance && performance.navigation) returning = returning || performance.navigation.type === 1 || performance.navigation.type === 2;
+    } catch (e) { /* treat it as a first arrival */ }
     var storedSince = false;
-    if (stateOf()[LICENSE_STATE]) {
+    if (returning) {
       try { storedSince = window.localStorage.getItem(LICENSE_KEY) !== null; } catch (e) { /* only the address */ }
     }
     writeSelection(
@@ -2454,6 +2526,11 @@
       }
     };
     writeSelection(readSelection());
+    // Back from the catalog, the browser may restore this page as it was;
+    // bring the address up to date with the license as it is now.
+    window.addEventListener("pageshow", function (event) {
+      if (event.persisted) writeSelection(readSelection());
+    });
   }
 
   /* ---------- Module catalog: add to license ---------- */
@@ -3105,11 +3182,9 @@
   renderQuote();
   syncConditionalRows();
   // Back from the catalog, the browser may restore this page as it was;
-  // list the license as it is now, and bring the address up to date with it.
+  // list the license as it is now.
   window.addEventListener("pageshow", function (event) {
-    if (!event.persisted) return;
-    writeSelection(readSelection());
-    renderQuote();
+    if (event.persisted) renderQuote();
   });
 
   /* ---------- Sending forms ---------- */
