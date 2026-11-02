@@ -984,9 +984,13 @@
       inTurn(stages, 320, 0.45, function (stage) { stage.classList.add("is-ticked"); });
     });
 
-    /* Desktop: the install table is scanned in. A soft line of light passes
-       down it, each row settling as the line reaches it and each platform's
-       name lighting up as it passes. The notes beneath then light in turn. */
+    /* Spec tables are scanned in. A soft line of light passes down each one,
+       each row settling as the line reaches it and each row's name lighting
+       up as it passes. On Desktop, the notes beneath then light in turn.
+       The rows stay hidden until the scan starts, so it starts once the
+       table's top edge is 65% of the way down the screen. A share of the
+       table's height would never be reached by a table taller than the
+       screen (the free-tools comparison on Modules), leaving it blank. */
     document.querySelectorAll(".table-scroll").forEach(function (box) {
       var rows = box.querySelectorAll("tbody tr");
       if (!motionOK || !rows.length) return;
@@ -1004,7 +1008,7 @@
           });
           box.classList.add("is-scanning");
         },
-        { rootMargin: "0px 0px -15% 0px", threshold: 0.45 }
+        { rootMargin: "0px 0px -35% 0px", threshold: 0 }
       );
       scanObserver.observe(box);
     });
