@@ -3172,11 +3172,15 @@
     return bar.parentElement.getBoundingClientRect().top + window.scrollY - 72;
   };
 
+  // Whether the catalog's own glide to its top (after a chip or a search) is
+  // under way, so a key held back for a frame or two can carry it on.
+  var catalogGlide = false;
   // After the result set changes, bring its first row into view if the
   // reader has already scrolled past the top of the catalog.
   var returnToCatalogTop = function () {
     var top = catalogTop();
     if (top !== null && window.scrollY > top) {
+      catalogGlide = !reduceMotion;
       var go = function () {
         window.scrollTo({ top: catalogTop(), behavior: reduceMotion ? "auto" : "smooth" });
       };
@@ -3197,6 +3201,7 @@
   // (see chipToTop), still comes to rest there.
   var settleAtCatalogTop = function () {
     if (atCatalogTop()) return;
+    catalogGlide = !reduceMotion;
     var go = function () {
       window.scrollTo({ top: catalogTop(), behavior: reduceMotion ? "auto" : "smooth" });
     };
@@ -3329,26 +3334,36 @@
   // reader does to move the page themselves disarms it.
   if ("onscrollend" in window) {
     window.addEventListener("scrollend", function () {
+      catalogGlide = false;
       if (!searchGlide) return;
       if (atCatalogTop() || ++searchAims > 3) searchGlide = false;
       else settleAtCatalogTop();
     });
   } else {
     scrollHooks.push(function (y) {
-      if (!searchGlide) return;
+      if (!searchGlide && !catalogGlide) return;
       var top = catalogTop();
-      if (top === null || y <= top + 1) searchGlide = false;
+      if (top === null || y <= top + 1) {
+        searchGlide = false;
+        catalogGlide = false;
+      }
     });
   }
   // Counted, so a search held back for a frame or two knows whether the
   // reader took the page over in the meantime.
   var searchDisarms = 0;
   ["wheel", "touchstart", "pointerdown"].forEach(function (type) {
-    window.addEventListener(type, function () { searchGlide = false; searchDisarms++; }, { passive: true });
+    window.addEventListener(type, function () {
+      searchGlide = false;
+      searchDisarms++;
+      // A press (a click into the search field) doesn't stop a glide.
+      if (type !== "pointerdown") catalogGlide = false;
+    }, { passive: true });
   });
   window.addEventListener("keydown", function (event) {
     if (event.target !== catalogSearch || /^(Tab|PageUp|PageDown)$/.test(event.key)) {
       searchGlide = false;
+      catalogGlide = false;
       searchDisarms++;
     }
   });
@@ -3385,13 +3400,23 @@
   var holdAtNewEnd = function (fromY) {
     if (Math.abs(window.scrollY - fromY) <= 1) return;
     var root = document.documentElement;
+    var top = catalogTop();
+    var to = window.scrollY;
+    // At the shorter list's end the catalog can be too short to keep its
+    // bar under the header: the bar, and the field being typed in, are
+    // pushed up out of sight. The page is on its way to the catalog's top,
+    // so it holds where the bar sits under the header again.
+    var bar = document.querySelector(".catalog-bar");
+    if (top !== null && fromY > top + 1 && window.getComputedStyle(bar).position === "sticky") {
+      var under = 72 - bar.getBoundingClientRect().top;
+      if (under > 1) to = Math.max(top, to - under);
+    }
     root.style.setProperty("scroll-behavior", "auto");
-    window.scrollTo(0, window.scrollY);
+    window.scrollTo(0, to);
     root.style.removeProperty("scroll-behavior");
     // The browser may already have moved the page a frame's travel on
     // before the glide stopped. From past the catalog's top, the page then
     // comes to rest as near to it as the shorter list allows.
-    var top = catalogTop();
     if (top !== null && fromY > top + 1) window.requestAnimationFrame(settleAtCatalogTop);
   };
 
@@ -3666,6 +3691,8 @@
         if (pendingFilter) return;
         if ((searchGlide || window.performance.now() - lastMoveAt < 100) && narrows()) {
           var gliding = searchGlide;
+          // Any glide of the catalog's own (a chip's too) carries on after.
+          var homing = searchGlide || catalogGlide;
           var disarms = searchDisarms;
           var root = document.documentElement;
           searchGlide = false;
@@ -3678,7 +3705,7 @@
               pendingFilter = false;
               if (gliding && disarms === searchDisarms) searchGlide = true;
               refilter(false);
-              if (gliding && searchGlide && !atCatalogTop()) {
+              if (homing && disarms === searchDisarms && !atCatalogTop()) {
                 searchAims = 0;
                 settleAtCatalogTop();
               }
@@ -3963,6 +3990,9 @@
   // list the license as it is now.
   window.addEventListener("pageshow", function (event) {
     if (event.persisted) renderQuote();
+    // Back to the page, the browser can put back the reader's earlier
+    // choices only after load, without a change event: the rows follow.
+    syncConditionalRows();
   });
 
   /* ---------- Sending forms ---------- */

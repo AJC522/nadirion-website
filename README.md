@@ -150,5 +150,9 @@ still loading is held back by `boot.js`, and the form shows the same note.
 
 Rows marked `data-show-when="field:value|value"` appear only while that field has one of
 those values; while hidden they are disabled, so their required fields don't block sending.
+Until `main.js` runs, `styles.css` already leaves out the rows the coming choice hides (the
+one the address presets, which `boot.js` copies from a known `?interest=` or `?track=` to the
+`<html>` element, or else the field's own), so a reload near the form doesn't shift it. A new
+conditional row needs a matching rule there.
 A field reached with the keyboard comes into view in one move, whole and with its focus
 mark, and with its label clear of the header, where both fit.

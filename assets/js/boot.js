@@ -1,5 +1,21 @@
 document.documentElement.classList.add("js");
 
+// Links preset the forms' choices (contact.html?interest=demo,
+// resellers.html?track=individual). main.js selects them once it runs; until
+// then styles.css draws the rows those choices show. Only values the forms
+// offer count (the #interest select's options, the track radios).
+(function () {
+  var presets = {
+    interest: /^(quote|demo|modules|support|reseller|verify|research|other)$/,
+    track: /^(company|individual)$/
+  };
+  var query = window.location.search;
+  for (var name in presets) {
+    var m = new RegExp("[?&]" + name + "=([^&#]*)").exec(query);
+    if (m && presets[name].test(m[1])) document.documentElement.setAttribute("data-" + name, m[1]);
+  }
+})();
+
 // A reload, or a step back or forward to a page the browser didn't keep
 // whole, returns to where the reader was as the page loads. With the page's
 // smooth scrolling that would be a glide all the way down from the top, so

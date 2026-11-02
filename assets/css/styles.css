@@ -949,6 +949,20 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
 html:not(.js) form.js-send,
 html.js .form-fallback { display: none; }
 .form-fallback { margin: 0; align-self: start; color: var(--silver-300); line-height: 1.6; }
+/* Until main.js has the forms (js-ready), a conditional row the coming choice
+   leaves out is left out already, so the page isn't first drawn with rows the
+   script then takes away from under the reader (a reload near the form). The
+   coming choice is the one the address asks for (boot.js copies a known
+   ?interest= or ?track= to html[data-interest] / html[data-track]), else the
+   field's own. From js-ready on, main.js's hidden attribute decides. A new
+   data-show-when row needs its rules here too. */
+html.js:not(.js-ready)[data-interest]:not([data-interest="quote"]) [data-show-when="interest:quote"],
+html.js:not(.js-ready)[data-interest]:not([data-interest="verify"]) [data-show-when="interest:verify"],
+html.js:not(.js-ready)[data-track]:not([data-track="company"]) [data-show-when="track:company"] { display: none; }
+/* Kept apart: a browser without :has drops only these. */
+html.js:not(.js-ready):not([data-interest]) form:not(:has(#interest option[value="quote"]:checked)) [data-show-when="interest:quote"],
+html.js:not(.js-ready):not([data-interest]) form:not(:has(#interest option[value="verify"]:checked)) [data-show-when="interest:verify"],
+html.js:not(.js-ready):not([data-track]) form:not(:has(input[name="track"][value="company"]:checked)) [data-show-when="track:company"] { display: none; }
 .form-fallback a { color: var(--white); border-bottom: 1px solid var(--line-dark-strong); }
 .form-fallback a:hover { border-color: var(--white); }
 .form-row { margin-bottom: 18px; }
@@ -2236,7 +2250,8 @@ section.light .fine-print { color: var(--silver-700); }
   .focus-grid.four { grid-template-columns: repeat(2, 1fr); }
   .mod-grid { grid-template-columns: repeat(2, 1fr); }
   .license-anatomy { grid-template-columns: 1fr; }
-  .plan-plus { padding: 2px 0; font-size: 1.8rem; }
+  /* As tall as the drawn mark (20px + padding) that main.js swaps in. */
+  .plan-plus { padding: 2px 0; font-size: 1.8rem; line-height: 20px; }
   .track-grid { grid-template-columns: 1fr; }
   .catalog-bar-inner { flex-direction: column; align-items: stretch; gap: 12px; }
   .catalog-search { flex-basis: auto; order: 0; margin-left: 0; }
