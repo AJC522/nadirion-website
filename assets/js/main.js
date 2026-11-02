@@ -2817,8 +2817,8 @@
   /* ---------- Catalog, prices, and the license being built ---------- */
   var catalog = window.NADIRION_CATALOG || null;
   // Without the catalog's data (catalog.js didn't load) Add can do nothing,
-  // so the buttons are taken away rather than offered.
-  if (!catalog) document.documentElement.classList.add("no-catalog");
+  // so on a page with Add buttons they are taken away rather than offered.
+  if (!catalog && document.querySelector(".mod-add")) document.documentElement.classList.add("no-catalog");
   var params = new URLSearchParams(window.location.search);
 
   var isKnownModule = function (id) {
