@@ -187,33 +187,35 @@
     // The element itself, while this page is still the one it was noted on.
     var notedEls = {};
     var stepTo = null;
+    // Notes where the reader is as they leave the entry they are on.
+    var leaveEntry = function (from) {
+      var path = place && place.el.isConnected ? pathTo(place.el) : null;
+      delete notedEls[from.key];
+      if (window.scrollY < 1) leftAt[from.key] = { top: true };
+      else if (path) {
+        leftAt[from.key] = { path: path, share: place.share, at: place.at - (seenY - place.y) };
+        notedEls[from.key] = place.el;
+      }
+      else delete leftAt[from.key];
+      // Only entries still in the tab's history are kept.
+      var kept = {};
+      var keptEls = {};
+      window.navigation.entries().forEach(function (entry) {
+        if (leftAt[entry.key]) kept[entry.key] = leftAt[entry.key];
+      });
+      if (leftAt[from.key]) kept[from.key] = leftAt[from.key];
+      for (var key in kept) if (notedEls[key]) keptEls[key] = notedEls[key];
+      leftAt = kept;
+      notedEls = keptEls;
+      try { window.sessionStorage.setItem(placesKey, JSON.stringify(leftAt)); } catch (err) { /* not kept */ }
+      // Kept in the entry itself as well, which outlasts a reload even
+      // where the browser keeps no site data.
+      try { window.navigation.updateCurrentEntry({ state: { place: leftAt[from.key] || null } }); } catch (err) { /* not kept */ }
+    };
     if (window.navigation && window.navigation.addEventListener) {
       window.navigation.addEventListener("navigate", function (e) {
         var from = window.navigation.currentEntry;
-        if (from) {
-          var path = place && place.el.isConnected ? pathTo(place.el) : null;
-          delete notedEls[from.key];
-          if (window.scrollY < 1) leftAt[from.key] = { top: true };
-          else if (path) {
-            leftAt[from.key] = { path: path, share: place.share, at: place.at - (seenY - place.y) };
-            notedEls[from.key] = place.el;
-          }
-          else delete leftAt[from.key];
-          // Only entries still in the tab's history are kept.
-          var kept = {};
-          var keptEls = {};
-          window.navigation.entries().forEach(function (entry) {
-            if (leftAt[entry.key]) kept[entry.key] = leftAt[entry.key];
-          });
-          if (leftAt[from.key]) kept[from.key] = leftAt[from.key];
-          for (var key in kept) if (notedEls[key]) keptEls[key] = notedEls[key];
-          leftAt = kept;
-          notedEls = keptEls;
-          try { window.sessionStorage.setItem(placesKey, JSON.stringify(leftAt)); } catch (err) { /* not kept */ }
-          // Kept in the entry itself as well, which outlasts a reload even
-          // where the browser keeps no site data.
-          try { window.navigation.updateCurrentEntry({ state: { place: leftAt[from.key] || null } }); } catch (err) { /* not kept */ }
-        }
+        if (from) leaveEntry(from);
         historyStep = e.navigationType === "traverse";
         stepTo = historyStep && e.destination ? e.destination.key : null;
         if (stepTo && !leftAt[stepTo]) {
@@ -227,6 +229,13 @@
         // the entry's #fragment.
         stepRestores = stepsRestore;
         if (historyStep && e.destination && e.destination.sameDocument) stepsRestore = true;
+      });
+      // Leaving by the address bar or a bookmark fires no navigate event, so
+      // the place is noted on the way out as well. Otherwise a later step
+      // back to this entry would aim at where it was left some time before.
+      window.addEventListener("pagehide", function () {
+        var from = window.navigation.currentEntry;
+        if (from) leaveEntry(from);
       });
     }
     var notedEl = function (key, back) {
@@ -641,8 +650,16 @@
     try {
       if (window.location.hash.length > 1) fragmentTarget = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
     } catch (e) { /* a malformed fragment names nothing */ }
+    // Coming back by a reload or a step back or forward, the browser has
+    // already drawn the page where the reader was, so what is in view there
+    // stays as drawn instead of vanishing for its entrance.
+    var restoring = document.documentElement.classList.contains("is-restoring");
     revealTargets.forEach(function (el) {
       if (fragmentTarget && el.contains(fragmentTarget)) return;
+      if (restoring) {
+        var box = el.getBoundingClientRect();
+        if (box.bottom > 0 && box.top < window.innerHeight && box.width > 0) return;
+      }
       el.classList.add("reveal");
     });
 
@@ -2799,6 +2816,9 @@
 
   /* ---------- Catalog, prices, and the license being built ---------- */
   var catalog = window.NADIRION_CATALOG || null;
+  // Without the catalog's data (catalog.js didn't load) Add can do nothing,
+  // so the buttons are taken away rather than offered.
+  if (!catalog) document.documentElement.classList.add("no-catalog");
   var params = new URLSearchParams(window.location.search);
 
   var isKnownModule = function (id) {
@@ -3322,6 +3342,26 @@
     });
   };
 
+  // A search that leaves the list shorter than the point the page had
+  // reached puts the page at the new end at once, but the browser carries
+  // a glide still under way on past it (up into the hero, where the list
+  // is too short to reach the catalog's top) and then snaps the page back
+  // down to the end. So a glide under way stops at the new end there and
+  // then, before the browser moves the page on, and a glide still to go
+  // starts from there.
+  var holdAtNewEnd = function (fromY) {
+    if (Math.abs(window.scrollY - fromY) <= 1) return;
+    var root = document.documentElement;
+    root.style.setProperty("scroll-behavior", "auto");
+    window.scrollTo(0, window.scrollY);
+    root.style.removeProperty("scroll-behavior");
+    // The browser may already have moved the page a frame's travel on
+    // before the glide stopped. From past the catalog's top, the page then
+    // comes to rest as near to it as the shorter list allows.
+    var top = catalogTop();
+    if (top !== null && fromY > top + 1) window.requestAnimationFrame(settleAtCatalogTop);
+  };
+
   var refilter = function (fromChip) {
     holdAnchor();
     var fromY = window.scrollY;
@@ -3331,6 +3371,7 @@
     };
     if (!commerceMotion || !catalogSection) {
       applyFilter();
+      if (!fromChip) holdAtNewEnd(fromY);
       if (fromChip) chipToTop(fromY);
       else if (searchMoves()) searchToTop();
       return;
@@ -3356,6 +3397,7 @@
     });
 
     applyFilter();
+    if (!fromChip) holdAtNewEnd(fromY);
 
     // Then: where everything lands. A chip pressed deep in the list, or a
     // search that leaves its first result above the view, takes the page
@@ -3618,7 +3660,9 @@
     // one move, never a second one after it or one back the other way. A
     // field wholly out of view the browser brings to the middle of the
     // window; where it fits there, that move is left to finish, and looked
-    // at once it has.
+    // at once it has. Not a text box: of that the browser centres only the
+    // line with the caret, which can leave the box's lower edge still out
+    // of view, so the page goes straight to where the box comes to rest.
     var look = function () {
       if (document.activeElement !== field || readerActs !== acts) return;
       var y = window.scrollY;
@@ -3633,7 +3677,7 @@
       var top = (label ? Math.min(label.getBoundingClientRect().top, box.top) : box.top) + y;
       var bottom = box.bottom + below + y;
       var fits = bottom - top <= floor - pad;
-      if (lastY !== null || (fits && !reduceMotion && (box.bottom <= pad || box.top >= floor - below))) {
+      if (lastY !== null || (fits && !reduceMotion && field.tagName !== "TEXTAREA" && (box.bottom <= pad || box.top >= floor - below))) {
         still = lastY !== null && Math.abs(y - lastY) < 0.5 ? still + 1 : 0;
         lastY = y;
         if (still < 3 && ++frames < 90) {

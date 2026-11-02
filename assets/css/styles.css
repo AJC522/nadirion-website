@@ -936,12 +936,21 @@ section.light .eyebrow .index { color: var(--black); border-right-color: var(--l
 .contact-details a { border-bottom: 1px solid var(--line-dark-strong); transition: border-color 0.2s ease; }
 .contact-details a:hover { border-color: var(--white); }
 
-.contact-form {
+.contact-form,
+.form-fallback {
   background: var(--graphite);
   border: 1px solid var(--line-dark);
   border-radius: var(--radius);
   padding: 34px;
 }
+/* The forms send only with the script running. Without it they would
+   reload the page with every field in its address and send nothing, so
+   they give way to a note with the address to write to. */
+html:not(.js) form.js-send,
+html.js .form-fallback { display: none; }
+.form-fallback { margin: 0; align-self: start; color: var(--silver-300); line-height: 1.6; }
+.form-fallback a { color: var(--white); border-bottom: 1px solid var(--line-dark-strong); }
+.form-fallback a:hover { border-color: var(--white); }
 .form-row { margin-bottom: 18px; }
 .form-row label {
   display: block;
@@ -1516,7 +1525,7 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   .about-pillars { grid-template-columns: 1fr; }
   .hero h1 br { display: none; }
   .scroll-cue { display: none; }
-  .contact-form { padding: 24px; }
+  .contact-form, .form-fallback { padding: 24px; }
 }
 
 /* ---------- Responsive: multi-page components ---------- */
@@ -1898,6 +1907,7 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
 /* Building a license and filtering need the script; without it the cards
    stay a plain, fully listed catalog. */
 html:not(.js) .mod-add,
+html.no-catalog .mod-add,
 html:not(.js) .catalog-bar { display: none; }
 html:not(.js) .catalog { padding-top: 72px; }
 

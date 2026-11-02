@@ -54,7 +54,9 @@ development are described on the "In Development" page until they go on sale.
   the script. If `main.js` fails to load, `boot.js` drops the `js` class as soon as it
   fails, or at the latest once the page has loaded (`main.js` marks that it ran with
   `js-ready`), so the page falls back to that no-script layout instead of offering a
-  menu button or search bar that does nothing.
+  menu button or search bar that does nothing. In that layout the contact and reseller
+  forms give way to a note with the address to write to, and if only `catalog.js` fails
+  to load, the catalog's Add buttons are taken away (`html.no-catalog`).
 
   When the window changes width (a phone turns, a window snaps to half the screen), the
   page keeps the reader on what they were reading, and a glide that was under way to a
@@ -139,6 +141,10 @@ The contact and reseller forms (`form.js-send`) send in one of two ways:
 - **Without it** (the default), submitting opens the visitor's email app with a message to
   `contact@nadirion.us` (override with `data-to`) already written, and says so. Nothing is
   reported as sent when it was not.
+
+The forms send only through `main.js`. Without it (scripts off, or the file failed to
+load) each form is hidden and a `.form-fallback` note with the email address shows in its
+place, so nothing is submitted into the page's address.
 
 Rows marked `data-show-when="field:value|value"` appear only while that field has one of
 those values; while hidden they are disabled, so their required fields don't block sending.
