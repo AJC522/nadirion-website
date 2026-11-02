@@ -15,7 +15,9 @@
    - A price left as null renders as the pending label below,
      and the running total shows that label until it is set.
    - Set preview: true on a module to mark it "Preview" (newer or
-     less tested). The preview block below sets how it is priced.
+     less tested). No module is in Preview today. A Preview module
+     keeps its tier price in the running total; the Preview discount
+     described below is applied on the quote.
    ========================================================= */
 window.NADIRION_CATALOG = {
   currency: "USD",
@@ -33,9 +35,8 @@ window.NADIRION_CATALOG = {
     premium: { name: "Premium", price: 100 }
   },
 
-  // How modules marked preview: true are priced.
-  // mode: "free" (no charge) or "discount" (discount is a fraction, e.g. 0.5 for half price).
-  preview: { mode: null, discount: null }, // [VERIFY: discounted (by how much) or included free]
+  // The Preview discount, shown on the price list and the quote form.
+  preview: { note: "30% off for our first 25 customers" },
 
   modules: {
     // Intelligence

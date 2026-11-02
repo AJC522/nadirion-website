@@ -312,12 +312,12 @@
         <div class="table-scroll">
           <table class="spec-table">
             <thead>
-              <tr><th scope="col">Platform</th><th scope="col">Package</th><th scope="col">Installs as</th><th scope="col">Updates</th><th scope="col">Code signing</th></tr>
+              <tr><th scope="col">Platform</th><th scope="col">Package</th><th scope="col">Installs as</th><th scope="col">Updates</th></tr>
             </thead>
             <tbody>
-              <tr><td><strong>WINDOWS</strong></td><td>Setup wizard (.exe), x86_64</td><td>Per-user installation with no administrator rights required; Desktop and Start menu shortcuts</td><td>In place, checked against a SHA-256 hash</td><td>[VERIFY: Authenticode-signed, yes or no]</td></tr>
-              <tr><td><strong>MACOS</strong></td><td>Disk image (.dmg), x86_64</td><td>Drag to Applications</td><td>In place for the standalone binary, checked against a SHA-256 hash; the app bundle updates by downloading the new .dmg</td><td>[VERIFY: signed and notarized, yes or no]</td></tr>
-              <tr><td><strong>LINUX</strong></td><td>Archive (.tar.gz), x86_64</td><td>Install script places it in ~/.local/bin with an application-menu launcher</td><td>In place, checked against a SHA-256 hash</td><td>[VERIFY: signature or published checksum, or none]</td></tr>
+              <tr><td><strong>WINDOWS</strong></td><td>Setup wizard (.exe), x86_64</td><td>Per-user installation with no administrator rights required; Desktop and Start menu shortcuts</td><td>In place, checked against a SHA-256 hash</td></tr>
+              <tr><td><strong>MACOS</strong></td><td>Disk image (.dmg), x86_64</td><td>Drag to Applications</td><td>In place for the standalone binary, checked against a SHA-256 hash; the app bundle updates by downloading the new .dmg</td></tr>
+              <tr><td><strong>LINUX</strong></td><td>Archive (.tar.gz), x86_64</td><td>Install script places it in ~/.local/bin with an application-menu launcher</td><td>In place, checked against a SHA-256 hash</td></tr>
             </tbody>
           </table>
         </div>
@@ -336,7 +336,7 @@
           </div>
           <div class="spec-note">
             <h4>Platform notes</h4>
-            <p>Several forensic modules read Windows-only artifacts, such as registry hives, Prefetch, and event logs, and a few are best-effort on macOS. A SHA-256 update check confirms integrity; it is not a code signature. Each module's catalog entry notes its platform limits.</p>
+            <p>Several forensic modules read Windows-only artifacts, such as registry hives, Prefetch, and event logs, and a few are best-effort on macOS. Each module's catalog entry notes its platform limits.</p>
           </div>
         </div>
       </div>

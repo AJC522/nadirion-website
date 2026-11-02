@@ -131,9 +131,10 @@ Prices live in `assets/js/catalog.js`, as annual subscriptions per user in US do
   `premium`. Each module names its `tier`. Included modules show a static "Included with
   Nadirion Desktop" label on their card instead of an add button, and never enter a
   license selection.
-- `preview`: how modules marked `preview: true` are priced (`mode: "free"`, or
-  `mode: "discount"` with a fraction such as `0.5`). Marking a module Preview also adds a
-  "Preview" tag to its card.
+- `preview.note`: the Preview discount ("30% off for our first 25 customers"), shown on
+  the price list and the quote form. Mark a module with `preview: true` to add a "Preview"
+  tag to its card. Its running total stays at the tier price, because the discount applies
+  only to some customers and is applied on the quote. No module is in Preview today.
 
 The module cards, the price list on `pricing.html` (elements with `data-list-price`), the
 license tray, and the quote form all read these numbers. The tray and quote form keep a

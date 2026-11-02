@@ -2300,15 +2300,13 @@
     var mod = moduleOf(id);
     if (!mod) return null;
     if (mod.tier === "included") return 0;
+    // Preview modules keep their tier price here; their discount applies only
+    // to some customers, so it is applied on the quote.
     var tier = catalog.tiers && catalog.tiers[mod.tier];
-    var base = tier && isAmount(tier.price) ? tier.price : null;
-    if (!mod.preview) return base;
-    var preview = catalog.preview || {};
-    if (preview.mode === "free") return 0;
-    if (preview.mode === "discount" && isAmount(preview.discount) && base !== null) {
-      return Math.round(base * (1 - preview.discount) * 100) / 100;
-    }
-    return null;
+    return tier && isAmount(tier.price) ? tier.price : null;
+  };
+  var previewNote = function () {
+    return catalog.preview && catalog.preview.note ? catalog.preview.note : pendingLabel();
   };
 
   // The license's annual price per user: Nadirion Desktop plus each add-on.
@@ -2329,11 +2327,7 @@
     var mod = moduleOf(id);
     if (!mod || !catalog.tiers[mod.tier]) return "";
     if (mod.tier === "included") return catalog.tiers.included.name;
-    if (mod.preview) {
-      var preview = catalog.preview || {};
-      if (preview.mode === "free") return "Preview · Included free";
-      return "Preview · " + priceText(modulePrice(id));
-    }
+    if (mod.preview) return "Preview \u00b7 " + priceText(modulePrice(id));
     return catalog.tiers[mod.tier].name + " · " + priceText(modulePrice(id));
   };
 
@@ -2342,14 +2336,7 @@
     if (key === "desktop") return priceText(catalog.desktop && catalog.desktop.price);
     var parts = key.split(":");
     if (parts[0] === "tier" && catalog.tiers[parts[1]]) return priceText(catalog.tiers[parts[1]].price);
-    if (parts[0] === "preview") {
-      var preview = catalog.preview || {};
-      if (preview.mode === "free") return "Included free";
-      if (preview.mode === "discount" && isAmount(preview.discount)) {
-        return Math.round(preview.discount * 100) + "% off the module's price";
-      }
-      return "[VERIFY: discounted or included free]";
-    }
+    if (parts[0] === "preview") return previewNote();
     return null;
   };
 
@@ -3001,7 +2988,11 @@
       text += " \u00d7 " + users + " users";
       if (isAmount(total)) text += " = " + formatPrice(total * users) + "/yr";
     }
-    return text + ". Purchases for several users, and through resellers, receive a formal quote.";
+    text += ".";
+    if (selected.some(isPreview)) {
+      text += " Preview modules are " + previewNote() + "; if that includes you, the discount is applied on your quote.";
+    }
+    return text + " Purchases for several users, and through resellers, receive a formal quote.";
   };
 
   var renderQuote = function (focusAt) {
