@@ -16,9 +16,8 @@ The site describes what the software does and where it falls short, and nothing 
 - Company facts (founder, team, customers, experience, reseller and government status,
   code signing, testing) appear only as stated by the owner. Anything not yet confirmed is a
   visible `[VERIFY: ...]` placeholder; search the repo for `[VERIFY` before publishing.
-- Every module card ends with its main limitation (`Limit:`), and modules flag, score, or
-  suggest rather than "detect" or "prove". AI Analysis scores are advisory; Malware Scan is
-  a heuristic sweep, not antivirus.
+- Modules flag, score, or suggest rather than "detect" or "prove". AI Analysis scores are
+  advisory; Malware Scan is a heuristic sweep, not antivirus.
 - Words such as "verified", "encrypted", or "forensic" name a mechanism (a SHA-256 manifest,
   AES-256-GCM at rest) or are not used.
 - `modules.html#free-tools` names the free tools that cover similar ground; keep it current
@@ -28,7 +27,7 @@ The site describes what the software does and where it falls short, and nothing 
 
 - **Palette:** black, white, and silver only, with metallic gradients for accent text.
 - **Theme:** astronomy and space, including an animated starfield, a constellation
-  illustration in the About section, and zenith/nadir markers that tie back to the company
+  illustration on the About page, and zenith/nadir markers that tie back to the company
   name.
 - **Typography:** Space Grotesk for display, Inter for body copy, JetBrains Mono for
   labels and the console mockups.
@@ -74,14 +73,15 @@ The site describes what the software does and where it falls short, and nothing 
 
 ```
 index.html                  home: product hero, how licensing works, module categories,
-                            console, principles, resellers teaser, about
+                            console, principles, resellers teaser
 desktop.html                Nadirion Desktop: what every license includes, console, install
 modules.html                module catalog: search, category filter, "add to license",
-                            prices, limitations, free-tool comparison
+                            prices, free-tool comparison
 pricing.html                licensing model, price list, ways to buy,
                             buying steps, FAQ
 resellers.html              reseller program: status, tracks, application form, verify
 in-development.html         new products and services in research and development
+about.html                  about Nadirion: the name, what we make, where to go next
 contact.html                quotes (with the license being built), demos, everything else
 assets/css/styles.css       design tokens and all styling
 assets/js/catalog.js        module ids, names, categories, tiers, bundles, and prices

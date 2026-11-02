@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Module Catalog: 33 Add-ons for Nadirion Desktop</title>
-  <meta name="description" content="All 33 Nadirion Desktop modules, with what each one does, its main limitation, and its price: 12 included with the Desktop, 21 add-ons at $50 or $100 per user per year." />
+  <meta name="description" content="All 33 Nadirion Desktop modules, with what each one does and its price: 12 included with the Desktop, 21 add-ons at $50 or $100 per user per year." />
   <link rel="canonical" href="https://nadirion.us/modules.html" />
   <meta name="theme-color" content="#050506" />
   <meta name="color-scheme" content="dark" />
@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="Nadirion" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="Module Catalog: 33 Add-ons for Nadirion Desktop" />
-  <meta property="og:description" content="All 33 Nadirion Desktop modules, with what each one does, its main limitation, and its price: 12 included with the Desktop, 21 add-ons at $50 or $100 per user per year." />
+  <meta property="og:description" content="All 33 Nadirion Desktop modules, with what each one does and its price: 12 included with the Desktop, 21 add-ons at $50 or $100 per user per year." />
   <meta property="og:url" content="https://nadirion.us/modules.html" />
   <meta property="og:image" content="https://nadirion.us/assets/img/og-image.png" />
   <meta property="og:image:width" content="1200" />
@@ -89,6 +89,7 @@
         <a href="pricing.html">Pricing</a>
         <a href="resellers.html">Resellers</a>
         <a href="in-development.html">In Development</a>
+        <a href="about.html">About</a>
         <a href="contact.html?interest=quote" class="nav-cta">Request a Quote</a>
       </nav>
     </div>
@@ -112,7 +113,7 @@
             Every module below runs inside <a href="desktop.html">Nadirion Desktop</a>, which is
             $150 per user per year and includes the four Triage modules and the eight Host
             Utilities. The other 21 are add-ons at $50 per user per year, or $100 for Premium
-            modules. Each card says what the module does, its main limitation, and its price.
+            modules. Each card says what the module does and its price.
             Add modules to a license to see a running total, then send it to us. Free tools
             cover some of the same ground, and the <a href="#free-tools">comparison below</a>
             names them.
@@ -187,7 +188,6 @@
                 <li>Extracts IP addresses, domains, URLs, email addresses, hashes, CVEs, and filenames, and re-fangs defanged indicators</li>
                 <li>Runs VirusTotal, AbuseIPDB, and Hybrid Analysis lookups in parallel</li>
                 <li>Exports the normalized set as JSON, CSV, or STIX 2.1</li>
-                <li><strong>Limit:</strong> Extraction is pattern-based, so review the results for false matches before sharing them. Lookups are limited by your API plans' quotas.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -209,7 +209,6 @@
                 <li>AES-256-GCM encryption of the database at rest</li>
                 <li>CSV, Excel, STIX, and MISP import and export, plus a SentinelOne IOC Management export</li>
                 <li>Team sync through a network share, with protection against concurrent writes</li>
-                <li><strong>Limit:</strong> Sync works through a shared folder you provide, which suits a small team; it is not a replacement for a platform such as MISP or OpenCTI. Encryption covers the database, not files you export from it.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -231,7 +230,6 @@
                 <li>Polls RSS, Atom, and JSON feeds across cyber, advisory, and vulnerability sources</li>
                 <li>Tags severity, extracts CVE identifiers, and flags items that match your watchlist</li>
                 <li>Search, priority filters, and export to TXT, CSV, JSON, or HTML</li>
-                <li><strong>Limit:</strong> It is only as current and complete as the public feeds it reads. Severity tags help you sort; they are not an assessment of your exposure.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -267,7 +265,6 @@
                 <li>Hashes, entropy, and checks for a MIME type that doesn't match the file extension</li>
                 <li>Filename anomalies, embedded string signals, and VirusTotal and Hybrid Analysis lookups by hash (the file itself is never uploaded)</li>
                 <li>Suggests whether the file looks benign or needs escalation, with the checks behind that suggestion</li>
-                <li><strong>Limit:</strong> Nothing is executed, so packed or new malware can look benign. A hash with no lookup results tells you nothing either way.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -290,7 +287,6 @@
                 <li>SPF, DKIM, and DMARC alignment; Received-chain analysis; and lookalike-domain and BEC Reply-To checks</li>
                 <li>Each finding names its rule, a severity, and a MITRE ATT&amp;CK technique</li>
                 <li>An overall rating, from Benign through Likely Phishing to Malicious, shown with the findings that produced it</li>
-                <li><strong>Limit:</strong> Because nothing is opened or followed, payloads and landing pages are only flagged through indicators such as file type and URL. Mail sent from a compromised legitimate account can pass every authentication check.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -312,7 +308,6 @@
                 <li>Hash and signature status for each process binary</li>
                 <li>Each process's listening and established network connections</li>
                 <li>Baseline comparison and exportable reports for handoff</li>
-                <li><strong>Limit:</strong> A live snapshot that is most complete on Windows. It sees only what is running when you look, and malware that injects into or imitates a signed process can score low.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -334,7 +329,6 @@
                 <li>Edge, Chrome, Brave, Vivaldi, and Firefox on every platform; Opera, Opera GX, Waterfox, and LibreWolf on Windows</li>
                 <li>Flags URL shorteners, paste sites, tunneling and remote-access services, and risky downloads</li>
                 <li>Full Scan reads every profile on the host, including history kept in Volume Shadow Copies</li>
-                <li><strong>Limit:</strong> Full Scan is Windows-only. Private browsing and cleared history leave little to read, and a flag marks a category of site, not intent.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -356,7 +350,6 @@
                 <li>Status, start type, and binary path for every service</li>
                 <li>Flags unsigned binaries (Windows), user-writable or unusual paths, and missing descriptions</li>
                 <li>Windows services and Linux systemd units in full</li>
-                <li><strong>Limit:</strong> macOS launchd jobs are listed with status only. The traits it flags are common in malicious services and also in poorly packaged legitimate ones.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -378,7 +371,6 @@
                 <li>Task Scheduler on Windows, cron and systemd timers on Linux, cron on macOS</li>
                 <li>Flags unusually frequent triggers and actions that run unsigned, user-writable, or LOLBin binaries</li>
                 <li>Lists entries that are disabled but still present</li>
-                <li><strong>Limit:</strong> On macOS it reads cron only, not launchd. Legitimate updater and admin tasks often trip the same flags.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -400,7 +392,6 @@
                 <li>Run keys, AppInit_DLLs, Winlogon, IFEO, LSA packages, and COM hijack candidates</li>
                 <li>UserAssist, RecentDocs, and ShellBags activity</li>
                 <li>Works on exported hives or finds them on the host</li>
-                <li><strong>Limit:</strong> Windows registry only. It checks the locations listed above, not every autostart point Windows supports.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -422,7 +413,6 @@
                 <li>Point it at exported artifacts or let it find them on the host</li>
                 <li>Merges every source into one scored timeline</li>
                 <li>Read-only, with scans running in the background</li>
-                <li><strong>Limit:</strong> Windows only. Each source has gaps (Prefetch, for example, is often disabled on servers), so a program missing from the timeline may still have run.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -444,7 +434,6 @@
                 <li>Logon-session report that flags bursts of failed logons, a common sign of password guessing</li>
                 <li>Scores process-creation and PowerShell script-block events</li>
                 <li>Cross-references findings exported from other modules</li>
-                <li><strong>Limit:</strong> Windows logs only, and only what was recorded. Without Sysmon or script-block logging enabled, or with small default log sizes, much of the evidence may never have been written.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -466,7 +455,6 @@
                 <li>Provenance (such as C2PA Content Credentials), artifact, and heuristic evidence tiers; the strongest tier present caps the score</li>
                 <li>Scores based on style alone stop at 70/100; a higher score needs evidence that names a generator</li>
                 <li>Scores &ldquo;created&rdquo; and &ldquo;edited&rdquo; separately, so a retouched camera photo isn't labeled synthetic</li>
-                <li><strong>Limit:</strong> Detecting AI-generated content is unreliable across the industry, for this module and every other tool. Expect false positives and false negatives, especially for text, code, and re-encoded media. Provenance metadata is easily stripped, so its absence means nothing. Treat every score as advisory evidence, never as a determination.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -489,7 +477,6 @@
                 <li>Live inbound and outbound connections</li>
                 <li>Firewall rules and listening-port exposure</li>
                 <li>ARP table and the DNS resolver cache (Windows)</li>
-                <li><strong>Limit:</strong> A single snapshot, so short-lived connections between snapshots are missed. The DNS cache is read on Windows only and holds only recent lookups.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -526,7 +513,6 @@
                 <li>Quick Scan in the app, or a Full Scan through the bundled PowerShell collector</li>
                 <li>Blocklist matching and optional VirusTotal lookups</li>
                 <li>Remediation asks for confirmation, quarantines or disables rather than deleting, and re-checks each item afterward</li>
-                <li><strong>Limit:</strong> Findings are leads to review. Expect false positives on admin and remote-access tools, and misses for malware that avoids the places it checks. Windows-first; checks on macOS and Linux are narrower. Use it alongside antivirus or EDR, not instead of either.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -546,7 +532,6 @@
                 <li>Blocks inbound and outbound traffic by default, allowing loopback and an optional address such as your jump host</li>
                 <li>Snapshots the firewall configuration before changing it; Restore puts that snapshot back</li>
                 <li>Exact restore on Windows and Linux; best-effort on macOS</li>
-                <li><strong>Limit:</strong> It relies on the host's own firewall, so anything running with administrator rights on the host can undo it. On Linux the policy covers IPv4 only. Needs administrator rights.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -566,7 +551,6 @@
                 <li>Standalone Windows and Linux/macOS collectors that need nothing installed, plus a portable console of the command-line modules for hosts with Python 3</li>
                 <li>Collectors write their results to the kit, not to the host</li>
                 <li>A SHA-256 manifest of collected files, and a Verify Kit check that re-hashes them to show whether anything changed</li>
-                <li><strong>Limit:</strong> Running any collector leaves some traces on the host, such as process and log entries. The manifest shows whether files changed after collection; it does not replace your own chain-of-custody procedures.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -585,7 +569,6 @@
                 <li>Raw (DD) mode for hybrid ISOs; file-copy mode for Windows installers, with Secure Boot support</li>
                 <li>Checks the image against a checksum you supply before writing, and reads the drive back afterward</li>
                 <li>Offers only removable drives, re-identified at write time</li>
-                <li><strong>Limit:</strong> The pre-write check is only as good as the checksum you supply, so take it from the publisher, not the download mirror. Writing erases the target drive and needs administrator rights.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -619,7 +602,6 @@
                 <li>21 codecs, from Base64 and Base85 to Morse, ROT47, and gzip</li>
                 <li>Auto-peel strips nested layers and reports each one it removed</li>
                 <li>Ranks likely hash algorithms and tries dictionary recovery, including salted schemes</li>
-                <li><strong>Limit:</strong> Hash identification ranks the formats that fit; many algorithms share a length, so it is a suggestion. Dictionary recovery works only if the plaintext is in your wordlist.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI</li>
@@ -656,7 +638,6 @@
                 <li>Scans code, keys and certificates, TLS/SSH/VPN configuration, dependencies, and (opt-in) live endpoints</li>
                 <li>Scores harvest-now, decrypt-later exposure against published timelines such as NIST IR 8547 and CNSA 2.0</li>
                 <li>A four-wave migration plan with HTML, CSV, CycloneDX CBOM, and SARIF exports</li>
-                <li><strong>Limit:</strong> Pattern-based: it can miss cryptography behind wrappers or inside compiled code, and it flags some non-security uses. Exposure scores and waves are planning estimates, not a compliance assessment.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -693,7 +674,6 @@
                 <li>Alias, email address, username, VPN IP, and social-platform handles for each persona</li>
                 <li>Notes kept alongside each profile</li>
                 <li>Profiles are stored locally on the workstation</li>
-                <li><strong>Limit:</strong> A record-keeping tool. Keeping personas separate online still depends on your own tradecraft.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -714,7 +694,6 @@
                 <li>Builds targeted queries from a name, username, age, location, school, or employer</li>
                 <li>Runs the searches through SerpAPI with your key</li>
                 <li>Collects the open-source results for one person of interest in one place</li>
-                <li><strong>Limit:</strong> Search-engine results only. Results for common names mix different people, so every match needs your confirmation. Use it only where you have a lawful basis to research the person.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -751,7 +730,6 @@
                 <li>Repeated reachability checks for the hosts you list</li>
                 <li>Latency tracking with status history</li>
                 <li>Runs from the analyst's own workstation</li>
-                <li><strong>Limit:</strong> Checks run from your workstation, so they reflect your network path and stop when the workstation does. Not a replacement for a monitoring service.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -772,7 +750,6 @@
                 <li>Color-coded hops along the path</li>
                 <li>Per-hop latency, with crossings between internal, DMZ, and external networks highlighted</li>
                 <li>Shows which network boundaries a path crosses when you are scoping an incident</li>
-                <li><strong>Limit:</strong> It sees what traceroute sees: many routers and firewalls drop or rate-limit probes, so missing hops are common, and real traffic can take a different path.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -793,7 +770,6 @@
                 <li>Neighbor-table discovery plus an optional bounded ping sweep</li>
                 <li>Classifies hosts against the network segments you declare</li>
                 <li>Flags loops, bridging, shadow subnets, and device vendors that don't belong on a segment</li>
-                <li><strong>Limit:</strong> Local segments only, and only hosts that answer or appear in the neighbor table. Vendor names come from MAC address prefixes, which randomized or spoofed addresses defeat.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -829,7 +805,6 @@
                 <li>Windows drivers, Linux kernel modules, and macOS kernel extensions</li>
                 <li>Version for each, plus signature status on Windows and Linux</li>
                 <li>No bundled vendor database; updates come from the operating system</li>
-                <li><strong>Limit:</strong> It can only offer updates the operating system's update channel provides, so vendor-only drivers and firmware won't appear.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -848,7 +823,6 @@
                 <li>Sort by type, by name pattern, or both</li>
                 <li>Preview the result before any files are moved</li>
                 <li>Changes apply only after you confirm</li>
-                <li><strong>Limit:</strong> Moving files can break shortcuts and paths that other programs rely on, so check the preview before confirming.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -867,7 +841,6 @@
                 <li>Run keys, Startup folders, and auto-start services on Windows</li>
                 <li>XDG autostart and systemd on Linux; launchd on macOS</li>
                 <li>Every disable can be undone</li>
-                <li><strong>Limit:</strong> It covers the locations listed above, not every autostart point an operating system supports.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -886,7 +859,6 @@
                 <li>Capture host state before and after triage</li>
                 <li>Records values without flagging or scoring anything</li>
                 <li>Run it again afterward to compare the two</li>
-                <li><strong>Limit:</strong> It records; comparing two snapshots is up to you.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -905,7 +877,6 @@
                 <li>Largest files and folders under any root</li>
                 <li>Stale temp and cache items, plus orphaned installers in Downloads</li>
                 <li>Deletes only what you confirm</li>
-                <li><strong>Limit:</strong> &ldquo;Stale&rdquo; and &ldquo;orphaned&rdquo; are judged by age and location, so check each item before deleting it.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -924,7 +895,6 @@
                 <li>Groups by size first, then hashes only same-size files</li>
                 <li>Keep the first, oldest, or newest copy of each group</li>
                 <li>The last remaining copy can never be deleted</li>
-                <li><strong>Limit:</strong> Matches identical content only; near-duplicates such as resized images or re-saved documents aren't found.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -943,7 +913,6 @@
                 <li>Reads each platform's own package database</li>
                 <li>Flags versions with an update available</li>
                 <li>Updates through winget, apt, dnf, yum, or Homebrew</li>
-                <li><strong>Limit:</strong> It sees only software the package database knows about, so portable and manually installed programs may be missing or show no update status.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -962,7 +931,6 @@
                 <li>A built-in file browser and a queue you review before anything runs</li>
                 <li>Images, CSV/XLSX/JSON, TXT/DOCX/PDF, and audio and video through ffmpeg</li>
                 <li>Offers only the output formats that every queued file can be converted to</li>
-                <li><strong>Limit:</strong> Document conversion keeps the text and loses the layout. Audio and video need ffmpeg installed on the workstation.</li>
               </ul>
               <ul class="mod-tags" aria-label="Details">
                 <li>GUI + console</li>
@@ -1100,6 +1068,7 @@
           <a href="pricing.html">Pricing</a>
           <a href="resellers.html">Resellers</a>
           <a href="in-development.html">In Development</a>
+          <a href="about.html">About</a>
           <a href="contact.html">Contact</a>
         </nav>
       </div>

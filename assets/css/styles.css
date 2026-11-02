@@ -1227,8 +1227,11 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
   font-family: var(--font-mono);
   font-size: 0.68rem;
   letter-spacing: 0.14em;
+  text-align: right;
   color: var(--silver-700);
 }
+/* Categories that come with the Desktop: "included" on its own line beneath the count. */
+.focus-included { display: block; margin-top: 4px; }
 .focus-icon {
   width: 44px;
   height: 44px;
