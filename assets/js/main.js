@@ -1,8 +1,9 @@
 (function () {
   "use strict";
 
-  // Lets CSS hide controls that only work with the script running.
-  document.documentElement.classList.add("js");
+  // Lets CSS hide controls that only work with the script running. boot.js
+  // has set it already; js-ready tells boot.js that this script did run.
+  document.documentElement.classList.add("js", "js-ready");
 
   var mediaMatches = function (query) {
     return !!(window.matchMedia && window.matchMedia(query).matches);
@@ -108,8 +109,15 @@
       };
     };
     glidingTo = function (el, aim) {
-      glide = { el: el, aim: aim || aimAt(el) };
+      glide = { el: el, aim: aim || (el ? aimAt(el) : function () {}) };
       holdGlide(400);
+    };
+    // Whether a glide has somewhere to aim: something still laid out on the
+    // page, or the very top (the root). A glide to nowhere in particular
+    // (the browser's own return to a place nothing was noted for) is left
+    // to run through a change of width rather than stopped part way.
+    var aimable = function (el) {
+      return !!el && (el === document.documentElement || (el.isConnected && !!el.offsetParent));
     };
     var named = function (hash) {
       if (!hash || hash.length < 2) return null;
@@ -143,40 +151,100 @@
       if (el) glidingTo(el);
     });
     // A step back or forward between this page's entries: where the browser
-    // goes depends on how the page was loaded. After an ordinary load it
-    // goes to the entry's #fragment, however far on the reader had read.
-    // After a reload, or a step back to a page it didn't keep whole (and for
-    // an entry without a #fragment), it returns to where the reader left
-    // that entry. Where the browser says which step is which, that place is
-    // noted on leaving each entry, and a change of width aims wherever the
-    // browser is going.
+    // goes depends on how the page was loaded. After an ordinary load, the
+    // first such step goes to the entry's #fragment, however far on the
+    // reader had read. Every step after that one, every step after a reload
+    // or a return to a page the browser didn't keep whole, and any step to
+    // an entry without a #fragment, returns to where the reader left that
+    // entry. Where the browser says which step is which, that place is noted
+    // on leaving each entry, and a change of width aims wherever the browser
+    // is going.
     var stepsRestore = !!arrival && (arrival.type === "reload" || arrival.type === "back_forward");
+    var stepRestores = stepsRestore;
+    // The places are kept for the tab's session, so they are still known
+    // after a reload or a return to the page: each by the way down to it
+    // from the nearest element with an id (the markup is the same each
+    // time), or as the very top.
+    var placesKey = "nadirion.places:" + window.location.pathname;
     var leftAt = {};
+    try { leftAt = JSON.parse(window.sessionStorage.getItem(placesKey)) || {}; } catch (err) { leftAt = {}; }
+    var pathTo = function (el) {
+      var tag = el.tagName;
+      var steps = [];
+      for (; el && el !== document.body && !el.id; el = el.parentElement) {
+        var i = 0;
+        for (var s = el.previousElementSibling; s; s = s.previousElementSibling) i++;
+        steps.unshift(i);
+      }
+      return el ? { from: el === document.body ? "" : el.id, steps: steps, tag: tag } : null;
+    };
+    var atPath = function (path) {
+      var el = path.from ? document.getElementById(path.from) : document.body;
+      for (var i = 0; el && i < path.steps.length; i++) el = el.children[path.steps[i]];
+      return el && el !== document.body && el.tagName === path.tag ? el : null;
+    };
+    // The element itself, while this page is still the one it was noted on.
+    var notedEls = {};
     var stepTo = null;
     if (window.navigation && window.navigation.addEventListener) {
       window.navigation.addEventListener("navigate", function (e) {
         var from = window.navigation.currentEntry;
-        if (from && place) leftAt[from.key] = { el: place.el, share: place.share, at: place.at - (seenY - place.y) };
+        if (from) {
+          var path = place && place.el.isConnected ? pathTo(place.el) : null;
+          delete notedEls[from.key];
+          if (window.scrollY < 1) leftAt[from.key] = { top: true };
+          else if (path) {
+            leftAt[from.key] = { path: path, share: place.share, at: place.at - (seenY - place.y) };
+            notedEls[from.key] = place.el;
+          }
+          else delete leftAt[from.key];
+          // Only entries still in the tab's history are kept.
+          var kept = {};
+          var keptEls = {};
+          window.navigation.entries().forEach(function (entry) {
+            if (leftAt[entry.key]) kept[entry.key] = leftAt[entry.key];
+          });
+          if (leftAt[from.key]) kept[from.key] = leftAt[from.key];
+          for (var key in kept) if (notedEls[key]) keptEls[key] = notedEls[key];
+          leftAt = kept;
+          notedEls = keptEls;
+          try { window.sessionStorage.setItem(placesKey, JSON.stringify(leftAt)); } catch (err) { /* not kept */ }
+        }
         historyStep = e.navigationType === "traverse";
         stepTo = historyStep && e.destination ? e.destination.key : null;
+        // Whether this step returns to the place, and every one after it.
+        stepRestores = stepsRestore;
+        if (historyStep) stepsRestore = true;
       });
     }
+    var notedEl = function (key, back) {
+      if (notedEls[key]) return notedEls[key].isConnected ? notedEls[key] : null;
+      return back.path ? atPath(back.path) : null;
+    };
     window.addEventListener("hashchange", function () {
       if (historyStep) {
-        var back = stepTo && leftAt[stepTo];
+        var back = stepTo ? leftAt[stepTo] : null;
+        var backEl = back && !back.top ? notedEl(stepTo, back) : null;
+        if (backEl && !backEl.offsetParent) backEl = null;
         stepTo = null;
-        if (stepsRestore || !named(window.location.hash)) {
-          if (back && back.el.isConnected) {
-            glidingTo(back.el, function () {
+        if (stepRestores || !named(window.location.hash)) {
+          if (back && back.top) {
+            glidingTo(document.documentElement, function () {
+              window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+            });
+          } else if (backEl) {
+            glidingTo(backEl, function () {
               window.scrollTo({
-                top: Math.round(pageTop(back.el) + back.share * back.el.offsetHeight - back.at),
+                top: Math.round(pageTop(backEl) + back.share * backEl.offsetHeight - back.at),
                 behavior: reduceMotion ? "auto" : "smooth"
               });
             });
+          } else if (!reduceMotion) {
+            // Nothing noted for that entry: the browser's own glide back is
+            // left to run through a change of width, not stopped part way,
+            // and the place is noted once it gets there.
+            glidingTo(null);
           }
-          // Nothing noted for that entry (it was left at the very top, or
-          // before the reload): the place is noted as the browser returns
-          // to it, as usual.
           return;
         }
       }
@@ -292,8 +360,10 @@
       lastWidth = window.innerWidth;
       clearTimeout(noteTimer);
       for (var h = 0; h < widthHooks.length; h++) widthHooks[h]();
-      if (glide && glide.el.isConnected && glide.el.offsetParent) {
+      if (glide && aimable(glide.el)) {
         glide.aim();
+        place = null;
+      } else if (glide && !glide.el) {
         place = null;
       } else if (place && place.el.isConnected && place.el.offsetParent) {
         // Where the place sat just before this change: if the page scrolled
@@ -341,7 +411,7 @@
       resizing = setTimeout(function () {
         resizing = 0;
         // A glide is aimed once more at the settled layout.
-        if (glide && glide.el.isConnected && glide.el.offsetParent) glide.aim();
+        if (glide && aimable(glide.el)) glide.aim();
         // The same place stays the anchor until the reader moves on, so a
         // snap and back, a phone turned and turned back, or a slow drag of
         // the window's edge comes home to what was being read. A fresh note
@@ -3144,16 +3214,61 @@
     }
     return false;
   };
+  // Which items are listed, so a keystroke that changes nothing (a space,
+  // a letter that narrows no further) can leave the reader where they are.
+  var listedKey = function () {
+    var key = "";
+    for (var i = 0; i < flipItems.length; i++) key += isListed(flipItems[i]) ? "1" : "0";
+    return key;
+  };
   // A search's glide starts a frame later: typing, the browser then brings
-  // the caret into view, which would stop a glide begun straight away.
-  var searchToTop = function () { window.requestAnimationFrame(returnToCatalogTop); };
+  // the caret into view, which would stop a glide begun straight away. For
+  // the same reason, each key typed while it is still on its way starts it
+  // again, whether or not the key changed the list.
+  var searchGlide = false;
+  var searchToTop = function () {
+    var top = catalogTop();
+    searchGlide = top !== null && window.scrollY > top + 1;
+    window.requestAnimationFrame(returnToCatalogTop);
+  };
+  scrollHooks.push(function (y) {
+    if (!searchGlide) return;
+    var top = catalogTop();
+    if (top === null || y <= top + 1) searchGlide = false;
+  });
+  ["wheel", "touchstart"].forEach(function (type) {
+    window.addEventListener(type, function () { searchGlide = false; }, { passive: true });
+  });
+  // A change that leaves the list shorter than the point the page had
+  // reached puts the page at the new end at once, but the browser carries
+  // a glide still under way on from where it had got to, then pulls the
+  // page back down to that end. So the page is held at the new end for a
+  // frame, and the glide up to the catalog's top starts from there.
+  var chipToTop = function (fromY) {
+    if (Math.abs(window.scrollY - fromY) <= 1) {
+      returnToCatalogTop();
+      return;
+    }
+    window.requestAnimationFrame(function () {
+      var root = document.documentElement;
+      root.style.setProperty("scroll-behavior", "auto");
+      window.scrollTo(0, window.scrollY);
+      root.style.removeProperty("scroll-behavior");
+      window.requestAnimationFrame(returnToCatalogTop);
+    });
+  };
 
   var refilter = function (fromChip) {
     holdAnchor();
+    var fromY = window.scrollY;
+    var listedBefore = listedKey();
+    var searchMoves = function () {
+      return (searchGlide || listedKey() !== listedBefore) && firstListedHidden();
+    };
     if (!commerceMotion || !catalogSection) {
       applyFilter();
-      if (fromChip) returnToCatalogTop();
-      else if (firstListedHidden()) searchToTop();
+      if (fromChip) chipToTop(fromY);
+      else if (searchMoves()) searchToTop();
       return;
     }
     var viewH = window.innerHeight;
@@ -3182,14 +3297,15 @@
     // search that leaves its first result above the view, takes the page
     // back to the top of the catalog, so judge what will be on screen from
     // there.
-    var toTop = fromChip || firstListedHidden();
+    var toTop = fromChip || searchMoves();
     var top = toTop ? catalogTop() : null;
     var shift = top !== null && window.scrollY > top ? window.scrollY - top : 0;
     // The page itself moves when a chip takes it back up, or when the list
     // gets shorter than the point the reader had reached. Then nothing
     // stays put to glide or fade, and whatever greets the reader where the
     // page comes to rest rises in.
-    var moved = shift > 0 || Math.abs(window.scrollY - startY) > 1;
+    var jumped = Math.abs(window.scrollY - startY) > 1;
+    var moved = shift > 0 || jumped;
     var base = catalogSection.getBoundingClientRect();
     var arriving = [];
     var faded = 0;
@@ -3200,7 +3316,11 @@
       var box = now ? el.getBoundingClientRect() : null;
       var seenAfter = now && onScreen(box, shift);
 
-      if (moved) {
+      // Except what a search finds on screen now and still on screen where
+      // the page comes to rest (a key typed while the page glides back up):
+      // it stays in sight the whole way, so it carries on from where and
+      // how it is drawn rather than vanishing to rise in again.
+      if (moved && !(was.seen && seenAfter && !jumped && !fromChip)) {
         if (seenAfter) arriving.push({ el: el, box: box });
         return;
       }
@@ -3249,7 +3369,7 @@
       }));
     });
 
-    if (fromChip) returnToCatalogTop();
+    if (fromChip) chipToTop(fromY);
     else if (toTop) searchToTop();
   };
 
@@ -3388,6 +3508,8 @@
       catalogSearch.addEventListener("input", function () { refilter(false); });
       catalogSearch.addEventListener("keydown", function (event) {
         if (event.key === "Escape" || event.key === "Esc") {
+          // Nothing to clear: the reader stays where they are.
+          if (!catalogSearch.value) return;
           catalogSearch.value = "";
           refilter(false);
         }
@@ -3395,34 +3517,80 @@
     }
   }
 
-  /* ---------- Text boxes come into view whole ---------- */
+  /* ---------- Form fields come into view with their labels ---------- */
   // Tabbing to a text box, the browser scrolls only as far as its caret,
   // which can leave most of a tall box, and the line of light along its
-  // lower edge that marks focus, below the window. So a box reached from
-  // the keyboard comes fully into view, 8px clear of the window's edge or
-  // the license tray (scroll-margin-bottom, scroll-padding-bottom). A tap
-  // or click leaves the page where it is; on a phone the browser makes
-  // room for the keyboard itself.
+  // lower edge that marks focus, below the window. Going back up a form,
+  // it can stop a field at the header's edge with the label that names it
+  // under the header, or, in a short window, leave a text box's lower edge
+  // below. So a field reached from the keyboard comes into view with its
+  // label clear of the header, and a text box whole, 8px clear of the
+  // window's edge or the license tray (scroll-margin-bottom,
+  // scroll-padding-bottom), where both fit. A tap or click leaves the page
+  // where it is; on a phone the browser makes room for the keyboard itself.
   var focusFromPointer = false;
   document.addEventListener("pointerdown", function () { focusFromPointer = true; }, true);
   document.addEventListener("keydown", function () { focusFromPointer = false; }, true);
   // Coming back to the window or tab, the browser hands focus back to the
-  // box without moving the page; that is no step from the keyboard either.
+  // field without moving the page; that is no step from the keyboard either.
   window.addEventListener("blur", function () { focusFromPointer = true; });
+  // Anything the reader does next (a scroll, a key, a tap) ends a look that
+  // is still waiting: the page is theirs again.
+  var readerActs = 0;
+  ["wheel", "touchstart", "pointerdown", "keydown"].forEach(function (type) {
+    document.addEventListener(type, function () { readerActs++; }, { capture: true, passive: true });
+  });
   document.addEventListener("focusin", function (event) {
-    var box = event.target;
-    if (focusFromPointer || !box || box.tagName !== "TEXTAREA") return;
-    window.requestAnimationFrame(function () {
-      if (document.activeElement !== box) return;
-      // Only a box whose lower edge is below the window (reached going
-      // down the form). Going back up, the browser brings the box, and the
-      // label above it, into view on its own; stepping in part way would
-      // stop the page with the label under the header.
-      var below = parseFloat(window.getComputedStyle(box).scrollMarginBottom) || 0;
-      var pad = parseFloat(window.getComputedStyle(document.documentElement).scrollPaddingBottom) || 0;
-      if (box.getBoundingClientRect().bottom + below <= window.innerHeight - pad) return;
-      box.scrollIntoView({ block: "nearest", inline: "nearest" });
-    });
+    var field = event.target;
+    if (focusFromPointer || !field || !/^(INPUT|SELECT|TEXTAREA)$/.test(field.tagName) ||
+        !field.closest || !field.closest("form.js-send")) return;
+    var label = field.labels && field.labels.length ? field.labels[0] : null;
+    var textBox = field.tagName === "TEXTAREA";
+    var acts = readerActs;
+    var lastY = null;
+    var still = 0;
+    var frames = 0;
+    var look = function () {
+      if (document.activeElement !== field || readerActs !== acts) return;
+      var box = field.getBoundingClientRect();
+      var rootStyle = window.getComputedStyle(document.documentElement);
+      var below = parseFloat(window.getComputedStyle(field).scrollMarginBottom) || 0;
+      var floor = window.innerHeight - (parseFloat(rootStyle.scrollPaddingBottom) || 0);
+      var over = box.bottom + below - floor;
+      // Reached going down the form, a text box comes into view whole
+      // straight away.
+      if (textBox && lastY === null && over > 0) {
+        field.scrollIntoView({ block: "nearest", inline: "nearest" });
+        return;
+      }
+      // Otherwise the browser may still be moving the page: look again
+      // each frame until it holds still.
+      var y = window.scrollY;
+      still = lastY !== null && Math.abs(y - lastY) < 0.5 ? still + 1 : 0;
+      lastY = y;
+      if (still < 3 && ++frames < 90) {
+        window.requestAnimationFrame(look);
+        return;
+      }
+      var header = document.querySelector(".site-header");
+      var line = header ? header.getBoundingClientRect().bottom : 0;
+      var top = label ? Math.min(label.getBoundingClientRect().top, box.top) : box.top;
+      var behavior = reduceMotion ? "auto" : "smooth";
+      if (top < line) {
+        // The label is under the header: it comes down to where the view
+        // begins, if the field still fits below it.
+        var pad = parseFloat(rootStyle.scrollPaddingTop) || 0;
+        if (box.bottom + below - top <= floor - pad) {
+          window.scrollTo({ top: Math.max(0, Math.round(y + top - pad)), behavior: behavior });
+        }
+      } else if (textBox && over > 0) {
+        // A text box's lower edge is below: it rises only as far as keeps
+        // its label clear of the header.
+        var by = Math.floor(Math.min(over, top - line));
+        if (by > 0) window.scrollTo({ top: y + by, behavior: behavior });
+      }
+    };
+    window.requestAnimationFrame(look);
   });
 
   /* ---------- Conditional form rows ---------- */

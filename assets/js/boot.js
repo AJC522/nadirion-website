@@ -15,3 +15,12 @@ document.documentElement.classList.add("js");
     setTimeout(function () { root.remove("is-restoring"); }, 150);
   });
 })();
+
+// If the main script never runs (blocked, or it failed to load), the mark
+// comes off once the page has loaded, so the page reads as it does without
+// script: no menu button that can't open anything, and no search bar that
+// can't search.
+window.addEventListener("load", function () {
+  var root = document.documentElement.classList;
+  if (!root.contains("js-ready")) root.remove("js");
+});

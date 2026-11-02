@@ -2477,6 +2477,16 @@ section.light {
   mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
 }
 .marquee:empty { display: none; }
+/* Until the script runs and fills it, the band keeps its height (its
+   padding and one line of names), so a reload or a step back that returns
+   deep in the page before the script has run lands on the reader's text,
+   not a band's height above it. */
+.js:not(.js-ready) .marquee:empty { display: block; }
+.js:not(.js-ready) .marquee:empty::before {
+  content: "";
+  display: block;
+  height: calc(clamp(1.5rem, 3vw, 2.4rem) * 1.2);
+}
 .marquee-track {
   display: flex;
   width: max-content;

@@ -51,12 +51,18 @@ development are described on the "In Development" page until they go on sale.
 
   Cards lean toward the pointer, and primary buttons pull toward it. Everything that
   moves stops for visitors who prefer reduced motion, and the pages read fully without
-  the script.
+  the script. If `main.js` fails to load, `boot.js` drops the `js` class once the page
+  has loaded (`main.js` marks that it ran with `js-ready`), so the page falls back to
+  that no-script layout instead of offering a menu button or search bar that does
+  nothing.
 
   When the window changes width (a phone turns, a window snaps to half the screen), the
   page keeps the reader on what they were reading, and a glide that was under way to a
   link's destination still arrives there. A reload, or a step back to a page, returns
-  straight to where the reader was instead of gliding down from the top. In a short window,
+  straight to where the reader was instead of gliding down from the top. Where the reader
+  left each of a page's history entries is kept for the tab's session (`sessionStorage`,
+  `nadirion.places:<path>`), so a change of width during a step back or forward, even
+  after a reload, still lands where the browser is going. In a short window,
   such as a phone on its side, the catalog's filter bar stays in the page instead of
   sticking, and the license tray keeps to one row where it fits.
 
@@ -136,4 +142,5 @@ The contact and reseller forms (`form.js-send`) send in one of two ways:
 
 Rows marked `data-show-when="field:value|value"` appear only while that field has one of
 those values; while hidden they are disabled, so their required fields don't block sending.
-A message box reached with the keyboard scrolls fully into view, focus mark included.
+A field reached with the keyboard comes into view with its label clear of the header, and
+a message box comes fully into view, focus mark included, where both fit.
