@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Contact, Quotes &amp; Demos | Nadirion</title>
-  <meta name="description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, get support, ask about the reseller program, or verify a certified reseller." />
+  <meta name="description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, get support, ask about the reseller program, or confirm a reseller ID." />
   <link rel="canonical" href="https://nadirion.us/contact.html" />
   <meta name="theme-color" content="#050506" />
   <meta name="color-scheme" content="dark" />
@@ -15,12 +15,12 @@
   <meta property="og:site_name" content="Nadirion" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="Contact, Quotes &amp; Demos | Nadirion" />
-  <meta property="og:description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, get support, ask about the reseller program, or verify a certified reseller." />
+  <meta property="og:description" content="Request a quote for Nadirion Desktop and add-on modules, book a demo, get support, ask about the reseller program, or confirm a reseller ID." />
   <meta property="og:url" content="https://nadirion.us/contact.html" />
   <meta property="og:image" content="https://nadirion.us/assets/img/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Nadirion: one desktop for the whole operation." />
+  <meta property="og:image:alt" content="Nadirion Desktop: triage and analysis modules in one desktop app." />
   <meta name="twitter:card" content="summary_large_image" />
 
   <link rel="icon" href="favicon.ico" sizes="32x32" />
@@ -43,7 +43,11 @@
           "name": "Nadirion",
           "url": "https://nadirion.us/",
           "logo": "https://nadirion.us/assets/img/icon-512.png",
-          "email": "contact@nadirion.us"
+          "email": "contact@nadirion.us",
+          "founder": {
+            "@type": "Person",
+            "name": "Andrew Cole"
+          }
         },
         {
           "@type": "BreadcrumbList",
@@ -105,9 +109,9 @@
           <p class="eyebrow"><span class="index">&rarr;</span> Get in Touch</p>
           <h1 id="pageTitle">Quotes, demos, and <span class="metal">everything else.</span></h1>
           <p class="page-lede">
-            Request a quote for Nadirion Desktop and the modules you've chosen, book a demo,
-            ask about the reseller program, or learn about what's in development. Choose a topic
-            below so your message reaches the right people.
+            Send the license you've built or request a formal quote, book a demo, ask about the
+            reseller program, or learn about what's in development. Choose a topic below so we
+            know what you need.
           </p>
         </div>
       </div>
@@ -124,7 +128,7 @@
             </div>
             <div>
               <dt>Quotes</dt>
-              <dd>Choose modules in the <a href="modules.html">catalog</a> first, and your selection will be included with your request.</dd>
+              <dd>Choose modules in the <a href="modules.html">catalog</a> first, and your selection and its list-price total are included with your request. Prices are on the <a href="pricing.html#prices">pricing page</a>; purchases for several users, and through resellers, receive a formal quote.</dd>
             </div>
             <div>
               <dt>Resellers</dt>
@@ -132,7 +136,7 @@
             </div>
             <div>
               <dt>Urgent matters</dt>
-              <dd>For a live incident or a preservation deadline, state this in the first line of your message and we will prioritize it.</dd>
+              <dd>If you are using Nadirion Desktop during a live incident or against a preservation deadline, say so in the first line and we will answer it first. Support is available 24/7.</dd>
             </div>
             <div id="security">
               <dt>Security reports</dt>
@@ -157,14 +161,14 @@
             <label for="interest">I'm interested in</label>
             <select id="interest" name="interest">
               <optgroup label="Nadirion Desktop">
-                <option value="quote">A quote for Nadirion Desktop &amp; modules</option>
+                <option value="quote">Buying Nadirion Desktop &amp; modules, or a formal quote</option>
                 <option value="demo">A demo of Nadirion Desktop</option>
                 <option value="modules">Help choosing modules</option>
                 <option value="support">Support for an existing installation</option>
               </optgroup>
               <optgroup label="Resellers">
                 <option value="reseller">The certified reseller program</option>
-                <option value="verify">Verifying a certified reseller</option>
+                <option value="verify">Confirming a reseller ID</option>
               </optgroup>
               <option value="research">New products &amp; services in development</option>
               <option value="other">Something else</option>
@@ -201,7 +205,7 @@
 
           <div class="form-split" data-show-when="interest:quote">
             <div class="form-row">
-              <label for="seats">Seats <span class="optional">(optional)</span></label>
+              <label for="seats">Users <span class="optional">(optional)</span></label>
               <input type="number" id="seats" name="seats" min="1" step="1" inputmode="numeric" placeholder="Number of users" />
             </div>
             <div class="form-row">

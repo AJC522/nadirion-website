@@ -1862,6 +1862,16 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
    stay a plain, fully listed catalog. */
 html:not(.js) .mod-add,
 html:not(.js) .catalog-bar { display: none; }
+/* Modules that come with Nadirion Desktop: a quiet label in the button's place. */
+.mod-add.is-included,
+html:not(.js) .mod-add.is-included {
+  display: inline-flex;
+  border-style: dashed;
+  color: var(--silver-300);
+  font-weight: 500;
+  cursor: default;
+}
+.mod-add.is-included:hover { border-color: var(--line-dark-strong); background: transparent; }
 html:not(.js) .catalog { padding-top: 72px; }
 
 .mod-card.is-preview { background: transparent; border-style: dashed; }

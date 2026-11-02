@@ -2256,11 +2256,23 @@
   var isKnownModule = function (id) {
     return !!(catalog && Object.prototype.hasOwnProperty.call(catalog.modules, id));
   };
-
-  var priceOf = function (id) {
-    if (!catalog) return null;
-    var item = id === "desktop" ? catalog.desktop : catalog.modules[id];
-    return item && typeof item.price === "number" ? item.price : null;
+  var moduleOf = function (id) {
+    return isKnownModule(id) ? catalog.modules[id] : null;
+  };
+  var isAmount = function (value) {
+    return typeof value === "number" && isFinite(value);
+  };
+  // Modules that come with Nadirion Desktop are never added to a license.
+  var isIncluded = function (id) {
+    var mod = moduleOf(id);
+    return !!(mod && mod.tier === "included");
+  };
+  var isPreview = function (id) {
+    var mod = moduleOf(id);
+    return !!(mod && mod.preview);
+  };
+  var displayName = function (id) {
+    return catalog.modules[id].name + (isPreview(id) ? " (Preview)" : "");
   };
 
   var formatPrice = function (amount) {
@@ -2274,24 +2286,94 @@
       return "$" + amount;
     }
   };
+  // Any price still null in catalog.js shows as this visible placeholder.
+  var pendingLabel = function () {
+    return (catalog && catalog.pendingLabel) || "[VERIFY: price]";
+  };
+  var unit = function () { return (catalog && catalog.priceUnit) || "/user/yr"; };
+  var priceText = function (amount) {
+    return (isAmount(amount) ? formatPrice(amount) : pendingLabel()) + unit();
+  };
 
-  // Only priced items get a price on the page; quoted items keep the HTML's own text.
-  document.querySelectorAll("[data-price-for]").forEach(function (el) {
-    var price = priceOf(el.getAttribute("data-price-for"));
-    if (price === null) return;
-    el.textContent = formatPrice(price);
-    el.hidden = false;
-  });
-  document.querySelectorAll("[data-unit-for]").forEach(function (el) {
-    if (priceOf(el.getAttribute("data-unit-for")) === null) return;
-    el.textContent = catalog.priceUnit || "";
-  });
+  // One add-on's annual price per user, or null while it is unset.
+  var modulePrice = function (id) {
+    var mod = moduleOf(id);
+    if (!mod) return null;
+    if (mod.tier === "included") return 0;
+    // Preview modules keep their tier price here; their discount applies only
+    // to some customers, so it is applied on the quote.
+    var tier = catalog.tiers && catalog.tiers[mod.tier];
+    return tier && isAmount(tier.price) ? tier.price : null;
+  };
+  var previewNote = function () {
+    return catalog.preview && catalog.preview.note ? catalog.preview.note : pendingLabel();
+  };
+
+  // The license's annual price per user: Nadirion Desktop plus each add-on.
+  // Null while any price it needs is unset, so nothing is totalled from a guess.
+  var licenseTotal = function (list) {
+    var total = catalog.desktop && isAmount(catalog.desktop.price) ? catalog.desktop.price : null;
+    if (total === null) return null;
+    for (var i = 0; i < list.length; i++) {
+      var price = modulePrice(list[i]);
+      if (price === null) return null;
+      total += price;
+    }
+    return total;
+  };
+
+  // Price labels on the module cards, e.g. "Premium · $100/user/yr".
+  var cardPriceText = function (id) {
+    var mod = moduleOf(id);
+    if (!mod || !catalog.tiers[mod.tier]) return "";
+    if (mod.tier === "included") return catalog.tiers.included.name;
+    if (mod.preview) return "Preview \u00b7 " + priceText(modulePrice(id));
+    return catalog.tiers[mod.tier].name + " · " + priceText(modulePrice(id));
+  };
+
+  // Labels in the price list: [data-list-price="desktop" | "tier:<name>" | "preview"].
+  var listPriceText = function (key) {
+    if (key === "desktop") return priceText(catalog.desktop && catalog.desktop.price);
+    var parts = key.split(":");
+    if (parts[0] === "tier" && catalog.tiers[parts[1]]) return priceText(catalog.tiers[parts[1]].price);
+    if (parts[0] === "preview") return previewNote();
+    return null;
+  };
+
+  if (catalog) {
+    document.querySelectorAll(".mod-price[data-price-for]").forEach(function (el) {
+      var text = cardPriceText(el.getAttribute("data-price-for"));
+      if (!text) return;
+      el.textContent = text;
+      el.hidden = false;
+    });
+    document.querySelectorAll("[data-list-price]").forEach(function (el) {
+      var text = listPriceText(el.getAttribute("data-list-price"));
+      if (text !== null) el.textContent = text;
+    });
+    // Preview modules carry a "Preview" tag on their catalog card.
+    document.querySelectorAll(".mod-add[data-module]").forEach(function (button) {
+      var id = button.getAttribute("data-module");
+      var tags = button.closest(".mod-card") && button.closest(".mod-card").querySelector(".mod-tags");
+      if (!isPreview(id) || !tags) return;
+      var tag = document.createElement("li");
+      tag.textContent = "Preview";
+      tags.insertBefore(tag, tags.firstChild);
+    });
+  }
 
   // The selection lives in localStorage so it survives the walk from the
   // catalog to the quote form. Storage can be missing or throw (private
   // windows, blocked site data), so an in-memory copy backs it up.
   var LICENSE_KEY = "nadirion.license.modules";
   var memorySelection = [];
+
+  // Only add-ons belong in a selection; included modules come with the desktop.
+  var cleanSelection = function (list) {
+    return list.filter(function (id, index) {
+      return isKnownModule(id) && !isIncluded(id) && list.indexOf(id) === index;
+    });
+  };
 
   var readSelection = function () {
     var list = memorySelection;
@@ -2300,9 +2382,7 @@
       if (raw) list = JSON.parse(raw);
     } catch (e) { /* fall back to memory */ }
     if (!Array.isArray(list)) return [];
-    return list.filter(function (id, index) {
-      return isKnownModule(id) && list.indexOf(id) === index;
-    });
+    return cleanSelection(list);
   };
 
   var writeSelection = function (list) {
@@ -2310,17 +2390,6 @@
     try {
       window.localStorage.setItem(LICENSE_KEY, JSON.stringify(list));
     } catch (e) { /* memory copy is enough for this page */ }
-  };
-
-  var licenseTotal = function (list) {
-    var total = priceOf("desktop");
-    if (total === null) return null;
-    for (var i = 0; i < list.length; i++) {
-      var price = priceOf(list[i]);
-      if (price === null) return null;
-      total += price;
-    }
-    return total;
   };
 
   var quoteHref = function (list) {
@@ -2336,11 +2405,7 @@
   // A quote link from the catalog carries the selection in the URL too, in
   // case storage was unavailable there.
   if (catalog && params.has("modules")) {
-    writeSelection(
-      params.get("modules").split(",").filter(function (id, index, all) {
-        return isKnownModule(id) && all.indexOf(id) === index;
-      })
-    );
+    writeSelection(cleanSelection(params.get("modules").split(",")));
   }
 
   /* ---------- Module catalog: add to license ---------- */
@@ -2443,11 +2508,11 @@
       }
     }
     trayLastCount = selected.length;
+    // The running total: Nadirion Desktop plus every add-on chosen.
     var totalEl = document.getElementById("trayTotal");
     if (totalEl) {
-      var total = licenseTotal(selected);
-      totalEl.hidden = total === null;
-      if (total !== null) totalEl.textContent = formatPrice(total) + " " + (catalog.priceUnit || "");
+      totalEl.hidden = false;
+      totalEl.textContent = priceText(licenseTotal(selected));
     }
     var cta = document.getElementById("trayCta");
     if (cta) cta.setAttribute("href", quoteHref(selected));
@@ -2908,6 +2973,28 @@
     ], { duration: 360, easing: COMMERCE_EASE, fill: "forwards" });
   };
 
+  var seatsField = document.getElementById("seats");
+  var seatCount = function () {
+    var n = seatsField ? parseInt(seatsField.value, 10) : NaN;
+    return n > 0 ? n : 1;
+  };
+
+  // The list-price total for the license being quoted, in words.
+  var quoteTotalText = function (selected) {
+    var users = seatCount();
+    var total = licenseTotal(selected);
+    var text = "List price: " + priceText(total);
+    if (users > 1) {
+      text += " \u00d7 " + users + " users";
+      if (isAmount(total)) text += " = " + formatPrice(total * users) + "/yr";
+    }
+    text += ".";
+    if (selected.some(isPreview)) {
+      text += " Preview modules are " + previewNote() + "; if that includes you, the discount is applied on your quote.";
+    }
+    return text + " Purchases for several users, and through resellers, receive a formal quote.";
+  };
+
   var renderQuote = function (focusAt) {
     if (!quoteItems || !catalog) return;
     var selected = readSelection();
@@ -2921,12 +3008,13 @@
     quoteItems.appendChild(base);
 
     selected.forEach(function (id, n) {
+      var name = displayName(id);
       var item = document.createElement("li");
-      item.appendChild(document.createTextNode(catalog.modules[id].name));
+      item.appendChild(document.createTextNode(name));
       var remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "×";
-      remove.setAttribute("aria-label", "Remove " + catalog.modules[id].name);
+      remove.setAttribute("aria-label", "Remove " + name);
       remove.addEventListener("click", function () {
         if (item.classList.contains("is-leaving")) return;
         writeSelection(readSelection().filter(function (other) { return other !== id; }));
@@ -2955,20 +3043,23 @@
 
     var totalEl = document.getElementById("quoteTotal");
     if (totalEl) {
-      var total = licenseTotal(selected);
-      totalEl.hidden = total === null;
-      if (total !== null) {
-        totalEl.textContent = "List price: " + formatPrice(total) + " " + (catalog.priceUnit || "");
-      }
+      totalEl.hidden = false;
+      totalEl.textContent = quoteTotalText(selected);
     }
 
     var field = document.getElementById("quoteModules");
     if (field) {
-      field.value = [catalog.desktop.name].concat(
-        selected.map(function (id) { return catalog.modules[id].name; })
-      ).join(", ");
+      field.value = [catalog.desktop.name].concat(selected.map(displayName)).join(", ");
     }
   };
+
+  // The total follows the number of users as it is typed.
+  if (seatsField && quoteItems) {
+    seatsField.addEventListener("input", function () {
+      var totalEl = document.getElementById("quoteTotal");
+      if (totalEl && catalog) totalEl.textContent = quoteTotalText(readSelection());
+    });
+  }
 
   renderQuote();
   syncConditionalRows();

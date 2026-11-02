@@ -35,6 +35,7 @@ ORG = {
     "url": ORIGIN,
     "logo": ORIGIN + "assets/img/icon-512.png",
     "email": "contact@nadirion.us",
+    "founder": {"@type": "Person", "name": "Andrew Cole"},
 }
 
 
@@ -124,7 +125,7 @@ def build_head(name, title, description, ld):
   <meta property="og:image" content="{ORIGIN}assets/img/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Nadirion: one desktop for the whole operation." />
+  <meta property="og:image:alt" content="Nadirion Desktop: triage and analysis modules in one desktop app." />
   <meta name="twitter:card" content="summary_large_image" />
 
   <link rel="icon" href="favicon.ico" sizes="32x32" />

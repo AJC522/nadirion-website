@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Nadirion Desktop | Launcher, Console &amp; Knowledge Base</title>
-  <meta name="description" content="Nadirion Desktop, formerly the Threat Operations Toolset: launcher, Command Console, and Knowledge Base for Windows, macOS, and Linux, with verified updates." />
+  <meta name="description" content="Nadirion Desktop, formerly the Threat Operations Toolset: launcher, Command Console, and Knowledge Base for Windows, macOS, and Linux, with SHA-256-checked updates. $150 per user per year, with 12 modules included." />
   <link rel="canonical" href="https://nadirion.us/desktop.html" />
   <meta name="theme-color" content="#050506" />
   <meta name="color-scheme" content="dark" />
@@ -15,12 +15,12 @@
   <meta property="og:site_name" content="Nadirion" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="Nadirion Desktop | Launcher, Console &amp; Knowledge Base" />
-  <meta property="og:description" content="Nadirion Desktop, formerly the Threat Operations Toolset: launcher, Command Console, and Knowledge Base for Windows, macOS, and Linux, with verified updates." />
+  <meta property="og:description" content="Nadirion Desktop, formerly the Threat Operations Toolset: launcher, Command Console, and Knowledge Base for Windows, macOS, and Linux, with SHA-256-checked updates. $150 per user per year, with 12 modules included." />
   <meta property="og:url" content="https://nadirion.us/desktop.html" />
   <meta property="og:image" content="https://nadirion.us/assets/img/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Nadirion: one desktop for the whole operation." />
+  <meta property="og:image:alt" content="Nadirion Desktop: triage and analysis modules in one desktop app." />
   <meta name="twitter:card" content="summary_large_image" />
 
   <link rel="icon" href="favicon.ico" sizes="32x32" />
@@ -43,7 +43,11 @@
           "name": "Nadirion",
           "url": "https://nadirion.us/",
           "logo": "https://nadirion.us/assets/img/icon-512.png",
-          "email": "contact@nadirion.us"
+          "email": "contact@nadirion.us",
+          "founder": {
+            "@type": "Person",
+            "name": "Andrew Cole"
+          }
         },
         {
           "@type": "SoftwareApplication",
@@ -51,7 +55,7 @@
           "applicationCategory": "SecurityApplication",
           "alternateName": "Threat Operations Toolset",
           "operatingSystem": "Windows, macOS, Linux",
-          "description": "Nadirion Desktop, formerly the Threat Operations Toolset: launcher, Command Console, and Knowledge Base for Windows, macOS, and Linux, with verified updates.",
+          "description": "Nadirion Desktop, formerly the Threat Operations Toolset: launcher, Command Console, and Knowledge Base for Windows, macOS, and Linux, with SHA-256-checked updates. $150 per user per year, with 12 modules included.",
           "url": "https://nadirion.us/desktop.html",
           "publisher": {
             "@id": "https://nadirion.us/#organization"
@@ -115,11 +119,12 @@
             </ol>
           </nav>
           <p class="eyebrow"><span class="index">&rarr;</span> The Platform</p>
-          <h1 id="pageTitle">Nadirion Desktop: <span class="metal">one application, every module.</span></h1>
+          <h1 id="pageTitle">Nadirion Desktop: <span class="metal">the app your modules run in.</span></h1>
           <p class="page-lede">
-            Nadirion Desktop is the foundation of every license. A single launcher hosts the
-            modules you choose, a keyboard-driven console runs them by name, and settings,
-            in-app guidance, and verified updates tie everything together. It was previously
+            Nadirion Desktop is the base application every module runs in: a launcher, a
+            keyboard-driven console that runs modules by name, in-app guidance, settings, and
+            in-place updates checked against a SHA-256 hash. It is $150 per user per year and
+            includes the four Triage modules and the eight Host Utilities. It was previously
             released as the Threat Operations Toolset.
           </p>
           <div class="hero-actions">
@@ -148,9 +153,9 @@
     <section class="stat-strip" aria-label="Nadirion Desktop at a glance">
       <div class="wrap stat-row">
         <div class="stat"><strong>03</strong><span>Platforms, each with its own native package</span></div>
-        <div class="stat"><strong>33</strong><span>Add-on modules it can host</span></div>
+        <div class="stat"><strong>33</strong><span>Modules it can host; 12 come with it</span></div>
         <div class="stat"><strong>Ctrl + F</strong><span>Search modules by what they do</span></div>
-        <div class="stat"><strong>SHA-256</strong><span>Verified on every in-place update</span></div>
+        <div class="stat"><strong>SHA-256</strong><span>Hash checked before an update is applied</span></div>
       </div>
     </section>
 
@@ -163,7 +168,8 @@
           </div>
           <p class="section-lede">
             These are included with Nadirion Desktop, regardless of which add-on modules you
-            choose. Every module relies on them.
+            choose, and every module relies on them. So are the four Triage modules and the
+            eight Host Utilities.
           </p>
         </div>
 
@@ -206,7 +212,7 @@
             <span class="module-index">D-06</span>
             <div class="module-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div>
             <h3>Module health &amp; updates</h3>
-            <p>Per-module dependency checks with clear remediation steps (press F5 to re-check), and in-place updates verified by SHA-256 before they are applied.</p>
+            <p>Per-module dependency checks with remediation steps (press F5 to re-check), and in-place updates checked against a SHA-256 hash before they are applied.</p>
           </article>
         </div>
       </div>
@@ -248,7 +254,7 @@
               <p>A module's window and its console command share a single engine, so results are consistent either way.</p>
             </div>
             <div class="point">
-              <h3>Safe by default</h3>
+              <h3>Changes need confirmation</h3>
               <p>Shell-style commands are emulations that never spawn a real shell. Anything that changes a host requires <code>--yes</code>, and real shell passthrough stays off until you enable it.</p>
             </div>
             <div class="point">
@@ -268,8 +274,9 @@
             <h2 id="addonsTitle">How the modules fit in</h2>
           </div>
           <p class="section-lede">
-            Modules are sold individually, but they are built to work together in the same
-            launcher and pass results to one another.
+            Add-on modules are $50 each per user per year, or $100 for Premium modules. They
+            share the launcher and console; a few pass results directly to one another, and the
+            rest export JSON or CSV.
           </p>
         </div>
         <div class="sector-grid">
@@ -283,10 +290,10 @@
           </div>
           <div class="sector">
             <h3>Add any time</h3>
-            <p>Start with the module your work needs today, and add more to the same license as your needs change.</p>
+            <p>Start with the module your work needs today, and add more to the same subscription later.</p>
           </div>
         </div>
-        <p class="fine-print"><a href="modules.html">Browse all 33 modules</a>, with a description and platform notes for each.</p>
+        <p class="fine-print"><a href="modules.html">Browse all 33 modules</a>, with a description, main limitation, and price for each.</p>
       </div>
     </section>
 
@@ -295,7 +302,7 @@
         <div class="section-head split">
           <div>
             <p class="eyebrow"><span class="index">04</span> Install</p>
-            <h2 id="platformsTitle">Runs where your analysts work</h2>
+            <h2 id="platformsTitle">Packages and platforms</h2>
           </div>
           <p class="section-lede">
             A native package for each desktop platform, with no Python installation or other
@@ -308,9 +315,9 @@
               <tr><th scope="col">Platform</th><th scope="col">Package</th><th scope="col">Installs as</th><th scope="col">Updates</th></tr>
             </thead>
             <tbody>
-              <tr><td><strong>WINDOWS</strong></td><td>Setup wizard (.exe), x86_64</td><td>Per-user installation with no administrator rights required; Desktop and Start menu shortcuts</td><td>In place, SHA-256 verified</td></tr>
-              <tr><td><strong>MACOS</strong></td><td>Disk image (.dmg), x86_64</td><td>Drag to Applications</td><td>In place for the standalone binary, SHA-256 verified; the app bundle updates by downloading the new .dmg</td></tr>
-              <tr><td><strong>LINUX</strong></td><td>Archive (.tar.gz), x86_64</td><td>Install script places it in ~/.local/bin with an application-menu launcher</td><td>In place, SHA-256 verified</td></tr>
+              <tr><td><strong>WINDOWS</strong></td><td>Setup wizard (.exe), x86_64</td><td>Per-user installation with no administrator rights required; Desktop and Start menu shortcuts</td><td>In place, checked against a SHA-256 hash</td></tr>
+              <tr><td><strong>MACOS</strong></td><td>Disk image (.dmg), x86_64</td><td>Drag to Applications</td><td>In place for the standalone binary, checked against a SHA-256 hash; the app bundle updates by downloading the new .dmg</td></tr>
+              <tr><td><strong>LINUX</strong></td><td>Archive (.tar.gz), x86_64</td><td>Install script places it in ~/.local/bin with an application-menu launcher</td><td>In place, checked against a SHA-256 hash</td></tr>
             </tbody>
           </table>
         </div>
@@ -324,12 +331,12 @@
             <p>Day-to-day use runs under a standard user account. Modules that write entire drives or change the firewall, such as USB ISO Burner and Secure Host, require Nadirion Desktop to be run as an administrator (or with sudo).</p>
           </div>
           <div class="spec-note">
-            <h4>Your data stays under your control</h4>
-            <p>Settings and caches are stored in a per-user folder on the workstation, and IOC Vault keeps its encrypted database wherever you choose, such as a team share. API keys are stored in the operating system's keyring.</p>
+            <h4>Where your data lives</h4>
+            <p>Settings and caches are stored in a per-user folder on the workstation. IOC Vault keeps its database, encrypted with AES-256-GCM, wherever you choose, such as a team share. API keys are stored in the operating system's keyring.</p>
           </div>
           <div class="spec-note">
             <h4>Platform notes</h4>
-            <p>Some modules read Windows-specific artifacts or behave differently by platform. Each module's catalog entry notes these differences.</p>
+            <p>Several forensic modules read Windows-only artifacts, such as registry hives, Prefetch, and event logs, and a few are best-effort on macOS. Each module's catalog entry notes its platform limits.</p>
           </div>
         </div>
       </div>
