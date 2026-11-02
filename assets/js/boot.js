@@ -17,9 +17,17 @@ document.documentElement.classList.add("js");
 })();
 
 // If the main script never runs (blocked, or it failed to load), the mark
-// comes off once the page has loaded, so the page reads as it does without
-// script: no menu button that can't open anything, and no search bar that
-// can't search.
+// comes off, so the page reads as it does without script: no menu button
+// that can't open anything, and no search bar that can't search. It comes
+// off as soon as the script fails to load, before the page is drawn where
+// possible, so the layout doesn't change under the reader later; failing
+// that (a script that loads but stops early), once the page has loaded.
+window.addEventListener("error", function (event) {
+  var el = event.target;
+  if (el && el.tagName === "SCRIPT" && /\/assets\/js\/main\.js(\?|$)/.test(el.src)) {
+    document.documentElement.classList.remove("js");
+  }
+}, true);
 window.addEventListener("load", function () {
   var root = document.documentElement.classList;
   if (!root.contains("js-ready")) root.remove("js");

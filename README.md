@@ -51,10 +51,10 @@ development are described on the "In Development" page until they go on sale.
 
   Cards lean toward the pointer, and primary buttons pull toward it. Everything that
   moves stops for visitors who prefer reduced motion, and the pages read fully without
-  the script. If `main.js` fails to load, `boot.js` drops the `js` class once the page
-  has loaded (`main.js` marks that it ran with `js-ready`), so the page falls back to
-  that no-script layout instead of offering a menu button or search bar that does
-  nothing.
+  the script. If `main.js` fails to load, `boot.js` drops the `js` class as soon as it
+  fails, or at the latest once the page has loaded (`main.js` marks that it ran with
+  `js-ready`), so the page falls back to that no-script layout instead of offering a
+  menu button or search bar that does nothing.
 
   When the window changes width (a phone turns, a window snaps to half the screen), the
   page keeps the reader on what they were reading, and a glide that was under way to a
@@ -142,5 +142,5 @@ The contact and reseller forms (`form.js-send`) send in one of two ways:
 
 Rows marked `data-show-when="field:value|value"` appear only while that field has one of
 those values; while hidden they are disabled, so their required fields don't block sending.
-A field reached with the keyboard comes into view with its label clear of the header, and
-a message box comes fully into view, focus mark included, where both fit.
+A field reached with the keyboard comes into view in one move, whole and with its focus
+mark, and with its label clear of the header, where both fit.
