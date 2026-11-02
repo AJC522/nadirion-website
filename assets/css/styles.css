@@ -1907,8 +1907,10 @@ section.light .block-tag { border-color: var(--line-light); color: var(--silver-
 /* Building a license and filtering need the script; without it the cards
    stay a plain, fully listed catalog. */
 html:not(.js) .mod-add,
-html.no-catalog .mod-add,
 html:not(.js) .catalog-bar { display: none; }
+/* Without the catalog's data, set by the script after the page may already
+   be drawn: the buttons go but keep their room, so nothing moves. */
+html.no-catalog .mod-add { visibility: hidden; }
 html:not(.js) .catalog { padding-top: 72px; }
 
 .mod-card.is-preview { background: transparent; border-style: dashed; }

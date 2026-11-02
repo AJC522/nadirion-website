@@ -32,3 +32,17 @@ window.addEventListener("load", function () {
   var root = document.documentElement.classList;
   if (!root.contains("js-ready")) root.remove("js");
 });
+
+// The contact and reseller forms send only through main.js. While it is
+// still on its way (a stalled connection), or if it stopped before reaching
+// them, the browser would send the form the plain way: the page reloads with
+// every field in its address and nothing is sent. So that send is held back,
+// and the form says where to write instead.
+document.addEventListener("submit", function (event) {
+  var form = event.target;
+  if (!form || !form.classList || !form.classList.contains("js-send") || form.nadirionSends) return;
+  event.preventDefault();
+  var status = form.querySelector(".form-status");
+  var note = form.parentNode && form.parentNode.querySelector(".form-fallback");
+  if (status && note) status.textContent = note.textContent;
+}, true);

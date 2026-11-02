@@ -61,7 +61,8 @@ development are described on the "In Development" page until they go on sale.
   When the window changes width (a phone turns, a window snaps to half the screen), the
   page keeps the reader on what they were reading, and a glide that was under way to a
   link's destination still arrives there. A reload, or a step back to a page, returns
-  straight to where the reader was instead of gliding down from the top. Where the reader
+  straight to where the reader was instead of gliding down from the top, and what is in
+  view there is drawn as it was, without playing its entrance again. Where the reader
   left each of a page's history entries is kept for the tab's session (`sessionStorage`,
   `nadirion.places:<path>`), so a change of width during a step back or forward, even
   after a reload, still lands where the browser is going. In a short window,
@@ -144,7 +145,8 @@ The contact and reseller forms (`form.js-send`) send in one of two ways:
 
 The forms send only through `main.js`. Without it (scripts off, or the file failed to
 load) each form is hidden and a `.form-fallback` note with the email address shows in its
-place, so nothing is submitted into the page's address.
+place, so nothing is submitted into the page's address. A send made while `main.js` is
+still loading is held back by `boot.js`, and the form shows the same note.
 
 Rows marked `data-show-when="field:value|value"` appear only while that field has one of
 those values; while hidden they are disabled, so their required fields don't block sending.

@@ -218,7 +218,11 @@
         if (from) leaveEntry(from);
         historyStep = e.navigationType === "traverse";
         stepTo = historyStep && e.destination ? e.destination.key : null;
-        if (stepTo && !leftAt[stepTo]) {
+        // The entry's own state is written only by the page that owns the
+        // entry, as it leaves it. The tab's copy can be overwritten by an
+        // older copy of the same page leaving its own entry, so the entry's
+        // state comes first.
+        if (stepTo) {
           var entryState = null;
           try { entryState = e.destination.getState(); } catch (err) { entryState = null; }
           if (entryState && entryState.place) leftAt[stepTo] = entryState.place;
@@ -628,7 +632,21 @@
     window.setTimeout(next, delay + 450);
   };
 
-  if (motionOK) document.querySelectorAll(".console").forEach(prepareConsole);
+  // Coming back by a reload or a step back or forward, the browser has
+  // already drawn the page where the reader was, so what is in view there
+  // stays as drawn: it neither vanishes for its entrance nor plays it again
+  // (figures counting up from 00, a console emptied and typed again, a
+  // label scrambled).
+  var restoring = document.documentElement.classList.contains("is-restoring");
+  var inViewNow = function (el) {
+    var box = el.getBoundingClientRect();
+    return box.bottom > 0 && box.top < window.innerHeight && box.width > 0;
+  };
+  var keptDrawn = [];
+  var drawnAlready = function (node) {
+    for (var i = 0; i < keptDrawn.length; i++) if (keptDrawn[i].contains(node)) return true;
+    return false;
+  };
 
   /* ---------- Reveal on scroll ---------- */
   var revealTargets = document.querySelectorAll(
@@ -650,17 +668,17 @@
     try {
       if (window.location.hash.length > 1) fragmentTarget = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
     } catch (e) { /* a malformed fragment names nothing */ }
-    // Coming back by a reload or a step back or forward, the browser has
-    // already drawn the page where the reader was, so what is in view there
-    // stays as drawn instead of vanishing for its entrance.
-    var restoring = document.documentElement.classList.contains("is-restoring");
     revealTargets.forEach(function (el) {
       if (fragmentTarget && el.contains(fragmentTarget)) return;
-      if (restoring) {
-        var box = el.getBoundingClientRect();
-        if (box.bottom > 0 && box.top < window.innerHeight && box.width > 0) return;
+      if (restoring && inViewNow(el)) {
+        el.classList.add("is-visible");
+        keptDrawn.push(el);
+        return;
       }
       el.classList.add("reveal");
+    });
+    document.querySelectorAll(".console").forEach(function (el) {
+      if (keptDrawn.indexOf(el) === -1) prepareConsole(el);
     });
 
     // Once an item has settled it drops .reveal, so the item's own hover
@@ -702,7 +720,9 @@
       },
       { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }
     );
-    revealTargets.forEach(function (el) { revealObserver.observe(el); });
+    revealTargets.forEach(function (el) {
+      if (keptDrawn.indexOf(el) === -1) revealObserver.observe(el);
+    });
 
     // Keyboard focus can bring an item only just into view, inside the strip
     // at the bottom the observer leaves out, so focus reveals it as well.
@@ -2095,7 +2115,14 @@
     );
     document.querySelectorAll(".type-label").forEach(function (label) {
       if (label.closest(".reveal, .type-host")) return;
-      scrambleLabel(label);
+      if (drawnAlready(label) || (restoring && inViewNow(label))) {
+        label.typeStarted = true;
+        label.classList.add("is-decrypted");
+        return;
+      }
+      // Noise at once: a label left empty for a frame would collapse, and
+      // everything under it would jump.
+      renderLabel(scrambleLabel(label), 0);
       typeLabelObserver.observe(label);
     });
   }
@@ -3113,18 +3140,20 @@
   var catalogEmpty = document.getElementById("catalogEmpty");
   var activeFilter = "all";
 
+  var searchTerms = function () {
+    return (catalogSearch ? catalogSearch.value : "").toLowerCase().split(/\s+/).filter(Boolean);
+  };
+  var cardListed = function (card, terms) {
+    var haystack = (card.textContent + " " + (card.getAttribute("data-aliases") || "")).toLowerCase();
+    var inCategory = activeFilter === "all" || card.getAttribute("data-category") === activeFilter;
+    return inCategory && terms.every(function (term) { return haystack.indexOf(term) !== -1; });
+  };
   var applyFilter = function () {
-    var terms = (catalogSearch ? catalogSearch.value : "")
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(Boolean);
+    var terms = searchTerms();
     var shown = 0;
 
     modCards.forEach(function (card) {
-      var haystack = (card.textContent + " " + (card.getAttribute("data-aliases") || "")).toLowerCase();
-      var inCategory = activeFilter === "all" || card.getAttribute("data-category") === activeFilter;
-      var matches = terms.every(function (term) { return haystack.indexOf(term) !== -1; });
-      card.hidden = !(inCategory && matches);
+      card.hidden = !cardListed(card, terms);
       if (!card.hidden) shown++;
     });
 
@@ -3311,12 +3340,16 @@
       if (top === null || y <= top + 1) searchGlide = false;
     });
   }
+  // Counted, so a search held back for a frame or two knows whether the
+  // reader took the page over in the meantime.
+  var searchDisarms = 0;
   ["wheel", "touchstart", "pointerdown"].forEach(function (type) {
-    window.addEventListener(type, function () { searchGlide = false; }, { passive: true });
+    window.addEventListener(type, function () { searchGlide = false; searchDisarms++; }, { passive: true });
   });
   window.addEventListener("keydown", function (event) {
     if (event.target !== catalogSearch || /^(Tab|PageUp|PageDown)$/.test(event.key)) {
       searchGlide = false;
+      searchDisarms++;
     }
   });
   // A change that leaves the list shorter than the point the page had
@@ -3611,7 +3644,50 @@
     });
 
     if (catalogSearch) {
-      catalogSearch.addEventListener("input", function () { refilter(false); });
+      // A key that narrows the list while the page is still moving: the
+      // browser would carry that move on past the shorter list's end, up
+      // into the hero. So the move stops first, and the list changes two
+      // frames later, once the browser has let go of it; the search's own
+      // glide then carries on from where it stopped.
+      var pendingFilter = false;
+      var lastMoveAt = -1e9;
+      scrollHooks.push(function (y, dy) { if (dy) lastMoveAt = window.performance.now(); });
+      var narrows = function () {
+        var terms = searchTerms();
+        var now = 0;
+        var next = 0;
+        modCards.forEach(function (card) {
+          if (!card.hidden) now++;
+          if (cardListed(card, terms)) next++;
+        });
+        return next < now;
+      };
+      catalogSearch.addEventListener("input", function () {
+        if (pendingFilter) return;
+        if ((searchGlide || window.performance.now() - lastMoveAt < 100) && narrows()) {
+          var gliding = searchGlide;
+          var disarms = searchDisarms;
+          var root = document.documentElement;
+          searchGlide = false;
+          root.style.setProperty("scroll-behavior", "auto");
+          window.scrollTo(0, window.scrollY);
+          root.style.removeProperty("scroll-behavior");
+          pendingFilter = true;
+          window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () {
+              pendingFilter = false;
+              if (gliding && disarms === searchDisarms) searchGlide = true;
+              refilter(false);
+              if (gliding && searchGlide && !atCatalogTop()) {
+                searchAims = 0;
+                settleAtCatalogTop();
+              }
+            });
+          });
+          return;
+        }
+        refilter(false);
+      });
       catalogSearch.addEventListener("keydown", function (event) {
         if (event.key === "Escape" || event.key === "Esc") {
           // Nothing to clear: the reader stays where they are.
@@ -3793,7 +3869,33 @@
     ], { duration: 360, easing: COMMERCE_EASE, fill: "forwards" });
   };
 
+  // Without the catalog's data (catalog.js didn't load) the modules can't be
+  // named or priced, but the license being built is still listed by id and
+  // sent with the request, rather than left out.
+  var renderQuoteIds = function () {
+    var ids = [];
+    try { ids = JSON.parse(window.localStorage.getItem(LICENSE_KEY) || "[]"); } catch (e) { ids = []; }
+    if (!Array.isArray(ids) || !ids.length) ids = (params.get("modules") || "").split(",");
+    ids = ids.filter(function (id, i) {
+      return typeof id === "string" && /^[a-z0-9_-]{1,40}$/.test(id) && ids.indexOf(id) === i;
+    });
+    if (!ids.length) return;
+    ids.forEach(function (id) {
+      var item = document.createElement("li");
+      item.textContent = id;
+      quoteItems.appendChild(item);
+    });
+    var empty = document.getElementById("quoteEmpty");
+    if (empty) empty.hidden = true;
+    var field = document.getElementById("quoteModules");
+    if (field) field.value += ", modules: " + ids.join(", ");
+  };
+
   var renderQuote = function (focusAt) {
+    if (quoteItems && !catalog && quoteShown === null) {
+      quoteShown = [];
+      renderQuoteIds();
+    }
     if (!quoteItems || !catalog) return;
     var selected = readSelection();
     var first = quoteShown === null;
@@ -3929,6 +4031,8 @@
       ], { duration: 420, easing: COMMERCE_EASE });
     };
 
+    // boot.js holds back a send that nothing would handle; this form is.
+    formEl.nadirionSends = true;
     formEl.addEventListener("submit", function (event) {
       event.preventDefault();
 
